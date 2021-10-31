@@ -1,3 +1,7 @@
+//Zac Caffey and Cameron Ley
+//CS 4301
+//Compiler Stage 0
+
 #include <fstream>
 #include <ostream>
 #include <string>
