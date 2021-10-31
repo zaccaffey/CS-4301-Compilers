@@ -1,24 +1,25 @@
 #include <fstream>
 #include <ostream>
+#include <string>
 #include <ctime>
 #include "stage0main.C"
 
 
-Compiler(char **argv) // constructor
+Compiler(char **argv) // constructor - Z
 {
- sourceFile.open(argv[1]);
- listingFile.open(argv[2]);
- objectFile.open(argv[3]);
+    sourceFile.open(argv[1]);
+    listingFile.open(argv[2]);
+    objectFile.open(argv[3]);
 }
 
-~Compiler() // destructor
+~Compiler() // destructor - Z
 {
- sourceFile.close();
- listingFile.close();
- objectFile.close();
+    sourceFile.close();
+    listingFile.close();
+    objectFile.close();
 }
 
-void createListingHeader()
+void createListingHeader() // - Z (needs to be formatted)
 {
 	time_t now = time(0);
 	char* time = ctime(&now);
@@ -44,75 +45,88 @@ prog()
  //parser implements the grammar rules, calling first rule
 }
 
-void createListingTrailer()
+void createListingTrailer() // - Z
 {
- cout << "COMPILATION TERMINATED, # ERRORS ENCOUNTERED" << endl;
-}
-void processError(string err)
-{
- ofstream cout("error has occured");
- exit(0);
+    cout << "COMPILATION TERMINATED, # ERRORS ENCOUNTERED" << endl;
 }
 
-void prog() //token should be "program"
+void processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message)
 {
- if (token != "program")
- processError(keyword "program" expected)
- progStmt()
- if (token == "const")
- consts()
- if (token == "var")
- vars()
- if (token != "begin")
- processError(keyword "begin" expected)
- beginEndStmt()
- if (token != END_OF_FILE)
- processError(no text may follow "end”)
+    ofstream cout("error has occured");
+    exit(0);
 }
 
-void progStmt() //token should be program
+void prog()  //token should be "program" - C
 {
- string x
- if (token != "program")
- processError(keyword "program" expected)
- x = NextToken()
- if (token is not a NON_KEY_ID)
- processError(program name expected)
- if (nextToken() != ";")
- processError(semicolon expected)
- nextToken()
- code("program", x)
- insert(x,PROG_NAME,CONSTANT,x,NO,0)
+
+    if (token != "program") 
+		processError("keyword \"program\" expected");
+    progStmt(); 
+    if (token == "const") 
+        consts(); 
+    if (token == "var") 
+        vars(); 
+    if (token != "begin") 
+	 	processError("keyword \"begin\" expected");
+    beginEndStmt();
+    if (token != END_OF_FILE) 
+		processError("no text may follow \"end\”");
+} 
+
+void progStmt()  //token should be "program" - C
+{   
+  string x = "";
+  if (token != "program") 
+	  processError("keyword \"program\" expected");
+  //Initialize so that we don't mess up nextToken
+  x = NextToken(); 
+  if (!isNonKeyId(x)) 
+		processError("program name expected");
+  if (x != ";") 
+		processError("semicolon expected");
+	// Going to check this one too -C
+  x = nextToken(); 
+	// Not Sure about this one -C
+  code("program", x);
+	// Not Sure about this one -C 
+  insert(x,PROG_NAME,CONSTANT,x,NO,0);
 }
 
-void consts() //token should be "const"
-{
- if (token != "const")
- processError(keyword "const" expected)
- if (nextToken() is not a NON_KEY_ID)
- processError(non-keyword identifier must follow "const")
- constStmts()
+void consts()  //token should be "const" - C
+{   
+	if (token != "const") 
+		processError("keyword \"const\" expected");
+	//Initialize so that we don't mess up nextToken
+	string x = NextToken(); 
+	if (!isNonKeyId(x)) 
+		processError("non-keyword identifier must follow \"const\"");
+	constStmts();
+} 
+
+void vars()  //token should be "var" - C
+{   
+    if (token != "var") 
+		processError("keyword \"var\" expected");
+	//Initialize so that we don't mess up nextToken
+    string x = NextToken(); 
+    if (!isNonKeyId(x))  
+		processError("non-keyword identifier must follow \"var\"");
+    varStmts();
 }
 
-void vars() //token should be "var"
-{
- if (token != "var")
- processError(keyword "var" expected)
- if (nextToken() is not a NON_KEY_ID)
- processError(non-keyword identifier must follow "var")
- varStmts()
-}
-
-void beginEndStmt() //token should be "begin"
-{
- if (token != "begin")
- procesError(keyword "begin" expected)
- if (nextToken() != "end")
- processError(keyword "end" expected)
- if (nextToken() != ".")
- processError(period expected)
-nextToken()
- code("end", ".")
+void beginEndStmt()  //token should be "begin" - C
+{   
+    if (token != "begin") 
+		processError("keyword \"begin\" expected");
+	//Initialize so that we don't mess up nextToken
+    string x = NextToken(); 
+    if (x != "end") 
+		processError("keyword "end" expected");
+    if (x != ".") 
+		processError("period expected");
+    x = nextToken();
+	// Unsure About this as well -C
+    code("end", ".");
 }
 
 void constStmts() //token should be NON_KEY_ID
