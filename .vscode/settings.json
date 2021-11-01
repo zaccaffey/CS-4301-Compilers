@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "stage0main.C": "cpp"
+        "stage0main.C": "cpp",
+        "utility": "cpp"
     }
 }

@@ -9,7 +9,7 @@
 #include "stage0main.C"
 
 
-Compiler(char **argv) // constructor - Z
+Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
 {
     sourceFile.open(argv[1]);
     listingFile.open(argv[2]);
@@ -54,7 +54,7 @@ void createListingTrailer() // - Z
     cout << "COMPILATION TERMINATED, # ERRORS ENCOUNTERED" << endl;
 }
 
-void processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message)
+void processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     ofstream cout("error has occured");
     exit(0);
@@ -74,7 +74,7 @@ void prog()  //token should be "program" - C
 	 	processError("keyword \"begin\" expected");
     beginEndStmt();
     if (token != END_OF_FILE) 
-		processError("no text may follow \"end\”");
+		processError('no text may follow "end"');
 } 
 
 void progStmt()  //token should be "program" - C
@@ -133,7 +133,7 @@ void beginEndStmt()  //token should be "begin" - C
     code("end", ".");
 }
 
-void constStmts() //token should be NON_KEY_ID
+void constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
   string x,y;
 
@@ -161,7 +161,7 @@ void constStmts() //token should be NON_KEY_ID
   if (y == "not")
   {
     if (nextToken().getDataType() != "BOOLEAN")     //not sure if i need "" around boolean since it is an enumerated type
-      processError("boolean expected after \“not\”");
+      processError('boolean expected after “not”');
       
     if (token == "true")
       y = "false";
@@ -184,24 +184,25 @@ void constStmts() //token should be NON_KEY_ID
     constStmts();
 }
 
-void varStmts() //token should be NON_KEY_ID
+void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
 {
  string x,y
- if (token is not a NON_KEY_ID)
- processError(non-keyword identifier expected)
- x = ids()
+ if ((isNonKeyId(token)))
+  processError("non-keyword identifier expected");
+ x = ids();
  if (token != ":")
- processError(":" expected)
- if (nextToken() is not one of "integer","boolean")
- processError(illegal type follows ":")
-y = token
+  processError('":" expected');
+ if (nextToken().getDataType() != "INTEGER" || nextToken().getDataType() != "BOOLEAN")  //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
+  processError('illegal type follows ":"');
+ y = token;
  if (nextToken() != ";")
- processError(semicolon expected)
- insert(x,y,VARIABLE,"",YES,1)
- if (nextToken() is not one of "begin",NON_KEY_ID)
- processError(non-keyword identifier or "begin" expected)
- if (token is a NON_KEY_ID)
- varStmts()
+  processError("semicolon expected");
+ insert(x,y,VARIABLE,"",YES,1);
+ string z = nextToken();
+ if (nextToken() != "begin" || !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
+  processError('non-keyword identifier or "begin" expected');
+ if (isNonKeyId(token))   //token is a NON_KEY_ID)
+ varStmts();
 }
 
 string ids() //token should be NON_KEY_ID
