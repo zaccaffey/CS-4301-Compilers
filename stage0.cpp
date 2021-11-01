@@ -9,14 +9,14 @@
 #include "stage0main.C"
 
 
-Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
+Compiler::Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
 {
     ifstream sourceFile(argv[1]);
-    listingFile.open(argv[2]);  
-    objectFile.open(argv[3]);
+    ofstream listingFile(argv[2]);  
+    ofstream objectFile(argv[3]);
 }
 
-~Compiler() // destructor - Z
+Compiler::~Compiler() // destructor - Z
 {
     sourceFile.close();
     listingFile.close();
@@ -298,22 +298,28 @@ void code(string op, string operand1, string operand2) // - Z
   illegal arguments');
 }
 
-void emit(string label, string instruction, string operands, string comment)
+void emit(string label, string instruction, string operands, string comment)  // - C
 {
- Turn on left justification in objectFile
- Output label in a field of width 8
- Output instruction in a field of width 8
- Output the operands in a field of width 24
- Output the comment
+	//Turn on left justification in objectFile 
+	objectFile.setf(ios_base::left);
+	//Output label in a field of width 8 
+	objectFile << width(8) << label;
+	//Output instruction in a field of width 8 
+	objectFile << width(8) << instruction;
+	//Output the operands in a field of width 24 
+	objectFile << width(24) << operands;
+	//Output the comment 
+	objectFile << comment;
 }
 
 void emitPrologue(string progName, string operand2)
 {
- Output identifying comments at beginning of objectFile
- Output the %INCLUDE directives
- emit("SECTION", ".text")
- emit("global", "_start", "", "; program" + progName)
- emit("_start:")
+  //Output identifying comments at beginning of objectFile 
+  //Output the %INCLUDE directives 
+	//objectFile << "
+	emit("SECTION", ".text");
+	emit("global", "_start", "", "; program" + progName);
+	emit("_start:");
 }
 
 void emitEpilogue(string operand1, string operand2)
@@ -334,51 +340,93 @@ void emitStorage()
 { call emit to output a line to objectFile }
 }
 
-string nextToken() //returns the next token or end of file marker
+string nextToken()        //returns the next token or end of file marker {               
 {
- token = "";
- while (token == "")
- {
- switch(ch)
- {
- case '{' : //process comment
- while (nextChar() is not one of END_OF_FILE, '}'}
- { //empty body }
-if (ch == END_OF_FILE)
- processError(unexpected end of file)
- else
- nextChar()
- case '}' : processError('}' cannot begin token)
- case isspace(ch) : nextChar()
- case isSpecialSymbol(ch): token = ch;
- nextChar()
- case islower(ch) : token = ch;
- while (nextChar() is one of letter, digit, or
- '_' but not END_OF_FILE)
- {
- token+=ch
+	token = "";	
+	while(token == "")
+	{
+		if (ch == '{')
+		{
+			string next = nextChar();
+			while (next != sourceFile.eof() || next != '}')
+			{
+				
+			}
+			if (ch == '$')
+				processError("unexpected end of file");
+			else 
+				nextChar();
+		}
+		else if (ch == '}')
+		{
+			processError("'}' cannot begin token");
+		}
+		else if (isspace(ch))
+		{
+			nextChar();
+		}
+		else if (isSpecialSymbol(ch))
+		{
+			token = ch;
+			nextChar();
+		}
+		else if (islower(ch))
+		{
+			token = ch;
+			string next = nextChar();
+			while((isalpha(next) || isdigit(next) || next == ' ') && next != sourceFile.eof())
+			{
+				token = token + ch;
+			}
+			if (ch == '$')
+				processError("unexpected end of file");
+		}
+		else if (isdigit(ch))
+		{
+			token = ch;
+			string next = nextChar();
+			while(isdigit(next) && next != sourceFile.eof())
+			{
+				token = token + ch;
+			}
+			if (ch == '$')
+				processError("unexpected end of file");
+		}
+		else if (ch == '$')
+		{
+			token = ch;
+		}
+		else
+		{
+			processError("illegal symbol");
+		}
+	}
+	return token;
 }
-if (ch is END_OF_FILE)
- processError(unexpected end of file)
- case isdigit(ch) : token = ch;
- while (nextChar() is digit but not END_OF_FILE)
- {
- token+=ch
- }
-if (ch is END_OF_FILE)
- processError(unexpected end of file)
- case END_OF_FILE : token = ch
- default : processError(illegal symbol)
- }
- return token
+
+char nextChar()   //returns the next character or end of file marker - C
+{ 
+  // read in next character 
+  ch = sourceFile.get(ch);
+  if (sourceFile.eof())
+  {
+	//use a special character to designate end of file 
+    ch = '$'     
+  }
+  else 
+  {
+	ch = sourceFile.get(ch);
+	
+	// print to listing file (starting new line if necessary) 
+	if (ch == '\n')
+	{
+		listingFile.write('\n');
+		listingFile.write(ch);
+	}
+	else 
+	{
+		listingFile.write(ch);
+	}
+  }
+  return ch; 
 }
-char nextChar() //returns the next character or end of file marker
-{
- read in next character
- if end of file
- ch = END_OF_FILE //use a special character to designate end of file
- else
- ch = next character
- print to listing file (starting new line if necessary)
- return ch;
- }
