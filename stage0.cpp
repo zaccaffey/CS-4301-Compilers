@@ -135,15 +135,16 @@ void beginEndStmt()  //token should be "begin" - C
 
 void constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
-  string x,y;
+  string x,y, next;
 
   if (!isNonKeyId(token))
     processError("non-keyword identifier expected");
 
   x = token;
-  
-  if (nextToken() != "=")
-    processError("\"=\" expected");
+  next = nextToken();
+
+  if (next != "=")
+    processError('"=" expected');
 
   y = nextToken();
 
@@ -152,7 +153,7 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
 
   if (y == '+' || y == '-')
   {
-    if (nextToken().getDataType() != "Integer")     //not sure if i need "" around integer since it is an enumerated type
+    if (next.getDataType() != "Integer")     //not sure if i need "" around integer since it is an enumerated type
       processError("integer expected after sign");
 
     y = y + token;
@@ -160,7 +161,7 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
 
   if (y == "not")
   {
-    if (nextToken().getDataType() != "BOOLEAN")     //not sure if i need "" around boolean since it is an enumerated type
+    if (next.getDataType() != "BOOLEAN")     //not sure if i need "" around boolean since it is an enumerated type
       processError('boolean expected after “not”');
       
     if (token == "true")
@@ -169,7 +170,7 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
       y = "true";
   }
 
-  if (nextToken() != ";")
+  if (next != ";")
     processError("semicolon expected");
 
   if (y.getDataType() != "Integer" || y.getDataType() != "Boolean")           //the data type of y is not INTEGER or BOOLEAN
@@ -186,39 +187,48 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
 
 void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
 {
- string x,y
+ string x,y, next;
  if ((isNonKeyId(token)))
   processError("non-keyword identifier expected");
+
  x = ids();
+
  if (token != ":")
   processError('":" expected');
- if (nextToken().getDataType() != "INTEGER" || nextToken().getDataType() != "BOOLEAN")  //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
+  
+ if (next.getDataType() != "INTEGER" || next.getDataType() != "BOOLEAN")  //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
   processError('illegal type follows ":"');
+
  y = token;
- if (nextToken() != ";")
+
+ if (next != ";")
   processError("semicolon expected");
+
  insert(x,y,VARIABLE,"",YES,1);
  string z = nextToken();
- if (nextToken() != "begin" || !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
+
+ if (z != "begin" || !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
   processError('non-keyword identifier or "begin" expected');
+
  if (isNonKeyId(token))   //token is a NON_KEY_ID)
  varStmts();
 }
 
-string ids() //token should be NON_KEY_ID
+string ids() //token should be NON_KEY_ID - Z
 {
- string temp,tempString
- if (token is not a NON_KEY_ID)
- processError(non-keyword identifier expected)
- tempString = token
- temp = token
- If (nextToken() == ",")
+ string temp,tempString, next;
+ if (!(isNonKeyId(token)))    //token is not a NON_KEY_ID
+  processError("non-keyword identifier expected");
+ tempString = token;
+ temp = token;
+ next = nextToken();
+ if (next == ",")
  {
- if (nextToken() is not a NON_KEY_ID)
- processError(non-keyword identifier expected)
- tempString = temp + "," + ids()
+  if (!(isNonKeyId(next)))    //nextToken() is not a NON_KEY_ID)
+    processError("non-keyword identifier expected");
+  tempString = temp + "," + ids();
  }
- return tempString
+ return tempString;
 }
 
 void insert(string externalName,storeType inType, modes inMode, string inValue,
