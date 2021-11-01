@@ -125,7 +125,7 @@ void beginEndStmt()  //token should be "begin" - C
 	//Initialize so that we don't mess up nextToken
     string x = NextToken(); 
     if (x != "end") 
-		processError("keyword "end" expected");
+		processError("keyword \"end\" expected");
     if (x != ".") 
 		processError("period expected");
     x = nextToken();
@@ -134,42 +134,54 @@ void beginEndStmt()  //token should be "begin" - C
 }
 
 void constStmts() //token should be NON_KEY_ID
-{
- string x,y
- if (token is not a NON_KEY_ID)
- processError(non-keyword identifier expected)
- x = token
- if (nextToken() != "=")
- processError("=" expected)
-y = nextToken()
- if (y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)
- processError(token to right of "=" illegal)
- if (y is one of "+","-")
- {
- if (nextToken() is not an INTEGER)
- processError(integer expected after sign)
- y = y + token;
- }
- if (y == "not")
- {
- if (nextToken() is not a BOOLEAN)
- processError(boolean expected after “not”)
- if (token == "true")
- y = "false"
- else
- y = "true"
- }
- if (nextToken() != ";")
- processError(semicolon expected)
- if (the data type of y is not INTEGER or BOOLEAN)
- processError(data type of token on the right-hand side must be INTEGER or
- BOOLEAN)
- insert(x,whichType(y),CONSTANT,whichValue(y),YES,1)
- x = nextToken()
- if (x is not one of "begin","var",NON_KEY_ID)
- processError(non-keyword identifier, "begin", or "var" expected)
- if (x is a NON_KEY_ID)
- constStmts()
+{ 
+  string x,y;
+
+  if (!isNonKeyId(token))
+    processError("non-keyword identifier expected");
+
+  x = token;
+  
+  if (nextToken() != "=")
+    processError("\"=\" expected");
+
+  y = nextToken();
+
+  if (!(isNonKeyId(y)) || //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  (is there any included member functions to call for each of these possibilities?)
+    processError("token to right of \"=\" illegal");
+
+  if (y == '+' || y == '-')
+  {
+    if (nextToken().getDataType() != "Integer")     //not sure if i need "" around integer since it is an enumerated type
+      processError("integer expected after sign");
+
+    y = y + token;
+  }
+
+  if (y == "not")
+  {
+    if (nextToken().getDataType() != "BOOLEAN")     //not sure if i need "" around boolean since it is an enumerated type
+      processError("boolean expected after \“not\”");
+      
+    if (token == "true")
+      y = "false";
+    else
+      y = "true";
+  }
+
+  if (nextToken() != ";")
+    processError("semicolon expected");
+
+  if (y.getDataType() != "Integer" || y.getDataType() != "Boolean")           //the data type of y is not INTEGER or BOOLEAN
+    processError("data type of token on the right-hand side must be INTEGER or BOOLEAN");
+
+  insert(x,whichType(y),CONSTANT,whichValue(y),YES,1);        // dont think this is complete but will check later
+  x = nextToken();
+
+  if (x != "begin" || x != "var" || !(isNonKeyId(x)))         //x is not one of "begin","var",NON_KEY_ID)               
+    processError("non-keyword identifier, \"begin\", or \"var\" expected");
+  if (isNonKeyId(x))
+    constStmts();
 }
 
 void varStmts() //token should be NON_KEY_ID
