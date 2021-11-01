@@ -11,8 +11,8 @@
 
 Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
 {
-    sourceFile.open(argv[1]);
-    listingFile.open(argv[2]);
+    ifstream sourceFile(argv[1]);
+    listingFile.open(argv[2]);  
     objectFile.open(argv[3]);
 }
 
@@ -36,17 +36,17 @@ void createListingHeader() // - Z (needs to be formatted)
 
 void parser()
 {
-nextChar()
- //ch must be initialized to the first character of the source file
- if (nextToken() != "program")
- processError(keyword "program" expected)
- //a call to nextToken() has two effects
- // (1) the variable, token, is assigned the value of the next token
- // (2) the next token is read from the source file in order to make
- // the assignment. The value returned by nextToken() is also
- // the next token.
-prog()
- //parser implements the grammar rules, calling first rule
+  nextChar();
+  //ch must be initialized to the first character of the source file
+  if (nextToken() != "program")
+    processError(keyword "program" expected);
+  //a call to nextToken() has two effects
+  // (1) the variable, token, is assigned the value of the next token
+  // (2) the next token is read from the source file in order to make
+  // the assignment. The value returned by nextToken() is also
+  // the next token.
+  prog()
+  //parser implements the grammar rules, calling first rule
 }
 
 void createListingTrailer() // - Z
@@ -64,17 +64,17 @@ void prog()  //token should be "program" - C
 {
 
     if (token != "program") 
-		processError('keyword "program" expected');
+		  processError('keyword "program" expected');
     progStmt(); 
     if (token == "const") 
         consts(); 
     if (token == "var") 
         vars(); 
     if (token != "begin") 
-	 	processError('keyword "begin" expected');
+	 	  processError('keyword "begin" expected');
     beginEndStmt();
     if (token != END_OF_FILE) 
-		processError('no text may follow "end"');
+		  processError('no text may follow "end"');
 } 
 
 void progStmt()  //token should be "program" - C
@@ -153,7 +153,7 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
 
   if (y == '+' || y == '-')
   {
-    if (next.getDataType() != "Integer")     //not sure if i need "" around integer since it is an enumerated type
+    if (!(isInteger(next)))     //not sure if i need "" around integer since it is an enumerated type
       processError("integer expected after sign");
 
     y = y + token;
@@ -161,7 +161,7 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
 
   if (y == "not")
   {
-    if (next.getDataType() != "BOOLEAN")     //not sure if i need "" around boolean since it is an enumerated type
+    if (!(isBoolean(next)))   //not sure if i need "" around boolean since it is an enumerated type
       processError('boolean expected after “not”');
       
     if (token == "true")
@@ -173,7 +173,7 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
   if (next != ";")
     processError("semicolon expected");
 
-  if (y.getDataType() != "Integer" || y.getDataType() != "Boolean")           //the data type of y is not INTEGER or BOOLEAN
+  if (!(isInteger(y)) || !(isBoolean(y))       //the data type of y is not INTEGER or BOOLEAN
     processError("data type of token on the right-hand side must be INTEGER or BOOLEAN");
 
   insert(x,whichType(y),CONSTANT,whichValue(y),YES,1);        // dont think this is complete but will check later
@@ -195,8 +195,10 @@ void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
 
  if (token != ":")
   processError('":" expected');
+
+ next = nextChar();
   
- if (next.getDataType() != "INTEGER" || next.getDataType() != "BOOLEAN")  //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
+ if (!(isInteger(next)) || !(isBoolean(next)) //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
   processError('illegal type follows ":"');
 
  y = token;
@@ -254,20 +256,25 @@ allocation inAlloc, int inUnits)
  }
 }
 
-storeTypes whichType(string name) //tells which data type a name has - Z
+storeTypes whichType(string name) //tells which data type a name has - Z (not even close to being done)
 {
- if (name is a literal)
- if (name is a boolean literal)
- data type = BOOLEAN
- else
- data type = INTEGER
+ if (isLiteral(name))   //name is a literal)
+ {
+  if (isBoolean(name))  //name is a boolean literal)
+    data type = "Boolean";    //might need to be uppercase
+  else
+    data type = "Integer";    //might need to be uppercase
+ }
  else //name is an identifier and hopefully a constant
- if (symbolTable[name] is defined)
- data type = type of symbolTable[name]
- else
- processError(reference to undefined constant)
+ {
+  if (symbolTable[name] is defined)
+    data type = type of symbolTable[name];
+  else
+    processError(reference to undefined constant);
+ }
  return data type
 }
+
 string whichValue(string name) //tells which value a name has
 {
  if (name is a literal)
@@ -280,15 +287,15 @@ string whichValue(string name) //tells which value a name has
  return value
 }
 
-void code(string op, string operand1, string operand2)
+void code(string op, string operand1, string operand2) // - Z
 {
  if (op == "program")
- emitPrologue(operand1)
+  emitPrologue(operand1);
  else if (op == "end")
- emitEpilogue()
+  emitEpilogue();
  else
- processError(compiler error since function code should not be called with
- illegal arguments)
+  processError('compiler error since function code should not be called with
+  illegal arguments');
 }
 
 void emit(string label, string instruction, string operands, string comment)
@@ -299,6 +306,7 @@ void emit(string label, string instruction, string operands, string comment)
  Output the operands in a field of width 24
  Output the comment
 }
+
 void emitPrologue(string progName, string operand2)
 {
  Output identifying comments at beginning of objectFile
@@ -307,11 +315,13 @@ void emitPrologue(string progName, string operand2)
  emit("global", "_start", "", "; program" + progName)
  emit("_start:")
 }
+
 void emitEpilogue(string operand1, string operand2)
 {
  emit("","Exit", "{0}");
  emitStorage();
 }
+
 void emitStorage()
 {
  emit("SECTION", ".data")
