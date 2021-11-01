@@ -64,14 +64,14 @@ void prog()  //token should be "program" - C
 {
 
     if (token != "program") 
-		processError("keyword \"program\" expected");
+		processError('keyword "program" expected');
     progStmt(); 
     if (token == "const") 
         consts(); 
     if (token == "var") 
         vars(); 
     if (token != "begin") 
-	 	processError("keyword \"begin\" expected");
+	 	processError('keyword "begin" expected');
     beginEndStmt();
     if (token != END_OF_FILE) 
 		processError('no text may follow "end"');
@@ -81,7 +81,7 @@ void progStmt()  //token should be "program" - C
 {   
   string x = "";
   if (token != "program") 
-	  processError("keyword \"program\" expected");
+	  processError('keyword "program" expected');
   //Initialize so that we don't mess up nextToken
   x = NextToken(); 
   if (!isNonKeyId(x)) 
@@ -99,35 +99,35 @@ void progStmt()  //token should be "program" - C
 void consts()  //token should be "const" - C
 {   
 	if (token != "const") 
-		processError("keyword \"const\" expected");
+		processError('keyword "const" expected');
 	//Initialize so that we don't mess up nextToken
 	string x = NextToken(); 
 	if (!isNonKeyId(x)) 
-		processError("non-keyword identifier must follow \"const\"");
+		processError('non-keyword identifier must follow "const"');
 	constStmts();
 } 
 
 void vars()  //token should be "var" - C
 {   
     if (token != "var") 
-		processError("keyword \"var\" expected");
-	//Initialize so that we don't mess up nextToken
+		  processError('keyword "var" expected');
+	  //Initialize so that we don't mess up nextToken
     string x = NextToken(); 
     if (!isNonKeyId(x))  
-		processError("non-keyword identifier must follow \"var\"");
+		  processError('non-keyword identifier must follow "var"');
     varStmts();
 }
 
 void beginEndStmt()  //token should be "begin" - C
 {   
     if (token != "begin") 
-		processError("keyword \"begin\" expected");
-	//Initialize so that we don't mess up nextToken
+		  processError('keyword "begin" expected');
+	  //Initialize so that we don't mess up nextToken
     string x = NextToken(); 
     if (x != "end") 
-		processError("keyword \"end\" expected");
+		  processError('keyword "end" expected');
     if (x != ".") 
-		processError("period expected");
+		  processError("period expected");
     x = nextToken();
 	// Unsure About this as well -C
     code("end", ".");
@@ -148,8 +148,8 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
 
   y = nextToken();
 
-  if (!(isNonKeyId(y)) || //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  (is there any included member functions to call for each of these possibilities?)
-    processError("token to right of \"=\" illegal");
+  if (!(isNonKeyId(y)) || y != '+' || y != '-' || y != 'not' || y != 'true' || y != 'false' || isInteger(y)) //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  (is there any included member functions to call for each of these possibilities?)
+    processError('token to right of "=" illegal');
 
   if (y == '+' || y == '-')
   {
@@ -228,32 +228,33 @@ string ids() //token should be NON_KEY_ID - Z
     processError("non-keyword identifier expected");
   tempString = temp + "," + ids();
  }
- return tempString; //test
+ return tempString;
 }
 
+//create symbol table entry for each identifier in list of external names
+//Multiply inserted names are illegal - Z
 void insert(string externalName,storeType inType, modes inMode, string inValue,
- allocation inAlloc, int inUnits)
- //create symbol table entry for each identifier in list of external names
- //Multiply inserted names are illegal
+allocation inAlloc, int inUnits)
 {
- string name
- while (name broken from list of external names and put into name != "")
+ string name;
+ while (name broken from list of external names and put into name != "")    //need to better understand what is meant by broken
  {
- if (symbolTable[name] is defined)
- processError(multiple name definition)
- else if (name is a keyword)
- processError(illegal use of keyword)
- else //create table entry
- {
- if (name begins with uppercase)
- symbolTable[name]=(name,inType,inMode,inValue,inAlloc,inUnits)
- else
- symbolTable[name]=(genInternalName(inType),inType,inMode,inValue,
- inAlloc,inUnits)
+  if (symbolTable[name] is defined)
+    processError(multiple name definition)
+  else if (name is a keyword)
+    processError(illegal use of keyword)
+  else                      //create table entry
+  {
+    if (name begins with uppercase)
+      symbolTable[name]=(name,inType,inMode,inValue,inAlloc,inUnits);
+    else
+      symbolTable[name]=(genInternalName(inType),inType,inMode,inValue,
+      inAlloc,inUnits);
+  }  
  }
 }
 
-storeTypes whichType(string name) //tells which data type a name has
+storeTypes whichType(string name) //tells which data type a name has - Z
 {
  if (name is a literal)
  if (name is a boolean literal)
