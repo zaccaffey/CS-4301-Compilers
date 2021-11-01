@@ -228,7 +228,7 @@ string ids() //token should be NON_KEY_ID - Z
     processError("non-keyword identifier expected");
   tempString = temp + "," + ids();
  }
- return tempString;
+ return tempString; //test
 }
 
 void insert(string externalName,storeType inType, modes inMode, string inValue,
