@@ -258,7 +258,32 @@ string ids() //token should be NON_KEY_ID - Z
  }
  return tempString;
 }
+// ---------------------------------------------------------------------------------
 
+bool isKeyword(string s) // determines if s is a keyword
+{
+  if (s == 'program' || s == 'const' || s == 'var' || s == 'integer' || s == 'boolean' || s == 'begin' || s == 'end' || s == 'true' || s == 'false' || s == 'not')
+  {
+    return true;
+  } 
+  else 
+  {
+    return false;
+  }
+}
+
+bool isSpecialSymbol(char c) const; // determines if c is a special symbol
+{
+  if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
+  {
+    return true;
+  }
+  else return false;
+}
+bool isNonKeyId(string s) const; // determines if s is a non_key_id
+bool isInteger(string s) const; // determines if s is an integer
+bool isBoolean(string s) const; // determines if s is a boolean
+bool isLiteral(string s) const; // determines if s is a literal
 // ---------------------------------------------------------------------------------
 
 //create symbol table entry for each identifier in list of external names
@@ -376,6 +401,7 @@ void emitStorage()
  for those entries in the symbolTable that have
  an allocation of YES and a storage mode of CONSTANT
  { call emit to output a line to objectFile }
+ //getAlloc()
  emit("SECTION", ".bss")
  for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
@@ -418,7 +444,7 @@ string nextToken()        //returns the next token or end of file marker { - C
 		{
 			token = ch;
 			string next = nextChar();
-			while((isalpha(next) || isdigit(next) || next == ' ') && next != sourceFile.eof())
+			while((isalpha(next) || isdigit(next) || next == '_') && next != sourceFile.eof())
 			{
 				token = token + ch;
 			}
