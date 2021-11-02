@@ -291,7 +291,14 @@ bool Compiler::isSpecialSymbol(char c) const; // determines if c is a special sy
 
 bool Compiler::isNonKeyId(string s) const; // determines if s is a non_key_id
 {
-
+  if(!isKeyword(s))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 // ---------------------------------------------------------------------------------
