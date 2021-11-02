@@ -261,7 +261,7 @@ string Compiler::ids() //token should be NON_KEY_ID - Z
 }
 
 // ---------------------------------------------------------------------------------
-bool Compiler::isKeyword(string s) // determines if s is a keyword
+bool Compiler::isKeyword(string s) const // determines if s is a keyword
 {
   if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not")
   {
@@ -317,7 +317,7 @@ bool Compiler::isInteger(string s) const // determines if s is an integer
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isBoolean(string s) const // determines if s is a boolean
+bool Compiler::isBoolean(string s) const // determines if s is a boolean - Cam
 {
   if (s == "true" || s == "false")
   {
@@ -331,7 +331,7 @@ bool Compiler::isBoolean(string s) const // determines if s is a boolean
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isLiteral(string s) const; // determines if s is a literal
+bool Compiler::isLiteral(string s) const // determines if s is a literal
 {
 
 }
