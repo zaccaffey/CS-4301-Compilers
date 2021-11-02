@@ -1,0 +1,23 @@
+Nov. 2:
+error types: syntactical, semantic, lexical, compiler
+- lexical - test if tokens are legal in any possibly content (found in nextToken() and nextChar())
+     - unterminated comment, illegal character, '}' cannot begin a token, '_' at the end of token
+    
+- syntactic - violation of the grammatical rules and structural patterns governing the ordered use of tokens in a particular programming language
+
+- semantic - meaning; detected by action routines; Insert() from stage0
+     - checks for multiply-defined symbols
+     - illegal use of keyword
+     - undefined symbol/constant
+     
+- compiler - error within the compiler itself
+     - illegal stack operations
+     - run out of memory
+     - intermediate files become too large
+     
+     
+     
+ - Symbol Table
+    - key: externalName
+    - value: internal name, data type, mode, value, alloc, units
+    - use a map (associative array)  
