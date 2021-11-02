@@ -7,8 +7,8 @@
 #include <string>
 #include <ctime>
 #include "stage0main.C"
-#include "stage0.h"
 
+//dfopdfujhgkrpjfghrkgjhrkghrgkrg
 
 Compiler::Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
 {
@@ -46,7 +46,7 @@ void Compiler::parser()
   nextChar();
   //ch must be initialized to the first character of the source file
   if (nextToken() != "program")
-    processError(keyword "program" expected);
+    processError("keyword "program" expected");
   //a call to nextToken() has two effects
   // (1) the variable, token, is assigned the value of the next token
   // (2) the next token is read from the source file in order to make
@@ -259,39 +259,7 @@ string Compiler::ids() //token should be NON_KEY_ID - Z
  }
  return tempString;
 }
-// ---------------------------------------------------------------------------------
 
-bool Compiler::isKeyword(string s) // determines if s is a keyword
-{
-  if (s == 'program' || s == 'const' || s == 'var' || s == 'integer' || s == 'boolean' || s == 'begin' || s == 'end' || s == 'true' || s == 'false' || s == 'not')
-  {
-    return true;
-  } 
-  else 
-  {
-    return false;
-  }
-}
-
-bool Compiler::isSpecialSymbol(char c) const; // determines if c is a special symbol
-{
-  if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
-  {
-    return true;
-  }
-  else 
-  {
-    return false;
-  }
-}
-
-bool Compiler::isNonKeyId(string s) const; // determines if s is a non_key_id
-{
-  
-}
-bool Compiler::isInteger(string s) const; // determines if s is an integer
-bool Compiler::isBoolean(string s) const; // determines if s is a boolean
-bool Compiler::isLiteral(string s) const; // determines if s is a literal
 // ---------------------------------------------------------------------------------
 
 //create symbol table entry for each identifier in list of external names
@@ -411,7 +379,6 @@ void Compiler::emitStorage()
  for those entries in the symbolTable that have
  an allocation of YES and a storage mode of CONSTANT
  { call emit to output a line to objectFile }
- //getAlloc()
  emit("SECTION", ".bss")
  for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
@@ -454,7 +421,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 		{
 			token = ch;
 			string next = nextChar();
-			while((isalpha(next) || isdigit(next) || next == '_') && next != sourceFile.eof())
+			while((isalpha(next) || isdigit(next) || next == ' ') && next != sourceFile.eof())
 			{
 				token = token + ch;
 			}
