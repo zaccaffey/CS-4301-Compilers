@@ -176,11 +176,11 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
   if (!(isInteger(y)) || !(isBoolean(y))       //the data type of y is not INTEGER or BOOLEAN
     processError("data type of token on the right-hand side must be INTEGER or BOOLEAN");
 
-  insert(x,whichType(y),CONSTANT,whichValue(y),YES,1);        // dont think this is complete but will check later
+  insert(x,whichType(y),CONSTANT,whichValue(y),YES,1);        // dont think this is complete but will check later (be very careful when placing function calls inside a function call MOTL SAYS TO NOT DO THIS AT ALL)
   x = nextToken();
 
   if (x != "begin" || x != "var" || !(isNonKeyId(x)))         //x is not one of "begin","var",NON_KEY_ID)               
-    processError("non-keyword identifier, \"begin\", or \"var\" expected");
+    processError('non-keyword identifier, "begin", or "var" expected');
   if (isNonKeyId(x))
     constStmts();
 }
@@ -213,7 +213,7 @@ void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
   processError('non-keyword identifier or "begin" expected');
 
  if (isNonKeyId(token))   //token is a NON_KEY_ID)
- varStmts();
+  varStmts();
 }
 
 string ids() //token should be NON_KEY_ID - Z
