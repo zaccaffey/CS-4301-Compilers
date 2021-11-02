@@ -7,6 +7,7 @@
 #include <string>
 #include <ctime>
 #include "stage0main.C"
+#include "stage0.h"
 
 
 Compiler::Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
@@ -27,7 +28,7 @@ Compiler::~Compiler() // destructor - Z
 
 // ---------------------------------------------------------------------------------
 
-void createListingHeader() // - Z (needs to be formatted)
+void Compiler::createListingHeader() // - Z (needs to be formatted)
 {
 	time_t now = time(0);
 	char* time = ctime(&now);
@@ -40,7 +41,7 @@ void createListingHeader() // - Z (needs to be formatted)
 
 // ---------------------------------------------------------------------------------
 
-void parser()
+void Compiler::parser()
 {
   nextChar();
   //ch must be initialized to the first character of the source file
@@ -57,14 +58,14 @@ void parser()
 
 // ---------------------------------------------------------------------------------
 
-void createListingTrailer() // - Z
+void Compiler::createListingTrailer() // - Z
 {
     cout << "COMPILATION TERMINATED, # ERRORS ENCOUNTERED" << endl;
 }
 
 // ---------------------------------------------------------------------------------
 
-void processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
+void Compiler::processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     ofstream cout(err);
     exit(0);
@@ -72,7 +73,7 @@ void processError(string err)   // - Z (not sure if this is done correctly. May 
 
 // ---------------------------------------------------------------------------------
 
-void prog()  //token should be "program" - C test
+void Compiler::prog()  //token should be "program" - C test
 {
 
     if (token != "program") 
@@ -91,7 +92,7 @@ void prog()  //token should be "program" - C test
 
 // ---------------------------------------------------------------------------------
 
-void progStmt()  //token should be "program" - C
+void Compiler::progStmt()  //token should be "program" - C
 {   
   string x = "";
   if (token != "program") 
@@ -112,7 +113,7 @@ void progStmt()  //token should be "program" - C
 
 // ---------------------------------------------------------------------------------
 
-void consts()  //token should be "const" - C
+void Compiler::consts()  //token should be "const" - C
 {   
 	if (token != "const") 
 		processError('keyword "const" expected');
@@ -125,7 +126,7 @@ void consts()  //token should be "const" - C
 
 // ---------------------------------------------------------------------------------
 
-void vars()  //token should be "var" - C
+void Compiler::vars()  //token should be "var" - C
 {   
     if (token != "var") 
 		  processError('keyword "var" expected');
@@ -138,7 +139,7 @@ void vars()  //token should be "var" - C
 
 // ---------------------------------------------------------------------------------
 
-void beginEndStmt()  //token should be "begin" - C
+void Compiler::beginEndStmt()  //token should be "begin" - C
 {   
     if (token != "begin") 
 		  processError('keyword "begin" expected');
@@ -155,7 +156,7 @@ void beginEndStmt()  //token should be "begin" - C
 
 // ---------------------------------------------------------------------------------
 
-void constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
+void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
   string x,y, next;
 
@@ -209,7 +210,7 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
 
 // ---------------------------------------------------------------------------------
 
-void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
+void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not done)
 {
  string x,y, next;
  if ((isNonKeyId(token)))
@@ -242,7 +243,7 @@ void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
 
 // ---------------------------------------------------------------------------------
 
-string ids() //token should be NON_KEY_ID - Z
+string Compiler::ids() //token should be NON_KEY_ID - Z
 {
  string temp,tempString, next;
  if (!(isNonKeyId(token)))    //token is not a NON_KEY_ID
@@ -263,7 +264,7 @@ string ids() //token should be NON_KEY_ID - Z
 
 //create symbol table entry for each identifier in list of external names
 //Multiply inserted names are illegal - Z
-void insert(string externalName,storeType inType, modes inMode, string inValue,
+void Compiler::insert(string externalName,storeType inType, modes inMode, string inValue,
 allocation inAlloc, int inUnits)
 {
  string name;
@@ -286,14 +287,17 @@ allocation inAlloc, int inUnits)
 
 // ---------------------------------------------------------------------------------
 
-storeTypes whichType(string name) //tells which data type a name has - Z (not even close to being done)
+storeTypes Compiler::whichType(string name) //tells which data type a name has - Z (not even close to being done)
 {
+ storeTypes b = BOOLEAN;
+ storeTypes i = INTEGER;
+
  if (isLiteral(name))   //name is a literal)
  {
   if (isBoolean(name))  //name is a boolean literal)
-    data type = "Boolean";    //might need to be uppercase
+    setDataType(b); //data type = "Boolean";    //might need to be uppercase
   else
-    data type = "Integer";    //might need to be uppercase
+    setDataType(i);    //might need to be uppercase
  }
  else //name is an identifier and hopefully a constant
  {
@@ -307,34 +311,33 @@ storeTypes whichType(string name) //tells which data type a name has - Z (not ev
 
 // ---------------------------------------------------------------------------------
 
-string whichValue(string name) //tells which value a name has
+string Compiler::whichValue(string name) //tells which value a name has
 {
- if (name is a literal)
- value = name
- else //name is an identifier and hopefully a constant
- if (symbolTable[name] is defined and has a value)
- value = value of symbolTable[name]
- else
- processError(reference to undefined constant)
- return value
+ if (isLiteral(name)) //name is a literal)
+  string value = name;
+ else               //name is an identifier and hopefully a constant
+  if (symbolTable[name] is defined and has a value)
+    string value = value of symbolTable[name]
+  else
+    processError("reference to undefined constant");
+ return value;
 }
 
 // ---------------------------------------------------------------------------------
 
-void code(string op, string operand1, string operand2) // - Z
+void Compiler::code(string op, string operand1, string operand2) // - Z
 {
  if (op == "program")
   emitPrologue(operand1);
  else if (op == "end")
   emitEpilogue();
  else
-  processError('compiler error since function code should not be called with
-  illegal arguments');
+  processError("compiler error since function code should not be called with illegal arguments");
 }
 
 // ---------------------------------------------------------------------------------
 
-void emit(string label, string instruction, string operands, string comment)  // - C
+void Compiler::emit(string label, string instruction, string operands, string comment)  // - C
 {
 	//Turn on left justification in objectFile 
 	objectFile.setf(ios_base::left);
@@ -350,7 +353,7 @@ void emit(string label, string instruction, string operands, string comment)  //
 
 // ---------------------------------------------------------------------------------
 
-void emitPrologue(string progName, string operand2)
+void Compiler::emitPrologue(string progName, string operand2)
 {
   //Output identifying comments at beginning of objectFile 
   //Output the %INCLUDE directives 
@@ -362,7 +365,7 @@ void emitPrologue(string progName, string operand2)
 
 // ---------------------------------------------------------------------------------
 
-void emitEpilogue(string operand1, string operand2)
+void Compiler::emitEpilogue(string operand1, string operand2)
 {
  emit("","Exit", "{0}");
  emitStorage();
@@ -370,7 +373,7 @@ void emitEpilogue(string operand1, string operand2)
 
 // ---------------------------------------------------------------------------------
 
-void emitStorage()
+void Compiler::emitStorage()
 {
  emit("SECTION", ".data")
  for those entries in the symbolTable that have
@@ -384,7 +387,7 @@ void emitStorage()
 
 // ---------------------------------------------------------------------------------
 
-string nextToken()        //returns the next token or end of file marker { - C              
+string Compiler::nextToken()        //returns the next token or end of file marker { - C              
 {
 	token = "";	
 	while(token == "")
@@ -450,14 +453,14 @@ string nextToken()        //returns the next token or end of file marker { - C
 
 // ---------------------------------------------------------------------------------
 
-char nextChar()   //returns the next character or end of file marker - C
+char Compiler::nextChar()   //returns the next character or end of file marker - C (needs to be edited)
 { 
   // read in next character 
   ch = sourceFile.get(ch);
   if (sourceFile.eof())
   {
 	//use a special character to designate end of file 
-    ch = '$'     
+    ch = '$';     
   }
   else 
   {
