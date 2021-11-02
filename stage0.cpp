@@ -263,7 +263,7 @@ string Compiler::ids() //token should be NON_KEY_ID - Z
 // ---------------------------------------------------------------------------------
 bool Compiler::isKeyword(string s) // determines if s is a keyword
 {
-  if (s == 'program' || s == 'const' || s == 'var' || s == 'integer' || s == 'boolean' || s == 'begin' || s == 'end' || s == 'true' || s == 'false' || s == 'not')
+  if (s == "program" || s == "const" || s == 'var' || s == 'integer' || s == 'boolean' || s == 'begin' || s == 'end' || s == 'true' || s == 'false' || s == 'not')
   {
     return true;
   }
@@ -305,7 +305,14 @@ bool Compiler::isNonKeyId(string s) const; // determines if s is a non_key_id
 
 bool Compiler::isInteger(string s) const; // determines if s is an integer
 {
-
+    if(s == "0" || s == "1" || s == "2" || s == "3" || s == "4" || s == "5" || s == "6" || s == "7" || s == "8" || s == "9")
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
 }
 
 // ---------------------------------------------------------------------------------
