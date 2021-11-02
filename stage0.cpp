@@ -319,7 +319,14 @@ bool Compiler::isInteger(string s) const; // determines if s is an integer
 
 bool Compiler::isBoolean(string s) const; // determines if s is a boolean
 {
-
+  if (s == "true" || s == "false")
+  {
+    return true;
+  }
+  else 
+  {
+    return false;
+  }
 }
 
 // ---------------------------------------------------------------------------------
