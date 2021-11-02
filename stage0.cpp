@@ -60,7 +60,7 @@ void processError(string err)   // - Z (not sure if this is done correctly. May 
     exit(0);
 }
 
-void prog()  //token should be "program" - C
+void prog()  //token should be "program" - C test
 {
 
     if (token != "program") 
