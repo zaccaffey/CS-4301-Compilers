@@ -261,7 +261,7 @@ string Compiler::ids() //token should be NON_KEY_ID - Z
 }
 // ---------------------------------------------------------------------------------
 
-bool isKeyword(string s) // determines if s is a keyword
+bool Compiler::isKeyword(string s) // determines if s is a keyword
 {
   if (s == 'program' || s == 'const' || s == 'var' || s == 'integer' || s == 'boolean' || s == 'begin' || s == 'end' || s == 'true' || s == 'false' || s == 'not')
   {
@@ -273,7 +273,7 @@ bool isKeyword(string s) // determines if s is a keyword
   }
 }
 
-bool isSpecialSymbol(char c) const; // determines if c is a special symbol
+bool Compiler::isSpecialSymbol(char c) const; // determines if c is a special symbol
 {
   if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
   {
@@ -284,10 +284,14 @@ bool isSpecialSymbol(char c) const; // determines if c is a special symbol
     return false;
   }
 }
-bool isNonKeyId(string s) const; // determines if s is a non_key_id
-bool isInteger(string s) const; // determines if s is an integer
-bool isBoolean(string s) const; // determines if s is a boolean
-bool isLiteral(string s) const; // determines if s is a literal
+
+bool Compiler::isNonKeyId(string s) const; // determines if s is a non_key_id
+{
+  
+}
+bool Compiler::isInteger(string s) const; // determines if s is an integer
+bool Compiler::isBoolean(string s) const; // determines if s is a boolean
+bool Compiler::isLiteral(string s) const; // determines if s is a literal
 // ---------------------------------------------------------------------------------
 
 //create symbol table entry for each identifier in list of external names
