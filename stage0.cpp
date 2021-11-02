@@ -56,7 +56,7 @@ void createListingTrailer() // - Z
 
 void processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
-    ofstream cout("error has occured");
+    ofstream cout(err);
     exit(0);
 }
 
@@ -340,7 +340,7 @@ void emitStorage()
 { call emit to output a line to objectFile }
 }
 
-string nextToken()        //returns the next token or end of file marker {               
+string nextToken()        //returns the next token or end of file marker { - C              
 {
 	token = "";	
 	while(token == "")
