@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "stage0main.C": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "xiosbase": "cpp",
+        "xstring": "cpp"
     }
 }
