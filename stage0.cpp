@@ -317,7 +317,7 @@ bool Compiler::isInteger(string s) const; // determines if s is an integer
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isBoolean(string s) const; // determines if s is a boolean
+bool Compiler::isBoolean(string s) const; // determines if s is a boolean - Cam
 {
   if (s == "true" || s == "false")
   {
