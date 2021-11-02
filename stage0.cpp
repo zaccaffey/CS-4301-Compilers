@@ -16,12 +16,16 @@ Compiler::Compiler(char **argv) // constructor - Z (needs to declare sourceFile,
     ofstream objectFile(argv[3]);
 }
 
+// ---------------------------------------------------------------------------------
+
 Compiler::~Compiler() // destructor - Z
 {
     sourceFile.close();
     listingFile.close();
     objectFile.close();
 }
+
+// ---------------------------------------------------------------------------------
 
 void createListingHeader() // - Z (needs to be formatted)
 {
@@ -33,6 +37,8 @@ void createListingHeader() // - Z (needs to be formatted)
  //print "LINE NO:", "SOURCE STATEMENT"
  //line numbers and source statements should be aligned under the headings
 }
+
+// ---------------------------------------------------------------------------------
 
 void parser()
 {
@@ -49,16 +55,22 @@ void parser()
   //parser implements the grammar rules, calling first rule
 }
 
+// ---------------------------------------------------------------------------------
+
 void createListingTrailer() // - Z
 {
     cout << "COMPILATION TERMINATED, # ERRORS ENCOUNTERED" << endl;
 }
+
+// ---------------------------------------------------------------------------------
 
 void processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     ofstream cout(err);
     exit(0);
 }
+
+// ---------------------------------------------------------------------------------
 
 void prog()  //token should be "program" - C test
 {
@@ -76,6 +88,8 @@ void prog()  //token should be "program" - C test
     if (token != END_OF_FILE) 
 		  processError('no text may follow "end"');
 } 
+
+// ---------------------------------------------------------------------------------
 
 void progStmt()  //token should be "program" - C
 {   
@@ -96,6 +110,8 @@ void progStmt()  //token should be "program" - C
   insert(x,PROG_NAME,CONSTANT,x,NO,0);
 }
 
+// ---------------------------------------------------------------------------------
+
 void consts()  //token should be "const" - C
 {   
 	if (token != "const") 
@@ -107,6 +123,8 @@ void consts()  //token should be "const" - C
 	constStmts();
 } 
 
+// ---------------------------------------------------------------------------------
+
 void vars()  //token should be "var" - C
 {   
     if (token != "var") 
@@ -117,6 +135,8 @@ void vars()  //token should be "var" - C
 		  processError('non-keyword identifier must follow "var"');
     varStmts();
 }
+
+// ---------------------------------------------------------------------------------
 
 void beginEndStmt()  //token should be "begin" - C
 {   
@@ -132,6 +152,8 @@ void beginEndStmt()  //token should be "begin" - C
 	// Unsure About this as well -C
     code("end", ".");
 }
+
+// ---------------------------------------------------------------------------------
 
 void constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
@@ -185,6 +207,8 @@ void constStmts() //token should be NON_KEY_ID - Z (this will need some work. no
     constStmts();
 }
 
+// ---------------------------------------------------------------------------------
+
 void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
 {
  string x,y, next;
@@ -216,6 +240,8 @@ void varStmts() //token should be NON_KEY_ID - Z (started this but not done)
   varStmts();
 }
 
+// ---------------------------------------------------------------------------------
+
 string ids() //token should be NON_KEY_ID - Z
 {
  string temp,tempString, next;
@@ -232,6 +258,8 @@ string ids() //token should be NON_KEY_ID - Z
  }
  return tempString;
 }
+
+// ---------------------------------------------------------------------------------
 
 //create symbol table entry for each identifier in list of external names
 //Multiply inserted names are illegal - Z
@@ -256,6 +284,8 @@ allocation inAlloc, int inUnits)
  }
 }
 
+// ---------------------------------------------------------------------------------
+
 storeTypes whichType(string name) //tells which data type a name has - Z (not even close to being done)
 {
  if (isLiteral(name))   //name is a literal)
@@ -275,6 +305,8 @@ storeTypes whichType(string name) //tells which data type a name has - Z (not ev
  return data type
 }
 
+// ---------------------------------------------------------------------------------
+
 string whichValue(string name) //tells which value a name has
 {
  if (name is a literal)
@@ -287,6 +319,8 @@ string whichValue(string name) //tells which value a name has
  return value
 }
 
+// ---------------------------------------------------------------------------------
+
 void code(string op, string operand1, string operand2) // - Z
 {
  if (op == "program")
@@ -297,6 +331,8 @@ void code(string op, string operand1, string operand2) // - Z
   processError('compiler error since function code should not be called with
   illegal arguments');
 }
+
+// ---------------------------------------------------------------------------------
 
 void emit(string label, string instruction, string operands, string comment)  // - C
 {
@@ -312,6 +348,8 @@ void emit(string label, string instruction, string operands, string comment)  //
 	objectFile << comment;
 }
 
+// ---------------------------------------------------------------------------------
+
 void emitPrologue(string progName, string operand2)
 {
   //Output identifying comments at beginning of objectFile 
@@ -322,11 +360,15 @@ void emitPrologue(string progName, string operand2)
 	emit("_start:");
 }
 
+// ---------------------------------------------------------------------------------
+
 void emitEpilogue(string operand1, string operand2)
 {
  emit("","Exit", "{0}");
  emitStorage();
 }
+
+// ---------------------------------------------------------------------------------
 
 void emitStorage()
 {
@@ -339,6 +381,8 @@ void emitStorage()
  an allocation of YES and a storage mode of VARIABLE
 { call emit to output a line to objectFile }
 }
+
+// ---------------------------------------------------------------------------------
 
 string nextToken()        //returns the next token or end of file marker { - C              
 {
@@ -403,6 +447,8 @@ string nextToken()        //returns the next token or end of file marker { - C
 	}
 	return token;
 }
+
+// ---------------------------------------------------------------------------------
 
 char nextChar()   //returns the next character or end of file marker - C
 { 
