@@ -275,7 +275,7 @@ bool Compiler::isKeyword(string s) // determines if s is a keyword
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isSpecialSymbol(char c) const; // determines if c is a special symbol
+bool Compiler::isSpecialSymbol(char c) const // determines if c is a special symbol
 {
   if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
   {
@@ -289,7 +289,7 @@ bool Compiler::isSpecialSymbol(char c) const; // determines if c is a special sy
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isNonKeyId(string s) const; // determines if s is a non_key_id
+bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id
 {
   if(!isKeyword(s))
   {
@@ -303,7 +303,7 @@ bool Compiler::isNonKeyId(string s) const; // determines if s is a non_key_id
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isInteger(string s) const; // determines if s is an integer
+bool Compiler::isInteger(string s) const // determines if s is an integer
 {
     if(s == "0" || s == "1" || s == "2" || s == "3" || s == "4" || s == "5" || s == "6" || s == "7" || s == "8" || s == "9")
     {
@@ -317,7 +317,7 @@ bool Compiler::isInteger(string s) const; // determines if s is an integer
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isBoolean(string s) const; // determines if s is a boolean
+bool Compiler::isBoolean(string s) const // determines if s is a boolean
 {
   if (s == "true" || s == "false")
   {
