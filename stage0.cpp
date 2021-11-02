@@ -278,7 +278,10 @@ bool isSpecialSymbol(char c) const; // determines if c is a special symbol
   {
     return true;
   }
-  else return false;
+  else 
+  {
+    return false;
+  }
 }
 bool isNonKeyId(string s) const; // determines if s is a non_key_id
 bool isInteger(string s) const; // determines if s is an integer
