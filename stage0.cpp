@@ -480,7 +480,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 	{
 		if (ch == '{')
 		{
-			string next = nextChar();   //need to checkout these two lines
+			char next = nextChar();   //need to checkout these two lines (Changed from string to char and lost the error - Z)
 			while (next != sourceFile.eof() || next != '}')
 			{
 				
@@ -506,7 +506,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 		else if (islower(ch))
 		{
 			token = ch;
-			string next = nextChar();   //we need to checkout this error
+			char next = nextChar();   //we need to checkout this error    (changed from string to char and lost the error - Z)
 			while((isalpha(next) || isdigit(next) || next == ' ') && next != sourceFile.eof())
 			{
 				token = token + ch;
@@ -517,7 +517,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 		else if (isdigit(ch))
 		{
 			token = ch;
-			string next = nextChar();
+			char next = nextChar();   //(changed from string to char and lost the error)
 			while(isdigit(next) && next != sourceFile.eof())
 			{
 				token = token + ch;
@@ -542,7 +542,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 char Compiler::nextChar()   //returns the next character or end of file marker - C (needs to be edited)
 { 
   // read in next character 
-  ch = sourceFile.get();
+  ch = sourceFile.get();    //get does not need an argument
   if (sourceFile.eof())
   {
 	//use a special character to designate end of file 
@@ -555,12 +555,12 @@ char Compiler::nextChar()   //returns the next character or end of file marker -
 	// print to listing file (starting new line if necessary) 
 	if (ch == '\n')
 	{
-		listingFile.write('\n');
-		listingFile.write(ch);
+		listingFile << '\n';    //(changed from listingFile.write(ch); I think this way will work better - Z)
+		listingFile << ch;
 	}
 	else 
 	{
-		listingFile.write(ch);
+		listingFile << ch;      //(changed from listingFile.write(ch); I think this way will work better - Z)
 	}
   
   return ch; 
