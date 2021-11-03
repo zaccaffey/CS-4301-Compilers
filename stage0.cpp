@@ -542,7 +542,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 char Compiler::nextChar()   //returns the next character or end of file marker - C (needs to be edited)
 { 
   // read in next character 
-  ch = sourceFile.get(ch);
+  ch = sourceFile.get();
   if (sourceFile.eof())
   {
 	//use a special character to designate end of file 
@@ -550,8 +550,8 @@ char Compiler::nextChar()   //returns the next character or end of file marker -
   }
   else 
   {
-	ch = sourceFile.get(ch);
-	
+	ch = sourceFile.get();
+  }
 	// print to listing file (starting new line if necessary) 
 	if (ch == '\n')
 	{
@@ -562,6 +562,6 @@ char Compiler::nextChar()   //returns the next character or end of file marker -
 	{
 		listingFile.write(ch);
 	}
-  }
+  
   return ch; 
 }
