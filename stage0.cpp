@@ -255,7 +255,7 @@ void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not
  if (next != ";")
   processError("semicolon expected");
 
- insert(x,y,VARIABLE,"",YES,1);
+ insert(x,y,VARIABLE,"",YES,1);     //this isnt going to work ********************************** second argument must be of type storeTypes and y is not
  string z = nextToken();
 
  if (z != "begin" || !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
@@ -378,7 +378,8 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 void Compiler::insert(string externalName,storeTypes inType, modes inMode, string inValue,
 allocation inAlloc, int inUnits)
 {
- string name;
+ string name = externalName.;
+
  while (name broken from list of external names and put into name != "")    //need to better understand what is meant by broken
  {
   if (symbolTable[name] is defined)
