@@ -46,7 +46,7 @@ void Compiler::parser()
   nextChar();
   //ch must be initialized to the first character of the source file
   if (nextToken() != "program")
-    processError("keyword "program" expected");
+    processError('keyword "program" expected');
   //a call to nextToken() has two effects
   // (1) the variable, token, is assigned the value of the next token
   // (2) the next token is read from the source file in order to make
@@ -246,17 +246,22 @@ void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not
 string Compiler::ids() //token should be NON_KEY_ID - Z
 {
  string temp,tempString, next;
+
  if (!(isNonKeyId(token)))    //token is not a NON_KEY_ID
   processError("non-keyword identifier expected");
+
  tempString = token;
  temp = token;
  next = nextToken();
+
  if (next == ",")
  {
   if (!(isNonKeyId(next)))    //nextToken() is not a NON_KEY_ID)
     processError("non-keyword identifier expected");
+
   tempString = temp + "," + ids();
  }
+
  return tempString;
 }
 
@@ -331,9 +336,14 @@ bool Compiler::isBoolean(string s) const // determines if s is a boolean - Cam
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isLiteral(string s) const // determines if s is a literal
+bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 {
+  bool integer = isInteger(s);
 
+  if (integer || s == "true" || s == "false" || s == "not" || s == "+" || s == "-")     //this doesnt seem like it will be right to me but I am not sure
+    return true;
+  else
+    return false;
 }
 
 // ---------------------------------------------------------------------------------
@@ -371,7 +381,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
  if (isLiteral(name))   //name is a literal)
  {
   if (isBoolean(name))  //name is a boolean literal)
-    setDataType(b); //data type = "Boolean";    //might need to be uppercase
+    setDataType(b); //data type = "Boolean";    //might need to be uppercase      //idk why setDataType is undefined here. It is in the include
   else
     setDataType(i);    //might need to be uppercase
  }
@@ -418,7 +428,7 @@ void Compiler::emit(string label, string instruction, string operands, string co
 	//Turn on left justification in objectFile 
 	objectFile.setf(ios_base::left);
 	//Output label in a field of width 8 
-	objectFile << width(8) << label;
+	objectFile << width(8) << label;              //we might need another include directive to allow for the width() operation? IDK - Z
 	//Output instruction in a field of width 8 
 	objectFile << width(8) << instruction;
 	//Output the operands in a field of width 24 
@@ -470,7 +480,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 	{
 		if (ch == '{')
 		{
-			string next = nextChar();
+			string next = nextChar();   //need to checkout these two lines
 			while (next != sourceFile.eof() || next != '}')
 			{
 				
@@ -496,7 +506,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 		else if (islower(ch))
 		{
 			token = ch;
-			string next = nextChar();
+			string next = nextChar();   //we need to checkout this error
 			while((isalpha(next) || isdigit(next) || next == ' ') && next != sourceFile.eof())
 			{
 				token = token + ch;
