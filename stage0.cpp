@@ -189,11 +189,11 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
 
   y = nextToken();
 
-  if (!(isNonKeyId(y)) || y != '+' || y != '-' || y != 'not' || y != 'true' || y != 'false' || isInteger(y)) //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  need to see how we will compare these as y is a string  compare to a signal character
+  if (!(isNonKeyId(y)) || y != "+" || y != "-" || y != "not" || y != "true" || y != "false" || isInteger(y)) //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  need to see how we will compare these as y is a string  compare to a signal character
     error = "token to right of \"=\" illegal";
     processError(error);
 
-  if (y == '+' || y == '-')
+  if (y == "+" || y == "-")
   {
     if (!(isInteger(next)))     //not sure if i need "" around integer since it is an enumerated type
       processError("integer expected after sign");
@@ -234,19 +234,21 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
 
 void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not done)
 {
- string x,y, next;
+ string x,y, next, error;
  if ((isNonKeyId(token)))
   processError("non-keyword identifier expected");
 
  x = ids();
 
  if (token != ":")
-  processError('":" expected');
+  error = "\":\" expected";
+  processError(error);
 
  next = nextChar();
   
- if (!(isInteger(next)) || !(isBoolean(next)) //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
-  processError('illegal type follows ":"');
+ if (!(isInteger(next)) || !(isBoolean(next))) //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
+  error = "illegal type follows \":\"";
+  processError(error);
 
  y = token;
 
@@ -257,7 +259,8 @@ void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not
  string z = nextToken();
 
  if (z != "begin" || !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
-  processError('non-keyword identifier or "begin" expected');
+  error = "non-keyword identifier or \"begin\" expected";
+  processError(error);
 
  if (isNonKeyId(token))   //token is a NON_KEY_ID)
   varStmts();
@@ -372,7 +375,7 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 
 //create symbol table entry for each identifier in list of external names
 //Multiply inserted names are illegal - Z
-void Compiler::insert(string externalName,storeType inType, modes inMode, string inValue,
+void Compiler::insert(string externalName,storeTypes inType, modes inMode, string inValue,
 allocation inAlloc, int inUnits)
 {
  string name;
