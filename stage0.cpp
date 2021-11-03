@@ -2,10 +2,11 @@
 //CS 4301
 //Compiler Stage 0
 
-#include <fstream>
-#include <ostream>
-#include <string>
-#include <ctime>
+#include <fstream>              //enable input streams
+#include <ostream>              //Enable output streams
+#include <string>               //For use with strings
+#include <ctime>                //This is to allow us to calculate the current time
+#include <iomanip>              //This is to enable use of setw()
 #include "stage0main.C"
 
 //dfopdfujhgkrpjfghrkgjhrkghrgkrg
@@ -43,16 +44,18 @@ void Compiler::createListingHeader() // - Z (needs to be formatted)
 
 void Compiler::parser()
 {
+  string error;
   nextChar();
   //ch must be initialized to the first character of the source file
   if (nextToken() != "program")
-    processError('keyword "program" expected');
+    error = "keyword \"program\" expected";
+    processError(error);
   //a call to nextToken() has two effects
   // (1) the variable, token, is assigned the value of the next token
   // (2) the next token is read from the source file in order to make
   // the assignment. The value returned by nextToken() is also
   // the next token.
-  prog()
+  prog();
   //parser implements the grammar rules, calling first rule
 }
 
@@ -75,19 +78,22 @@ void Compiler::processError(string err)   // - Z (not sure if this is done corre
 
 void Compiler::prog()  //token should be "program" - C test
 {
-
-    if (token != "program") 
-		  processError('keyword "program" expected');
+    string error;
+    if (token != "program")
+      error = "keyword \"program\" expected"; 
+		  processError(error);
     progStmt(); 
     if (token == "const") 
         consts(); 
     if (token == "var") 
         vars(); 
-    if (token != "begin") 
-	 	  processError('keyword "begin" expected');
+    if (token != "begin")
+      error = "keyword \"begin\" expected"; 
+	 	  processError(error);
     beginEndStmt();
-    if (token != END_OF_FILE) 
-		  processError('no text may follow "end"');
+    if (token != END_OF_FILE);       // might need to check this. getting error because END_OF_FILE is a char and token is a string
+      error = "no text may follow \"end\""; 
+		  processError(error);
 } 
 
 // ---------------------------------------------------------------------------------
@@ -95,10 +101,12 @@ void Compiler::prog()  //token should be "program" - C test
 void Compiler::progStmt()  //token should be "program" - C
 {   
   string x = "";
-  if (token != "program") 
-	  processError('keyword "program" expected');
+  string error;
+  if (token != "program")
+    error = "keyword \"program\" expected"; 
+	  processError(error);
   //Initialize so that we don't mess up nextToken
-  x = NextToken(); 
+  x = nextToken(); 
   if (!isNonKeyId(x)) 
 		processError("program name expected");
   if (x != ";") 
@@ -114,13 +122,16 @@ void Compiler::progStmt()  //token should be "program" - C
 // ---------------------------------------------------------------------------------
 
 void Compiler::consts()  //token should be "const" - C
-{   
-	if (token != "const") 
-		processError('keyword "const" expected');
+{  
+  string error; 
+	if (token != "const")
+    error = "keyword \"const\" expected"; 
+		processError(error);
 	//Initialize so that we don't mess up nextToken
-	string x = NextToken(); 
-	if (!isNonKeyId(x)) 
-		processError('non-keyword identifier must follow "const"');
+	string x = nextToken(); 
+	if (!isNonKeyId(x))
+    error = "non-keyword identifier must follow \"const\""; 
+		processError(error);
 	constStmts();
 } 
 
@@ -128,12 +139,15 @@ void Compiler::consts()  //token should be "const" - C
 
 void Compiler::vars()  //token should be "var" - C
 {   
+    string error;
     if (token != "var") 
-		  processError('keyword "var" expected');
+		  error = "keyword \"var\" expected"; 
+		  processError(error);
 	  //Initialize so that we don't mess up nextToken
-    string x = NextToken(); 
-    if (!isNonKeyId(x))  
-		  processError('non-keyword identifier must follow "var"');
+    string x = nextToken(); 
+    if (!isNonKeyId(x))
+      error = "non-keyword identifier must follow \"var\""; 
+		  processError(error);
     varStmts();
 }
 
@@ -141,12 +155,15 @@ void Compiler::vars()  //token should be "var" - C
 
 void Compiler::beginEndStmt()  //token should be "begin" - C
 {   
-    if (token != "begin") 
-		  processError('keyword "begin" expected');
+    string error;
+    if (token != "begin")
+      error = "keyword \"begin\" expected";
+		  processError(error);
 	  //Initialize so that we don't mess up nextToken
-    string x = NextToken(); 
-    if (x != "end") 
-		  processError('keyword "end" expected');
+    string x = nextToken();                                                           
+    if (x != "end")
+      error =  "keyword \"end\" expected";
+		  processError(error);
     if (x != ".") 
 		  processError("period expected");
     x = nextToken();
@@ -158,7 +175,7 @@ void Compiler::beginEndStmt()  //token should be "begin" - C
 
 void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
-  string x,y, next;
+  string x,y, next, error;
 
   if (!isNonKeyId(token))
     processError("non-keyword identifier expected");
@@ -167,12 +184,14 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
   next = nextToken();
 
   if (next != "=")
-    processError('"=" expected');
+    error = "\"=\" expected";
+    processError(error);
 
   y = nextToken();
 
-  if (!(isNonKeyId(y)) || y != '+' || y != '-' || y != 'not' || y != 'true' || y != 'false' || isInteger(y)) //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  (is there any included member functions to call for each of these possibilities?)
-    processError('token to right of "=" illegal');
+  if (!(isNonKeyId(y)) || y != '+' || y != '-' || y != 'not' || y != 'true' || y != 'false' || isInteger(y)) //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  need to see how we will compare these as y is a string  compare to a signal character
+    error = "token to right of \"=\" illegal";
+    processError(error);
 
   if (y == '+' || y == '-')
   {
@@ -185,7 +204,8 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
   if (y == "not")
   {
     if (!(isBoolean(next)))   //not sure if i need "" around boolean since it is an enumerated type
-      processError('boolean expected after “not”');
+      error = "boolean expected after \"not\"";
+      processError(error);
       
     if (token == "true")
       y = "false";
@@ -196,14 +216,16 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
   if (next != ";")
     processError("semicolon expected");
 
-  if (!(isInteger(y)) || !(isBoolean(y))       //the data type of y is not INTEGER or BOOLEAN
-    processError("data type of token on the right-hand side must be INTEGER or BOOLEAN");
+  if (!(isInteger(y)) || !(isBoolean(y)))       //the data type of y is not INTEGER or BOOLEAN
+    error = "data type of token on the right-hand side must be INTEGER or BOOLEAN";
+    processError(error);
 
   insert(x,whichType(y),CONSTANT,whichValue(y),YES,1);        // dont think this is complete but will check later (be very careful when placing function calls inside a function call MOTL SAYS TO NOT DO THIS AT ALL)
   x = nextToken();
 
-  if (x != "begin" || x != "var" || !(isNonKeyId(x)))         //x is not one of "begin","var",NON_KEY_ID)               
-    processError('non-keyword identifier, "begin", or "var" expected');
+  if (x != "begin" || x != "var" || !(isNonKeyId(x)))         //x is not one of "begin","var",NON_KEY_ID)
+    error = "non-keyword identifier, \"begin\", or \"var\" expected";               
+    processError(error);
   if (isNonKeyId(x))
     constStmts();
 }
@@ -428,11 +450,11 @@ void Compiler::emit(string label, string instruction, string operands, string co
 	//Turn on left justification in objectFile 
 	objectFile.setf(ios_base::left);
 	//Output label in a field of width 8 
-	objectFile << width(8) << label;              //we might need another include directive to allow for the width() operation? IDK - Z
+	objectFile << setw(8) << label;              //changed from width(x) to setw(x) - Z
 	//Output instruction in a field of width 8 
-	objectFile << width(8) << instruction;
+	objectFile << setw(8) << instruction;
 	//Output the operands in a field of width 24 
-	objectFile << width(24) << operands;
+	objectFile << setw(24) << operands;
 	//Output the comment 
 	objectFile << comment;
 }

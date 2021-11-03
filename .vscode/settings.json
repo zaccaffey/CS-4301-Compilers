@@ -3,6 +3,7 @@
         "stage0main.C": "cpp",
         "utility": "cpp",
         "xiosbase": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "xlocale": "cpp"
     }
 }
