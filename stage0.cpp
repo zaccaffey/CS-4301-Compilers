@@ -9,7 +9,7 @@
 #include <iomanip>              //This is to enable use of setw()
 #include "stage0main.C"
 
-//dfopdfujhgkrpjfghrkgjhrkghrgkrg
+using namespace std;
 
 Compiler::Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
 {
@@ -539,7 +539,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 		else if (isdigit(ch))
 		{
 			token = ch;
-			char next = nextChar();   //(changed from string to char and lost the error)
+			char next = nextChar();   //(changed from string to char and lost the error - Z
 			while(isdigit(next) && next != sourceFile.eof())
 			{
 				token = token + ch;
@@ -564,7 +564,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 char Compiler::nextChar()   //returns the next character or end of file marker - C (needs to be edited)
 { 
   // read in next character 
-  ch = sourceFile.get();    //get does not need an argument
+  ch = sourceFile.get();    //get does not need an argument - Z
   if (sourceFile.eof())
   {
 	//use a special character to designate end of file 
