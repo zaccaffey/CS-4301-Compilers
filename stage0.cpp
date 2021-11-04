@@ -393,8 +393,17 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 //generate the internal name when called upon
 string Compiler::genInternalName(storeTypes stype) const
 {
-  
+  string internal;
+  //use case statements "INTEGER", "BOOLEAN", "PROG"
+  switch(stype)
+  {
+    case PROG_NAME:
+      internal = "P0";
+    case INTEGER:
+      internal;
+    case BOOLEAN:
 
+  }
 
 
 
@@ -422,26 +431,20 @@ allocation inAlloc, int inUnits)
     cout << "couldn't find abc" << endl;
   return 0;
   */
- string name = externalName;
- // name broken from list of external names and put into name != ""
- while (name != "")    //need to better understand what is meant by broken
+ while (name broken from list of external names and put into name != "")    //need to better understand what is meant by broken
  {
-  if (symbolTable.find(name)
+  if (symbolTable.find(externalName)
   {
     processError("multiple name definition");
   }
-  else if (isKeyword(name))
+  else if (name is a keyword)
+    processError(illegal use of keyword)
+  else                      //create table entry
   {
-    processError("illegal use of keyword");
-  }
-  else //create table entry
-  {
-    if (isupper(name[0]))
-    {
-      symbolTable.insert(name,inType,inMode,inValue,inAlloc,inUnits);
-    }
+    if (name begins with uppercase)
+      symbolTable[name]=(name,inType,inMode,inValue,inAlloc,inUnits);
     else
-      ssymbolTable.insert(genInternalName(inType),inType,inMode,inValue,
+      symbolTable[name]=(genInternalName(inType),inType,inMode,inValue,
       inAlloc,inUnits);
   }  
  }
