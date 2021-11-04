@@ -337,7 +337,7 @@ bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id  //
 {
     if(!isKeyword(s) && !isInteger(s))
     {
-      if (s != ':' || s != ',' || s != ';' || s != '=' || s != '+' || s != '-' || s != '.')
+      if (s != ":" || s != "," || s != ";" || s != "=" || s != "+" || s != "-" || s != ".")
       { 
         return true;
       }
@@ -590,8 +590,8 @@ char Compiler::nextChar()   //returns the next character or end of file marker -
   ch = sourceFile.get();    //get does not need an argument - Z
   if (sourceFile.eof())
   {
-	//use a special character to designate end of file 
-    ch = '$';     
+	//use a special character "$" to designate end of file 
+    ch = END_OF_FILE;     
   }
   else 
   {
