@@ -432,20 +432,21 @@ allocation inAlloc, int inUnits)
     cout << "couldn't find abc" << endl;
   return 0;
   */
- while (name broken from list of external names and put into name != "")    //need to better understand what is meant by broken
+  name = External Name
+ while (name != "")    //need to better understand what is meant by broken
  {
-  if (symbolTable.find(externalName)
+  if (symbolTable.find(name)
   {
     processError("multiple name definition");
   }
-  else if (name is a keyword)
-    processError(illegal use of keyword)
-  else                      //create table entry
+  else if (isKeyword(name))
+    processError("illegal use of keyword");
+  else //create table entry
   {
-    if (name begins with uppercase)
-      symbolTable[name]=(name,inType,inMode,inValue,inAlloc,inUnits);
+    if (isupper(name[0]))
+      symbolTable.insert(name,inType,inMode,inValue,inAlloc,inUnits);
     else
-      symbolTable[name]=(genInternalName(inType),inType,inMode,inValue,
+      symbolTable.insert(genInternalName(inType),inType,inMode,inValue,
       inAlloc,inUnits);
   }  
  }
