@@ -394,19 +394,22 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 string Compiler::genInternalName(storeTypes stype) const
 {
   string internal;
+  static int countI = 0, countB = 0;
   //use case statements "INTEGER", "BOOLEAN", "PROG"
   switch(stype)
   {
     case PROG_NAME:
       internal = "P0";
+      break;
     case INTEGER:
-      internal;
+      internal = "I" + to_string(countI);
+      ++countI;
+      break;
     case BOOLEAN:
-
+      internal = "B" + to_string(countB);
+      ++countB;
+      break;
   }
-
-
-
 }
 
 // ---------------------------------------------------------------------------------
