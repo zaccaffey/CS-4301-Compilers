@@ -432,10 +432,10 @@ allocation inAlloc, int inUnits)
     cout << "couldn't find abc" << endl;
   return 0;
   */
-  name = External Name
+  name = externalName;
  while (name != "")    //need to better understand what is meant by broken
  {
-  if (symbolTable.find(name)
+  if (symbolTable.find(name))
   {
     processError("multiple name definition");
   }
