@@ -21,3 +21,13 @@ error types: syntactical, semantic, lexical, compiler
     - key: externalName
     - value: internal name, data type, mode, value, alloc, units
     - use a map (associative array)  
+    - use .find() - returns an iterator to the location in the symbol table
+    - check https://en.cppreference.com/w/cpp/container/map
+    - we do not put multiply defined symbols into our symbol table
+    - entries within a map are pairs
+    - key (first) value (second)
+    - itr->second.getAlloc()
+   
+
+
+- Truncation must happen in the nextToken() function
