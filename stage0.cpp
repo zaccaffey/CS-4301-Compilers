@@ -428,14 +428,18 @@ allocation inAlloc, int inUnits)
   {
     processError("multiple name definition");
   }
-  else if (name is a keyword)
-    processError(illegal use of keyword)
-  else                      //create table entry
+  else if (isKeyword(externalName))
   {
-    if (name begins with uppercase)
-      symbolTable[name]=(name,inType,inMode,inValue,inAlloc,inUnits);
+    processError("illegal use of keyword");
+  }
+  else //create table entry
+  {
+    if (isupper(externalName[0]))
+    {
+      symbolTable.insert(externalName,inType,inMode,inValue,inAlloc,inUnits);
+    }
     else
-      symbolTable[name]=(genInternalName(inType),inType,inMode,inValue,
+      ssymbolTable.insert(genInternalName(inType),inType,inMode,inValue,
       inAlloc,inUnits);
   }  
  }
