@@ -412,8 +412,10 @@ allocation inAlloc, int inUnits)
   */
  while (name broken from list of external names and put into name != "")    //need to better understand what is meant by broken
  {
-  if (symbolTable[name] is defined)
-    processError(multiple name definition)
+  if (symbolTable.find(externalName)
+  {
+    processError("multiple name definition");
+  }
   else if (name is a keyword)
     processError(illegal use of keyword)
   else                      //create table entry
