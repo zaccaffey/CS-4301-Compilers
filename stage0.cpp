@@ -449,7 +449,7 @@ allocation inAlloc, int inUnits)
   else //create table entry
   {
     if (isupper(name[0]))
-      symbolTable.insert(name,inType,inMode,inValue,inAlloc,inUnits);
+      symbolTable.insert(name,inType,inMode,inValue,inAlloc,inUnits);     //need to look at these
     else
       symbolTable.insert(genInternalName(inType),inType,inMode,inValue,
       inAlloc,inUnits);
@@ -474,7 +474,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
  else //name is an identifier and hopefully a constant
  {
   if (itr != symbolTable.end())     //CHECK THIS
-    dataType = type of symbolTable[name];
+    dataType = itr->second.getDataType(); //    type of symbolTable[name];
   else
     processError("reference to undefined constant");
  }
