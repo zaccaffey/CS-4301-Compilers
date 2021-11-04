@@ -420,6 +420,7 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 allocation inAlloc, int inUnits)
 {
  vector<string> externalNames;
+ externalNames.insert(externalName);
   /*
   map<string, SymbolTableEntry> st;
   map<string, SymbolTableEntry>::iterator itr;
