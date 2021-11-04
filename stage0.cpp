@@ -379,9 +379,13 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
   bool integer = isInteger(s);
 
   if (integer || s == "true" || s == "false" || s == "not" || s == "+" || s == "-")     //this doesnt seem like it will be right to me but I am not sure
+  {
     return true;
+  }
   else
+  {
     return false;
+  }
 }
 
 // ---------------------------------------------------------------------------------
@@ -414,16 +418,15 @@ allocation inAlloc, int inUnits)
 
 storeTypes Compiler::whichType(string name) //tells which data type a name has - Z (not even close to being done)
 {
- storeTypes b = BOOLEAN;
- storeTypes i = INTEGER;
-
+ storeTypes dataType;
  if (isLiteral(name))   //name is a literal)
  {
   if (isBoolean(name))  //name is a boolean literal)
-    setDataType(b); //data type = "Boolean";    //might need to be uppercase      //idk why setDataType is undefined here. It is in the include
+    dataType = BOOLEAN; //data type = "Boolean";    //might need to be uppercase      //idk why setDataType is undefined here. It is in the include
   else
-    setDataType(i);    //might need to be uppercase
+    dataType = INTEGER;   //might need to be uppercase
  }
+ 
  else //name is an identifier and hopefully a constant
  {
   if (symbolTable[name] is defined)
@@ -431,7 +434,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
   else
     processError(reference to undefined constant);
  }
- return data type
+  return dataType;
 }
 
 // ---------------------------------------------------------------------------------
