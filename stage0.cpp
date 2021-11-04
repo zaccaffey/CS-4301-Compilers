@@ -399,7 +399,17 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 allocation inAlloc, int inUnits)
 {
  vector<string> externalNames;
-
+  /*
+  map<string, SymbolTableEntry> st;
+  map<string, SymbolTableEntry>::iterator itr;
+  
+  itr = st.find("abc");
+  if (itr != st.end())
+    cout << itr->second.getAlloc() << endl;
+  else
+    cout << "couldn't find abc" << endl;
+  return 0;
+  */
  while (name broken from list of external names and put into name != "")    //need to better understand what is meant by broken
  {
   if (symbolTable[name] is defined)
