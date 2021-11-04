@@ -91,7 +91,7 @@ void Compiler::prog()  //token should be "program" - C test
       error = "keyword \"begin\" expected"; 
 	 	  processError(error);
     beginEndStmt();
-    if (token != END_OF_FILE);       // might need to check this. getting error because END_OF_FILE is a char and token is a string
+    if (token != "$");       // might need to check this. getting error because END_OF_FILE is a char and token is a string
       error = "no text may follow \"end\""; 
 		  processError(error);
 } 
@@ -236,34 +236,47 @@ void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not
 {
  string x,y, next, error;
  if ((isNonKeyId(token)))
+ {
   processError("non-keyword identifier expected");
+ }
 
  x = ids();
 
  if (token != ":")
+ {
   error = "\":\" expected";
   processError(error);
+ }
 
  next = nextChar();
   
  if (!(isInteger(next)) || !(isBoolean(next))) //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
+ {
   error = "illegal type follows \":\"";
   processError(error);
+ }
 
  y = token;
 
  if (next != ";")
+ {
   processError("semicolon expected");
+ }
 
- insert(x,y,VARIABLE,"",YES,1);     //this isnt going to work ********************************** second argument must be of type storeTypes and y is not
+ insert(x,whichType(y),VARIABLE,"",YES,1);     //this isnt going to work ********************************** second argument must be of type storeTypes and y is not
  string z = nextToken();
 
  if (z != "begin" || !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
+ {
   error = "non-keyword identifier or \"begin\" expected";
   processError(error);
+ }
 
  if (isNonKeyId(token))   //token is a NON_KEY_ID)
+ {
   varStmts();
+ }
+
 }
 
 // ---------------------------------------------------------------------------------
@@ -319,7 +332,7 @@ bool Compiler::isSpecialSymbol(char c) const // determines if c is a special sym
 
 // ---------------------------------------------------------------------------------
 
-bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id
+bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id  // This needs to be redone - Z
 {
   if(!isKeyword(s))
   {
