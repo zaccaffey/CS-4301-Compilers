@@ -7,6 +7,7 @@
 #include <string>               //For use with strings
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
+#include <vector>
 #include "stage0main.C"
 
 using namespace std;
@@ -392,10 +393,13 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 
 //create symbol table entry for each identifier in list of external names
 //Multiply inserted names are illegal - Z
+
+//Need to create a vector of our external names
+// 
 void Compiler::insert(string externalName,storeTypes inType, modes inMode, string inValue,
 allocation inAlloc, int inUnits)
 {
- string name = externalName.;
+ vector<string> externalNames;
 
  while (name broken from list of external names and put into name != "")    //need to better understand what is meant by broken
  {
