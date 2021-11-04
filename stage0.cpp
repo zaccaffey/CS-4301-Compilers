@@ -335,10 +335,13 @@ bool Compiler::isSpecialSymbol(char c) const // determines if c is a special sym
 
 bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id  // This needs to be redone - Z
 {
-  if(!isKeyword(s) && !isSpecialSymbol(s) && !isInteger(s))
-  {
-      return true;
-  }
+    if(!isKeyword(s) && !isInteger(s))
+    {
+      if (s != ':' || s != ',' || s != ';' || s != '=' || s != '+' || s != '-' || s != '.')
+      { 
+        return true;
+      }
+    }
 }
 
 // ---------------------------------------------------------------------------------
