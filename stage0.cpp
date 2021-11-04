@@ -464,7 +464,6 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
   else
     dataType = INTEGER;   //might need to be uppercase
  }
- 
  else //name is an identifier and hopefully a constant
  {
   if (symbolTable.find(name))
