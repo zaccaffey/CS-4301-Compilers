@@ -390,9 +390,10 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 
 // ---------------------------------------------------------------------------------
 
+//generate the internal name when called upon
 string Compiler::genInternalName(storeTypes stype) const
 {
-
+  
 
 
 
