@@ -470,10 +470,10 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
  
  else //name is an identifier and hopefully a constant
  {
-  if (symbolTable[name] is defined)
+  if (symbolTable.find(name))
     data type = type of symbolTable[name];
   else
-    processError(reference to undefined constant);
+    processError("reference to undefined constant");
  }
   return dataType;
 }
