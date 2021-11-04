@@ -436,9 +436,11 @@ allocation inAlloc, int inUnits)
   return 0;
   */
  string name = externalName;
+ map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
+
  while (name != "")    //need to better understand what is meant by broken
  {
-  if (symbolTable.find(name))
+  if (itr != symbolTable.end())   //might need more here                                            
   {
     processError("multiple name definition");
   }
@@ -460,6 +462,8 @@ allocation inAlloc, int inUnits)
 storeTypes Compiler::whichType(string name) //tells which data type a name has - Z (not even close to being done)
 {
  storeTypes dataType;
+ map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
+
  if (isLiteral(name))   //name is a literal)
  {
   if (isBoolean(name))  //name is a boolean literal)
@@ -469,8 +473,8 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
  }
  else //name is an identifier and hopefully a constant
  {
-  if (symbolTable.find(name))
-    data type = type of symbolTable[name];
+  if (itr != symbolTable.end())     //CHECK THIS
+    dataType = type of symbolTable[name];
   else
     processError("reference to undefined constant");
  }
@@ -481,14 +485,21 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
 
 string Compiler::whichValue(string name) //tells which value a name has
 {
- if (isLiteral(name)) //name is a literal)
-  string value = name;
- else               //name is an identifier and hopefully a constant
-  if (symbolTable[name] is defined and has a value)
-    string value = value of symbolTable[name]
-  else
+  map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
+  string value;
+
+  if (isLiteral(name)) //name is a literal)
+  {
+   string value = name;
+  }
+  else               //name is an identifier and hopefully a constant
+  {
+   if (itr != symbolTable.end() && itr->second.getValue() != "")  //this must also have contents
+    value = itr->second.getValue();       // might need to be first, well
+   else
     processError("reference to undefined constant");
- return value;
+  }
+  return value;
 }
 
 // ---------------------------------------------------------------------------------
