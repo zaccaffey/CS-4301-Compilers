@@ -390,6 +390,17 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 
 // ---------------------------------------------------------------------------------
 
+string Compiler::genInternalName(storeTypes stype) const
+{
+
+
+
+
+
+}
+
+// ---------------------------------------------------------------------------------
+
 //create symbol table entry for each identifier in list of external names
 //Multiply inserted names are illegal - Z
 
