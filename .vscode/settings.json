@@ -6,6 +6,7 @@
         "xstring": "cpp",
         "xlocale": "cpp",
         "xutility": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "xtree": "cpp"
     }
 }
