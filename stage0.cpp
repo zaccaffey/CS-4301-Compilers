@@ -537,8 +537,17 @@ allocation inAlloc, int inUnits)
     }
     else
     {
-      symbolTable.insert(genInternalName(inType),inType,inMode,inValue,
-      inAlloc,inUnits);
+      string internal_name = genInternalName(inType);                                                                          //symbolTable.insert(genInternalName(inType),inType,inMode,inValue, inAlloc,inUnits);
+      itr = symbolTable.find(internal_name);        //dont think this is correct - Z
+      symbolTable.insert({itr->first, itr->second});    //inType
+      itr = symbolTable.find(mode);
+      symbolTable.insert({itr->first, itr->second});    //inMode
+      itr = symbolTable.find(value);
+      symbolTable.insert({itr->first, itr->second});    //inValue
+      itr = symbolTable.find(alloc);
+      symbolTable.insert({itr->first, itr->second});    //inAlloc
+      itr = symbolTable.find(units);
+      symbolTable.insert({itr->first, itr->second});    //inUnits
     }
   }  
  }
