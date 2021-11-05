@@ -488,7 +488,9 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 allocation inAlloc, int inUnits)
 {
  vector<string> externalNames;
- externalNames.insert(&externalName, externalNames);
+ string name = externalName;
+ map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
+ symbolTable.insert({itr->first, itr->second});                           //CHECK THESE LINES TO SEE IF IT IS ACTUALLY INSERTING THE EXTERNAL NAME
   /*
   map<string, SymbolTableEntry> st;
   map<string, SymbolTableEntry>::iterator itr;
@@ -500,8 +502,6 @@ allocation inAlloc, int inUnits)
     cout << "couldn't find abc" << endl;
   return 0;
   */
- string name = externalName;
- map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
 
  while (name != "")    //need to better understand what is meant by broken
  {
@@ -517,7 +517,9 @@ allocation inAlloc, int inUnits)
   {
     if (isupper(name[0]))
     {
-      symbolTable.insert(name,inType,inMode,inValue,inAlloc,inUnits);     //need to look at these
+      string for_name = 
+      itr = symbolTable.find()
+      symbolTable.insert({itr->first, itr->second.externalName});     //(name,inType,inMode,inValue,inAlloc,inUnits);     //need to look at these
     }
     else
     {
