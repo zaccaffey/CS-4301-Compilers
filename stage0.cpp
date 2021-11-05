@@ -34,8 +34,8 @@ void Compiler::createListingHeader() // - Z (needs to be formatted)
 {
 	time_t now = time(0);
 	char* time = ctime(&now);
-	cout << "STAGE0:\t Zac Caffey and Cameron Ley, " << time << endl << endl;
-	cout << "LINE NO:\t\t\t\t" << "SOURCE STATEMENT" << endl << endl;
+	listingFile << "STAGE0:\t Zac Caffey and Cameron Ley, " << time << endl << endl;
+	listingFile << "LINE NO:" << setw(/*what num do we need here?*/) << right << "SOURCE STATEMENT" << endl << endl;
  //print "STAGE0:", name(s), DATE, TIME OF DAY
  //print "LINE NO:", "SOURCE STATEMENT"
  //line numbers and source statements should be aligned under the headings
@@ -49,8 +49,10 @@ void Compiler::parser()
   nextChar();
   //ch must be initialized to the first character of the source file
   if (nextToken() != "program")
+  {
     error = "keyword \"program\" expected";
     processError(error);
+  }
   //a call to nextToken() has two effects
   // (1) the variable, token, is assigned the value of the next token
   // (2) the next token is read from the source file in order to make
@@ -611,7 +613,7 @@ void Compiler::emit(string label, string instruction, string operands, string co
 	objectFile << setw(8) << label;              //changed from width(x) to setw(x) - Z
 	//Output instruction in a field of width 8 
 	objectFile << setw(8) << instruction;
-	//Output the operands in a field of width 24 
+	//Output the operands in a field of width 24      //WHY A FIELD WIDTH OF 5? JUST CURIOUS - Z
 	objectFile << setw(24) << operands;
 	//Output the comment 
 	objectFile << comment;
@@ -654,7 +656,7 @@ void Compiler::emitStorage()
 
 // ---------------------------------------------------------------------------------
 
-string Compiler::nextToken()        //returns the next token or end of file marker { - C              
+string Compiler::nextToken()        //returns the next token or end of file marker { - C   MIGHT WANT TO CHANGE THIS TO A SWITCH STATEMENT TO MAKE THINGS EASIER FOR LATER             
 {
 	token = "";	
 	while(token == "")
