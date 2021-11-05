@@ -690,7 +690,7 @@ void Compiler::emitStorage()
 
  for (int i = 0; i < symbolTable.size(); ++i)
  {
-   map<string, SymbolTableEntry>::iterator itr = symbolTable.find(i);
+   map<string, SymbolTableEntry>::iterator itr = symbolTable.find(i);     //need this to be the address of the first table entry
 
    if (itr->second.getAlloc() == YES)
    {
