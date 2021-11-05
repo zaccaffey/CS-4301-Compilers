@@ -668,15 +668,28 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 
 void Compiler::emitStorage()
 {
- map<string,SymbolTableEntry>::iterator itr;
- emit("SECTION", ".data")
- for those entries in the symbolTable that have
+ map<string,SymbolTableEntry>::iterator itr = symbolTable.find()
+ map<string,SymbolTableEntry>::iterator itr2;
+
+ emit("SECTION", ".data");
+ if (alloc == YES && itr->first.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
+ {
+
+ }
+ /*for those entries in the symbolTable that have
  an allocation of YES and a storage mode of CONSTANT
  { call emit to output a line to objectFile }
  emit("SECTION", ".bss")
  for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
 { call emit to output a line to objectFile }
+*/
+ while (*itr != END_OF_FILE)    //this is wrong - Z
+ {
+   if ()
+
+ }
+
 }
 
 // ---------------------------------------------------------------------------------
