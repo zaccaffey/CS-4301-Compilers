@@ -668,8 +668,7 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 
 void Compiler::emitStorage()
 {
- map<string,SymbolTableEntry>::iterator itr = symbolTable[alloc];
- map<string,SymbolTableEntry>::iterator itr2;
+ map<string,SymbolTableEntry>::iterator itr;     //NEED TO WORK ON THIS PART - Z
 
  emit("SECTION", ".data");
  if (itr->second.getAlloc() == YES && itr->second.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
@@ -679,7 +678,7 @@ void Compiler::emitStorage()
 /*for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
 { call emit to output a line to objectFile }*/
- if (itr->second.getAlloc() == YES && itr->first.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
+ if (itr->second.getAlloc() == YES && itr->second.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
  {
     emit("SECTION", ".data");
  }
