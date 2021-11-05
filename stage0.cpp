@@ -674,16 +674,16 @@ void Compiler::emitStorage()
  emit("SECTION", ".data");
  if (itr->second.getAlloc() == YES && itr->second.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
  {
-
+    emit("SECTION", ".data");
  }
- /*for those entries in the symbolTable that have
- an allocation of YES and a storage mode of CONSTANT
- { call emit to output a line to objectFile }
- emit("SECTION", ".bss")
- for those entries in the symbolTable that have
+/*for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
-{ call emit to output a line to objectFile }
-*/
+{ call emit to output a line to objectFile }*/
+ if (itr->second.getAlloc() == YES && itr->first.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
+ {
+    emit("SECTION", ".data");
+ }
+
  while (*itr != END_OF_FILE)    //this is wrong - Z
  {
    if ()
