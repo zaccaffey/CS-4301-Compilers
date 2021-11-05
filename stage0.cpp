@@ -687,17 +687,34 @@ void Compiler::emitStorage()
         }
     }
  */
+
+ for (int i = 0; i < symbolTable.size(); ++i)
+ {
+   map<string, SymbolTableEntry>::iterator itr = symbolTable.find(i);
+
+   if (itr->second.getAlloc() == YES)
+   {
+     if (itr->second.getMode() == CONSTANT || itr->second.getMode() == VARIABLE)
+     {
+      emit("SECTION", ".data");
+     }
+   }
+ }
+
+/*
  if (itr->second.getAlloc() == YES && itr->first.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
  {
     emit("SECTION", ".data");
  }
-/*for those entries in the symbolTable that have
+for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
 { call emit to output a line to objectFile }*/
  if (itr->second.getAlloc() == YES && itr->first.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
  {
     emit("SECTION", ".data");
  }
+
+
 }
 
 /*
