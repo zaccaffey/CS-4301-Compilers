@@ -668,7 +668,7 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 
 void Compiler::emitStorage()
 {
- map<string,SymbolTableEntry>::iterator itr = symbolTable.find()
+ map<string,SymbolTableEntry>::iterator itr = symbolTable.begin();
  map<string,SymbolTableEntry>::iterator itr2;
 
 /*for those entries in the symbolTable that have
@@ -688,10 +688,9 @@ void Compiler::emitStorage()
     }
  */
 
- for (int i = 0; i < symbolTable.size(); ++i)
+ for (itr = symbolTable.begin(); itr != symbolTable.end(); ++itr)
  {
-   map<string, SymbolTableEntry>::iterator itr = symbolTable.find(i);     //need this to be the address of the first table entry
-
+                                                                    //map<string, SymbolTableEntry>::iterator itr = symbolTable.find(i);     //need this to be the address of the first table entry
    if (itr->second.getAlloc() == YES)
    {
      if (itr->second.getMode() == CONSTANT || itr->second.getMode() == VARIABLE)
@@ -708,35 +707,16 @@ void Compiler::emitStorage()
  }
 for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
-{ call emit to output a line to objectFile }
+{ call emit to output a line to objectFile }*/
+
+/*
  if (itr->second.getAlloc() == YES && itr->first.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
  {
     emit("SECTION", ".data");
  }
 
-
-}
 */
-/*
-pseudo for above code
-
-string status;
-for (itr = symbolTable.begin(); itr < symbolTable.size(); ++itr)
-{
-  if (*(itr) == YES && (SOME OTHER CONDITION TO TEST FOR IF WE ARE AT THE RIGHT SPOT TO CHECK FOR ALLOCATION))
-  {
-
-    while (itr != whatever num we are look for)
-    {
-      if (*(itr) == CONSTANT)
-      {
-        emit("SECTION", ".data");
-      }
-    }
-  }
-
 }
-*/
 
 
 // ---------------------------------------------------------------------------------
