@@ -674,7 +674,6 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 void Compiler::emitStorage()
 {
  map<string,SymbolTableEntry>::iterator itr = symbolTable.begin();
- map<string,SymbolTableEntry>::iterator itr2;
 
 /*for those entries in the symbolTable that have
  an allocation of YES and a storage mode of CONSTANT
