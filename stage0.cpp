@@ -408,6 +408,8 @@ bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id  //
         return true;
       }
     }
+
+    return false;
 }
 
 // ---------------------------------------------------------------------------------
