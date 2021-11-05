@@ -721,7 +721,6 @@ for those entries in the symbolTable that have
 }
 
 
-
 // ---------------------------------------------------------------------------------
 
 string Compiler::nextToken()        //returns the next token or end of file marker { - C   MIGHT WANT TO CHANGE THIS TO A SWITCH STATEMENT TO MAKE THINGS EASIER FOR LATER             
