@@ -698,14 +698,29 @@ void Compiler::emitStorage()
  {
     emit("SECTION", ".data");
  }
+}
 
- while (*itr != END_OF_FILE)    //this is wrong - Z
- {
-   if ()
+/*
+pseudo for above code
 
- }
+string status;
+for (itr = symbolTable.begin(); itr < symbolTable.size(); ++itr)
+{
+  if (*(itr) == YES && (SOME OTHER CONDITION TO TEST FOR IF WE ARE AT THE RIGHT SPOT TO CHECK FOR ALLOCATION))
+  {
+
+    while (itr != whatever num we are look for)
+    {
+      if (*(itr) == CONSTANT)
+      {
+        emit("SECTION", ".data");
+      }
+    }
+  }
 
 }
+*/
+
 
 // ---------------------------------------------------------------------------------
 
