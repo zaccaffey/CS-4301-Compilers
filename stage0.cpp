@@ -8,6 +8,7 @@
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
 #include <vector>
+#include <stdlib.h>
 #include "stage0main.C"
 
 using namespace std;
@@ -74,7 +75,7 @@ void Compiler::createListingTrailer() // - Z
 void Compiler::processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     ofstream cout(err);
-    exit(0);
+    exit(EXIT_FAILURE);
 }
 
 // ---------------------------------------------------------------------------------
