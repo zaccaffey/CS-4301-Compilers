@@ -107,7 +107,7 @@ void Compiler::prog()  //token should be "program" - C test
 
     beginEndStmt();
 
-    if (token != "$");       // might need to check this. getting error because END_OF_FILE is a char and token is a string
+    if (token != "$")       // might need to check this. getting error because END_OF_FILE is a char and token is a string
     {
       error = "no text may follow \"end\""; 
 		  processError(error);

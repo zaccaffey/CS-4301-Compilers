@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cpp.exe - Build and debug active file",
+            "name": "stage0.cpp - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "program": "Users\\Zac\\Compilers\\stage0.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${Users\\Zac\\Compilers}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",

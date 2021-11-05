@@ -39841,6 +39841,50 @@ namespace std
 }
 # 73 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\vector" 2 3
 # 11 "C:\\Users\\Zac\\Compilers\\stage0.cpp" 2
+# 1 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\stdlib.h" 1 3
+# 36 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\stdlib.h" 3
+# 1 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\cstdlib" 1 3
+# 39 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\cstdlib" 3
+       
+# 40 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\cstdlib" 3
+# 37 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\stdlib.h" 2 3
+
+using std::abort;
+using std::atexit;
+using std::exit;
+# 51 "c:\\mingw\\lib\\gcc\\mingw32\\9.2.0\\include\\c++\\stdlib.h" 3
+using std::div_t;
+using std::ldiv_t;
+
+using std::abs;
+using std::atof;
+using std::atoi;
+using std::atol;
+using std::bsearch;
+using std::calloc;
+using std::div;
+using std::free;
+using std::getenv;
+using std::labs;
+using std::ldiv;
+using std::malloc;
+
+using std::mblen;
+using std::mbstowcs;
+using std::mbtowc;
+
+using std::qsort;
+using std::rand;
+using std::realloc;
+using std::srand;
+using std::strtod;
+using std::strtol;
+using std::strtoul;
+using std::system;
+
+using std::wcstombs;
+using std::wctomb;
+# 12 "C:\\Users\\Zac\\Compilers\\stage0.cpp" 2
 # 1 "C:\\Users\\Zac\\Compilers\\stage0main.C" 1
 # 1 "C:\\Users\\Zac\\Compilers\\stage0.h" 1
 
@@ -43632,7 +43676,7 @@ int main(int argc, char **argv)
 
   return 0;
 }
-# 12 "C:\\Users\\Zac\\Compilers\\stage0.cpp" 2
+# 13 "C:\\Users\\Zac\\Compilers\\stage0.cpp" 2
 
 using namespace std;
 
@@ -43698,7 +43742,11 @@ void Compiler::createListingTrailer()
 void Compiler::processError(string err)
 {
     ofstream cout(err);
-    exit(0);
+    exit(
+# 78 "C:\\Users\\Zac\\Compilers\\stage0.cpp" 3
+        1
+# 78 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
+                    );
 }
 
 
@@ -44102,7 +44150,7 @@ string Compiler::genInternalName(storeTypes stype) const
 
   return internal;
 }
-# 489 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
+# 490 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
 void Compiler::insert(string externalName,storeTypes inType, modes inMode, string inValue,
 allocation inAlloc, int inUnits)
 {
@@ -44116,7 +44164,7 @@ allocation inAlloc, int inUnits)
 
  map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
  symbolTable.insert({itr->first, itr->second});
-# 514 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
+# 515 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
  while (name != "")
  {
   if (itr != symbolTable.end())
@@ -44278,7 +44326,7 @@ void Compiler::emitStorage()
 {
  map<string,SymbolTableEntry>::iterator itr = symbolTable.begin();
  map<string,SymbolTableEntry>::iterator itr2;
-# 693 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
+# 694 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
  for (itr = symbolTable.begin(); itr != symbolTable.end(); ++itr)
  {
 
@@ -44290,7 +44338,7 @@ void Compiler::emitStorage()
      }
    }
  }
-# 721 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
+# 722 "C:\\Users\\Zac\\Compilers\\stage0.cpp"
 }
 
 
