@@ -677,7 +677,7 @@ void Compiler::emitStorage()
  /* Proposed Change - Cam
  for (int i = 0; i < symbolTable.size(); i++)
     {
-    map<string,SymbolTableEntry>::iterator itr = symbolTable.find()
+    map<string,SymbolTableEntry>::iterator itr = symbolTable.at(i)
     if (itr->second.getAlloc() == YES)
         {
           if (itr->first.getMode() == CONSTANT || itr->first.getMode() == VARIABLE)
