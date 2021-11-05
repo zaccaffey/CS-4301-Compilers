@@ -668,11 +668,11 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 
 void Compiler::emitStorage()
 {
- map<string,SymbolTableEntry>::iterator itr = symbolTable.find()
+ map<string,SymbolTableEntry>::iterator itr = symbolTable[alloc];
  map<string,SymbolTableEntry>::iterator itr2;
 
  emit("SECTION", ".data");
- if (alloc == YES && itr->first.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
+ if (itr->second.getAlloc() == YES && itr->second.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
  {
 
  }
