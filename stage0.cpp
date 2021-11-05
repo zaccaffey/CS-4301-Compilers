@@ -489,6 +489,12 @@ allocation inAlloc, int inUnits)
 {
  vector<string> externalNames;
  string name = externalName;
+ string value = inValue;
+ string type = to_string(inType);
+ string mode = to_string(inMode);
+ string alloc = to_string(inAlloc);
+ string units = to_string(inUnits);
+ 
  map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
  symbolTable.insert({itr->first, itr->second});                           //CHECK THESE LINES TO SEE IF IT IS ACTUALLY INSERTING THE EXTERNAL NAME
   /*
@@ -517,9 +523,17 @@ allocation inAlloc, int inUnits)
   {
     if (isupper(name[0]))
     {
-      string for_name = 
-      itr = symbolTable.find()
-      symbolTable.insert({itr->first, itr->second.externalName});     //(name,inType,inMode,inValue,inAlloc,inUnits);     //need to look at these
+      symbolTable.insert({itr->first, itr->second});     //name     :need to look at these - Z
+      itr = symbolTable.find(type); 
+      symbolTable.insert({itr->first, itr->second});    //inType
+      itr = symbolTable.find(mode);
+      symbolTable.insert({itr->first, itr->second});    //inMode
+      itr = symbolTable.find(value);
+      symbolTable.insert({itr->first, itr->second});    //inValue
+      itr = symbolTable.find(alloc);
+      symbolTable.insert({itr->first, itr->second});    //inAlloc
+      itr = symbolTable.find(units);
+      symbolTable.insert({itr->first, itr->second});    //inUnits
     }
     else
     {
