@@ -668,17 +668,33 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 
 void Compiler::emitStorage()
 {
- map<string,SymbolTableEntry>::iterator itr;     //NEED TO WORK ON THIS PART - Z
+ map<string,SymbolTableEntry>::iterator itr = symbolTable.find()
+ map<string,SymbolTableEntry>::iterator itr2;
 
- emit("SECTION", ".data");
- if (itr->second.getAlloc() == YES && itr->second.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
+/*for those entries in the symbolTable that have
+ an allocation of YES and a storage mode of CONSTANT
+ { call emit to output a line to objectFile }*/
+ /* Proposed Change - Cam
+ for (int i = 0; i < symbolTable.size(); i++)
+    {
+    map<string,SymbolTableEntry>::iterator itr = symbolTable.find()
+    if (itr->second.getAlloc() == YES)
+        {
+          if (itr->first.getMode() == CONSTANT || itr->first.getMode() == VARIABLE)
+          {
+            emit("SECTION", ".data");
+          }
+        }
+    }
+ */
+ if (itr->second.getAlloc() == YES && itr->first.getMode() == CONSTANT)      //having a hard time figuring out how to access these different data points
  {
     emit("SECTION", ".data");
  }
 /*for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
 { call emit to output a line to objectFile }*/
- if (itr->second.getAlloc() == YES && itr->second.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
+ if (itr->second.getAlloc() == YES && itr->first.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
  {
     emit("SECTION", ".data");
  }
