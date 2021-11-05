@@ -708,7 +708,7 @@ void Compiler::emitStorage()
  }
 for those entries in the symbolTable that have
  an allocation of YES and a storage mode of VARIABLE
-{ call emit to output a line to objectFile }*/
+{ call emit to output a line to objectFile }
  if (itr->second.getAlloc() == YES && itr->first.getMode() == VARIABLE)      //having a hard time figuring out how to access these different data points
  {
     emit("SECTION", ".data");
@@ -716,7 +716,7 @@ for those entries in the symbolTable that have
 
 
 }
-
+*/
 /*
 pseudo for above code
 
