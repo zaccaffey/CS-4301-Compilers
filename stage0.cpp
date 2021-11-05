@@ -2,16 +2,16 @@
 //CS 4301
 //Compiler Stage 0
 
-#include <fstream>              //enable input streams
-#include <ostream>              //Enable output streams
-#include <string>               //For use with strings
+//#include <fstream>              //enable input streams            (These are already defined in .h)
+//#include <ostream>              //Enable output streams
+//#include <string>               //For use with strings
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
 #include <vector>
 #include <stdlib.h>
 #include "stage0main.C"
 
-using namespace std;
+//using namespace std;
 
 Compiler::Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
 {
