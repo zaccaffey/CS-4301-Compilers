@@ -8,7 +8,7 @@
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
 #include <vector>
-#include <stage0.h>
+#include "stage0.h"
 #include <iostream>
 
 using namespace std;
@@ -80,13 +80,8 @@ void Compiler::createListingTrailer() // - Z
 void Compiler::processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     listingFile << err;
-<<<<<<< HEAD
 	  ++errorCount;
 	  listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
-=======
-	errorCount += 1;
-	listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
->>>>>>> 427197c2500b6262de2062efdd5b36accde5853f
     exit(-1);
 }
 
