@@ -528,7 +528,7 @@ allocation inAlloc, int inUnits)
         else
         {
           auto internal = genInternalName(inType);
-          symbolTable.insert(pair<string, SymbolTableEntry>(internal, inType, inMode, inValue, inAlloc, inUnits));
+          symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(internal, inType, inMode, inValue, inAlloc, inUnits)));
         }
       }
     }
