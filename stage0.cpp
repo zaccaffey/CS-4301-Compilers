@@ -492,6 +492,43 @@ string Compiler::genInternalName(storeTypes stype) const
 void Compiler::insert(string externalName,storeTypes inType, modes inMode, string inValue,
 allocation inAlloc, int inUnits)
 {
+
+  string name;
+
+  auto itr = externalName.begin();      //I do not think that auto is required in this statement. It does however make the code more efficient by declaring the type of the iterator to whatever the type of externalName.begin() is
+
+  while (itr < externalName.end())
+  {
+    name = "";
+
+    while (*itr != ',' && itr < externalName.end())
+    {
+      name += *itr;
+      ++itr;
+    }
+  }
+
+  if (name != "")                   //meaning that we have grabbed a name from the external names (if symbolTable name is defined)
+    {
+      if (symbolTable.count(name) != 1)       //multiply defined
+      {
+        processError("multiple definitions of name");
+      }
+      else if (isKeyword(name))
+      {
+        processError("illegal use of keyword");
+      }
+      else
+      {
+        if (isupper(name[0])
+        {
+          symbolTable.insert()
+        }
+      }
+    }
+
+
+  /*
  vector<string> externalNames;
  string name = externalName;
  string value = inValue;
@@ -502,17 +539,8 @@ allocation inAlloc, int inUnits)
  
  map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
  symbolTable.insert({itr->first, itr->second});                           //CHECK THESE LINES TO SEE IF IT IS ACTUALLY INSERTING THE EXTERNAL NAME
-  /*
-  map<string, SymbolTableEntry> st;
-  map<string, SymbolTableEntry>::iterator itr;
   
-  itr = st.find("abc");
-  if (itr != st.end())
-    cout << itr->second.getAlloc() << endl;
-  else
-    cout << "couldn't find abc" << endl;
-  return 0;
-  */
+ 
 
  while (name != "")    //need to better understand what is meant by broken
  {
@@ -556,6 +584,7 @@ allocation inAlloc, int inUnits)
     }
   }  
  }
+ */
 }
 
 // ---------------------------------------------------------------------------------
