@@ -9,7 +9,7 @@
 #include <iomanip>              //This is to enable use of setw()
 #include <vector>
 #include <stdlib.h>
-#include "stage0main.C"
+#include "stage0.h"
 
 //using namespace std;
 
@@ -74,7 +74,7 @@ void Compiler::createListingTrailer() // - Z
 
 void Compiler::processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
-    ofstream cout(err);
+    listingFile << err;
     exit(EXIT_FAILURE);
 }
 
@@ -727,6 +727,7 @@ for those entries in the symbolTable that have
 
 string Compiler::nextToken()        //returns the next token or end of file marker { - C   MIGHT WANT TO CHANGE THIS TO A SWITCH STATEMENT TO MAKE THINGS EASIER FOR LATER             
 {
+
 	token = "";	
 	while(token == "")
 	{
