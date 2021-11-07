@@ -622,7 +622,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
     dataType = INTEGER;   //might need to be uppercase
   }
  }
- else //name is an identifier and hopefully a constant
+  /*else //name is an identifier and hopefully a constant
  {
   if (itr != symbolTable.end())     //CHECK THIS
   {
@@ -632,6 +632,13 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
   {
     processError("reference to undefined constant");
   }
+ }*/
+ else //name is an identifier and hopefully a constant
+ {
+		if (symbolTable.count(name) > 0)
+			dataType = symbolTable.at(name).getDataType();
+		else
+			processError("reference to undefined constant");
  }
   return dataType;
 }
