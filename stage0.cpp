@@ -75,7 +75,9 @@ void Compiler::createListingTrailer() // - Z
 void Compiler::processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     listingFile << err;
-    exit(EXIT_FAILURE);
+	  errorCount += 1;
+	  listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
+    exit(-1);
 }
 
 // ---------------------------------------------------------------------------------
@@ -90,6 +92,7 @@ void Compiler::prog()  //token should be "program" - C test
     }
 
     progStmt(); 
+    nextToken();
 
     if (token == "const") 
     {
@@ -106,6 +109,7 @@ void Compiler::prog()  //token should be "program" - C test
     }
 
     beginEndStmt();
+    nextToken();
 
     if (token != "$")       // might need to check this. getting error because END_OF_FILE is a char and token is a string
     {
@@ -135,11 +139,9 @@ void Compiler::progStmt()  //token should be "program" - C
   {
 		processError("semicolon expected");
   }
-	// Going to check this one too -C
+
   x = nextToken(); 
-	// Not Sure about this one -C
   code("program", x);
-	// Not Sure about this one -C 
   insert(x,PROG_NAME,CONSTANT,x,NO,0);
 }
 
@@ -207,7 +209,7 @@ void Compiler::beginEndStmt()  //token should be "begin" - C
 		  processError("period expected");
     }
     x = nextToken();
-	// Unsure About this as well -C
+
     code("end", ".");
 }
 
@@ -215,7 +217,7 @@ void Compiler::beginEndStmt()  //token should be "begin" - C
 
 void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
-  string x,y, next, error;
+  string x, y, error;
 
   if (!isNonKeyId(token))
   {
@@ -223,9 +225,8 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
   }
 
   x = token;
-  next = nextToken();
 
-  if (next != "=")
+  if (nextToken() != "=")
   {
     error = "\"=\" expected";
     processError(error);
@@ -700,7 +701,6 @@ void Compiler::emitPrologue(string progName, string operand2)
 {
   //Output identifying comments at beginning of objectFile 
   //Output the %INCLUDE directives 
-	//objectFile << "
 	objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n\n";
 	emit("SECTION", ".text");
 	emit("global", "_start", "", "; program" + progName);
