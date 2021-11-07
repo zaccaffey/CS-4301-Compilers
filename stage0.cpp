@@ -75,7 +75,7 @@ void Compiler::createListingTrailer() // - Z
 void Compiler::processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     listingFile << err;
-	  errorCount += 1;
+	  ++errorCount;
 	  listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
     exit(-1);
 }
@@ -217,7 +217,7 @@ void Compiler::beginEndStmt()  //token should be "begin" - C
 
 void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
-  string x, y, error;
+  string x, y, error, next;
 
   if (!isNonKeyId(token))
   {
