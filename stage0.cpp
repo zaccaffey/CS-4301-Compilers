@@ -844,26 +844,25 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 char Compiler::nextChar()   //returns the next character or end of file marker - C (needs to be edited)
 { 
   // read in next character 
-  ch = sourceFile.get();    //get does not need an argument - Z
+  sourceFile.get(ch);    //get does not need an argument - Z
   if (sourceFile.eof())
   {
 	//use a special character "$" to designate end of file 
     ch = END_OF_FILE;     
+    return ch;
   }
   else 
   {
-	  ch = sourceFile.get();
+	  sourceFile.get(ch);
   }
 	// print to listing file (starting new line if necessary) 
 	if (ch == '\n')
 	{
-		listingFile << '\n';    //(changed from listingFile.write(ch); I think this way will work better - Z)
-		listingFile << ch;
+    listingFile << endl << lineNo;
+		lineNo++;    //(changed from listingFile.write(ch); I think this way will work better - Z)
 	}
-	else 
-	{
-		listingFile << ch;      //(changed from listingFile.write(ch); I think this way will work better - Z)
-	}
+	listingFile << ch;      //(changed from listingFile.write(ch); I think this way will work better - Z)
+
   
   return ch; 
 }
