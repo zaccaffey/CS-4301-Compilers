@@ -35,7 +35,7 @@ void Compiler::createListingHeader() // - Z (needs to be formatted)
 {
 	time_t now = time(0);
 	char* time = ctime(&now);
-	listingFile << "STAGE0:\t Zac Caffey and Cameron Ley, " << time << endl << endl;
+	listingFile << "STAGE0:\t Zac Caffey and Cameron Ley, " << time << endl;
 	listingFile << "LINE NO:" << right << setw(14) << "SOURCE STATEMENT" << endl << endl;
  //print "STAGE0:", name(s), DATE, TIME OF DAY
  //print "LINE NO:", "SOURCE STATEMENT"
@@ -67,7 +67,7 @@ void Compiler::parser()
 
 void Compiler::createListingTrailer() // - Z
 {
-    cout << "COMPILATION TERMINATED, # ERRORS ENCOUNTERED" << endl;
+    cout << "COMPILATION TERMINATED," << errorCount << "ERRORS ENCOUNTERED" << endl;
 }
 
 // ---------------------------------------------------------------------------------
