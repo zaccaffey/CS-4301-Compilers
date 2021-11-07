@@ -494,6 +494,7 @@ allocation inAlloc, int inUnits)
 {
 
   string name;
+  map<string,SymbolTableEntry>::iterator itr2 = symbolTable.begin();
 
   auto itr = externalName.begin();      //I do not think that auto is required in this statement. It does however make the code more efficient by declaring the type of the iterator to whatever the type of externalName.begin() is
 
@@ -520,9 +521,14 @@ allocation inAlloc, int inUnits)
       }
       else
       {
-        if (isupper(name[0])
+        if (isupper(name[0]))
         {
-          symbolTable.insert()
+          symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, inType, inMode, inValue, inAlloc, inUnits)));
+        }
+        else
+        {
+          auto internal = genInternalName(inType);
+          symbolTable.insert(pair<string, SymbolTableEntry>(internal, inType, inMode, inValue, inAlloc, inUnits));
         }
       }
     }
