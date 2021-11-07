@@ -2,22 +2,23 @@
 //CS 4301
 //Compiler Stage 0
 
-//#include <fstream>              //enable input streams            (These are already defined in .h)
-//#include <ostream>              //Enable output streams
-//#include <string>               //For use with strings
+#include <fstream>              //enable input streams
+#include <ostream>              //Enable output streams
+#include <string>               //For use with strings
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
 #include <vector>
-#include <stdlib.h>
-#include "stage0.h"
+#include <stage0.h>
+#include <iostream>
 
-//using namespace std;
+using namespace std;
 
 Compiler::Compiler(char **argv) // constructor - Z (needs to declare sourceFile, listingFile, and objectFile. Also need to fix the issue with using argv. might just be a result of the prior error)
 {
-    ifstream sourceFile(argv[1]);
-    ofstream listingFile(argv[2]);  
-    ofstream objectFile(argv[3]);
+    sourceFile.open(argv[1]);
+    listingFile.open(argv[2]);
+    objectFile.open(argv[3]);
+
 }
 
 // ---------------------------------------------------------------------------------
@@ -33,9 +34,12 @@ Compiler::~Compiler() // destructor - Z
 
 void Compiler::createListingHeader() // - Z (needs to be formatted)
 {
+	cout << "LISTING HEADER" << endl;
 	time_t now = time(0);
 	char* time = ctime(&now);
-	listingFile << "STAGE0:\t Zac Caffey and Cameron Ley, " << time << endl;
+	string test = "test";
+	//listingFile.write(test);
+	listingFile << "STAGE0:\t Zac Caffey and Cameron Ley, " << time << endl << endl;
 	listingFile << "LINE NO:" << right << setw(14) << "SOURCE STATEMENT" << endl << endl;
  //print "STAGE0:", name(s), DATE, TIME OF DAY
  //print "LINE NO:", "SOURCE STATEMENT"
@@ -49,7 +53,8 @@ void Compiler::parser()
   string error;
   nextChar();
   //ch must be initialized to the first character of the source file
-  if (nextToken() != "program")
+  string x = nextToken();
+  if (x != "program")
   {
     error = "keyword \"program\" expected";
     processError(error);
@@ -67,7 +72,7 @@ void Compiler::parser()
 
 void Compiler::createListingTrailer() // - Z
 {
-    cout << "COMPILATION TERMINATED," << errorCount << "ERRORS ENCOUNTERED" << endl;
+    cout << "COMPILATION TERMINATED, # ERRORS ENCOUNTERED" << endl;
 }
 
 // ---------------------------------------------------------------------------------
@@ -75,8 +80,13 @@ void Compiler::createListingTrailer() // - Z
 void Compiler::processError(string err)   // - Z (not sure if this is done correctly. May need to adjust the error message) (ALMOST POSITIVE THIS WILL NEED TO BE ADJUSTED)
 {
     listingFile << err;
+<<<<<<< HEAD
 	  ++errorCount;
 	  listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
+=======
+	errorCount += 1;
+	listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
+>>>>>>> 427197c2500b6262de2062efdd5b36accde5853f
     exit(-1);
 }
 
@@ -92,7 +102,7 @@ void Compiler::prog()  //token should be "program" - C test
     }
 
     progStmt(); 
-    nextToken();
+	nextToken();
 
     if (token == "const") 
     {
@@ -109,12 +119,11 @@ void Compiler::prog()  //token should be "program" - C test
     }
 
     beginEndStmt();
-    nextToken();
-
+	nextToken();
     if (token != "$")       // might need to check this. getting error because END_OF_FILE is a char and token is a string
     {
       error = "no text may follow \"end\""; 
-		  processError(error);
+	  processError(error);
     }
 } 
 
@@ -139,9 +148,11 @@ void Compiler::progStmt()  //token should be "program" - C
   {
 		processError("semicolon expected");
   }
-
-  x = nextToken(); 
+	// Going to check this one too -C
+  x = nextToken();
+	// Not Sure about this one -C
   code("program", x);
+	// Not Sure about this one -C 
   insert(x,PROG_NAME,CONSTANT,x,NO,0);
 }
 
@@ -149,7 +160,7 @@ void Compiler::progStmt()  //token should be "program" - C
 
 void Compiler::consts()  //token should be "const" - C
 {  
-  string error; 
+  string error;
 	if (token != "const")
   {
     error = "keyword \"const\" expected"; 
@@ -209,7 +220,7 @@ void Compiler::beginEndStmt()  //token should be "begin" - C
 		  processError("period expected");
     }
     x = nextToken();
-
+	// Unsure About this as well -C
     code("end", ".");
 }
 
@@ -225,6 +236,7 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
   }
 
   x = token;
+  //next = nextToken();
 
   if (nextToken() != "=")
   {
@@ -326,8 +338,8 @@ void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not
  {
   processError("semicolon expected");
  }
-
- insert(x,whichType(y),VARIABLE,"",YES,1);     //this isnt going to work ********************************** second argument must be of type storeTypes and y is not
+ storeTypes type = whichType(y);
+ insert(x,type,VARIABLE,"",YES,1);     //this isnt going to work ********************************** second argument must be of type storeTypes and y is not
  string z = nextToken();
 
  if (z != "begin" || !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
@@ -382,6 +394,7 @@ bool Compiler::isKeyword(string s) const // determines if s is a keyword
   {
     return false;
   }
+  return true;
 }
 
 // ---------------------------------------------------------------------------------
@@ -396,6 +409,7 @@ bool Compiler::isSpecialSymbol(char c) const // determines if c is a special sym
   {
     return false;
   }
+  return true;
 }
 
 // ---------------------------------------------------------------------------------
@@ -409,8 +423,7 @@ bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id  //
         return true;
       }
     }
-
-    return false;
+	return true;
 }
 
 // ---------------------------------------------------------------------------------
@@ -425,6 +438,7 @@ bool Compiler::isInteger(string s) const // determines if s is an integer
     {
       return false;
     }
+	return true;
 }
 
 // ---------------------------------------------------------------------------------
@@ -439,6 +453,7 @@ bool Compiler::isBoolean(string s) const // determines if s is a boolean - Cam
   {
     return false;
   }
+  return true;
 }
 
 // ---------------------------------------------------------------------------------
@@ -455,6 +470,7 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
   {
     return false;
   }
+  return true;
 }
 
 // ---------------------------------------------------------------------------------
@@ -479,7 +495,6 @@ string Compiler::genInternalName(storeTypes stype) const
       ++countB;
       break;
   }
-
   return internal;
 }
 
@@ -493,73 +508,30 @@ string Compiler::genInternalName(storeTypes stype) const
 void Compiler::insert(string externalName,storeTypes inType, modes inMode, string inValue,
 allocation inAlloc, int inUnits)
 {
-
-  string name;
-  map<string,SymbolTableEntry>::iterator itr2 = symbolTable.begin();
-
-  auto itr = externalName.begin();      //I do not think that auto is required in this statement. It does however make the code more efficient by declaring the type of the iterator to whatever the type of externalName.begin() is
-
-  while (itr < externalName.end())
-  {
-    name = "";
-
-    while (*itr != ',' && itr < externalName.end())
-    {
-      name += *itr;
-      ++itr;
-    }
-
-  if (name != "")                   //meaning that we have grabbed a name from the external names (if symbolTable name is defined)
-    {
-      if (symbolTable.count(name) != 1)       //multiply defined
-      {
-        processError("multiple definitions of name");
-      }
-      else if (isKeyword(name))
-      {
-        processError("illegal use of keyword");
-      }
-      else
-      {
-        if (isupper(name[0]))
-        {
-          symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, inType, inMode, inValue, inAlloc, inUnits)));
-        }
-        else
-        {
-          auto internal = genInternalName(inType);
-          symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(internal, inType, inMode, inValue, inAlloc, inUnits)));
-        }
-      }
-    }
-
-    if (itr == externalName.end())
-    {
-      break;
-    }
-    else
-    {
-      ++itr;
-    }
-  }
-
-
-
-  /*
- vector<string> externalNames;
- string name = externalName;
+ //vector<string> externalNames;
+ //externalNames.push_back("");
+ /*string name = externalName;
  string value = inValue;
  string type = to_string(inType);
  string mode = to_string(inMode);
  string alloc = to_string(inAlloc);
- string units = to_string(inUnits);
+ string units = to_string(inUnits);*/
  
- map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
- symbolTable.insert({itr->first, itr->second});                           //CHECK THESE LINES TO SEE IF IT IS ACTUALLY INSERTING THE EXTERNAL NAME
+ //map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
+ //symbolTable.insert({itr->first, itr->second});                           //CHECK THESE LINES TO SEE IF IT IS ACTUALLY INSERTING THE EXTERNAL NAME
+  /*
+  map<string, SymbolTableEntry> st;
+  map<string, SymbolTableEntry>::iterator itr;
   
- 
+  itr = st.find("abc");
+  if (itr != st.end())
+    cout << itr->second.getAlloc() << endl;
+  else
+    cout << "couldn't find abc" << endl;
+  return 0;
+  */
 
- while (name != "")    //need to better understand what is meant by broken
+ /*while (name != "")    //need to better understand what is meant by broken
  {
   if (itr != symbolTable.end())   //might need more here                                            
   {
@@ -600,8 +572,40 @@ allocation inAlloc, int inUnits)
       symbolTable.insert({itr->first, itr->second});    //inUnits
     }
   }  
- }
- */
+ }*/
+string name;
+
+	auto itr = externalName.begin();
+
+	while (itr < externalName.end()) {
+		name = "";
+		while (itr < externalName.end() && *itr != ',' ) {
+			name += *itr;
+			++itr;
+		}
+
+		if (name != "")
+		{
+			if (symbolTable.count(name) > 0)
+				processError("symbol " + name + " is multiply defined");
+			else if (isKeyword(name))
+				processError("illegal use of keyword");
+			else //create table entry
+			{
+				if (isupper(name[0]))
+				{
+					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, inType, inMode, inValue, inAlloc, inUnits)));
+				}
+				else
+				{
+					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(genInternalName(inType), inType, inMode, inValue, inAlloc, inUnits)));
+				}
+			}
+		}
+
+		if (itr == externalName.end()) break;
+		else ++itr;
+	}
 }
 
 // ---------------------------------------------------------------------------------
@@ -622,7 +626,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
     dataType = INTEGER;   //might need to be uppercase
   }
  }
- else //name is an identifier and hopefully a constant
+ /*else //name is an identifier and hopefully a constant
  {
   if (itr != symbolTable.end())     //CHECK THIS
   {
@@ -632,7 +636,15 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
   {
     processError("reference to undefined constant");
   }
+ }*/
+ else //name is an identifier and hopefully a constant
+ {
+		if (symbolTable.count(name) > 0)
+			dataType = symbolTable.at(name).getDataType();
+		else
+			processError("reference to undefined constant");
  }
+		
   return dataType;
 }
 
@@ -686,11 +698,11 @@ void Compiler::emit(string label, string instruction, string operands, string co
 	//Turn on left justification in objectFile 
 	objectFile.setf(ios_base::left);
 	//Output label in a field of width 8 
-	objectFile << setw(8) << label;              //changed from width(x) to setw(x) - Z
+	objectFile << left << setw(8) << label;              //changed from width(x) to setw(x) - Z
 	//Output instruction in a field of width 8 
-	objectFile << setw(8) << instruction;
+	objectFile << left << setw(8) << instruction;
 	//Output the operands in a field of width 24      //WHY A FIELD WIDTH OF 5? JUST CURIOUS - Z
-	objectFile << setw(24) << operands;
+	objectFile << left << setw(24) << operands;
 	//Output the comment 
 	objectFile << comment << "\n";
 }
@@ -701,7 +713,7 @@ void Compiler::emitPrologue(string progName, string operand2)
 {
   //Output identifying comments at beginning of objectFile 
   //Output the %INCLUDE directives 
-	objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n\n";
+    objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n\n";
 	emit("SECTION", ".text");
 	emit("global", "_start", "", "; program" + progName);
 	objectFile << "\n";
@@ -722,7 +734,6 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 void Compiler::emitStorage()
 {
  map<string,SymbolTableEntry>::iterator itr = symbolTable.begin();
-
 /*for those entries in the symbolTable that have
  an allocation of YES and a storage mode of CONSTANT
  { call emit to output a line to objectFile }*/
@@ -775,14 +786,13 @@ for those entries in the symbolTable that have
 
 string Compiler::nextToken()        //returns the next token or end of file marker { - C   MIGHT WANT TO CHANGE THIS TO A SWITCH STATEMENT TO MAKE THINGS EASIER FOR LATER             
 {
-
 	token = "";	
 	while(token == "")
 	{
 		if (ch == '{')
 		{
 			char next = nextChar();   //need to checkout these two lines (Changed from string to char and lost the error - Z)
-			while (next != sourceFile.eof() || next != '}')
+			while (next != sourceFile.eof() && next != '}')
 			{
 				
 			}
@@ -813,9 +823,9 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 				token = token + ch;
 			}
 			if (ch == '$')
-      {
+			{
 				processError("unexpected end of file");
-      }
+			}
 		}
 		else if (isdigit(ch))
 		{
@@ -826,9 +836,9 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 				token = token + ch;
 			}
 			if (ch == '$')
-      {
+			{
 				processError("unexpected end of file");
-      }
+			}
 		}
 		else if (ch == '$')
 		{
@@ -848,24 +858,26 @@ char Compiler::nextChar()   //returns the next character or end of file marker -
 { 
   // read in next character 
   sourceFile.get(ch);    //get does not need an argument - Z
+  //cout << "After get " << ch << endl;
   if (sourceFile.eof())
   {
 	//use a special character "$" to designate end of file 
-    ch = END_OF_FILE;     
-    return ch;
+	//cout << "now we are at end of file" << endl;
+    ch = END_OF_FILE;
+	return ch;
   }
   else 
   {
 	  sourceFile.get(ch);
+	  //cout << "Okay we are here " << ch << endl;
   }
 	// print to listing file (starting new line if necessary) 
 	if (ch == '\n')
 	{
-    listingFile << endl << lineNo;
-		lineNo++;    //(changed from listingFile.write(ch); I think this way will work better - Z)
+		// ADD A NEW LINE COMPONENT HERE
+		//listingFile << '\n';    //(changed from listingFile.write(ch); I think this way will work better - Z)
 	}
 	listingFile << ch;      //(changed from listingFile.write(ch); I think this way will work better - Z)
-
   
   return ch; 
 }
