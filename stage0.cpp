@@ -681,7 +681,7 @@ void Compiler::emit(string label, string instruction, string operands, string co
 	//Output the operands in a field of width 24      //WHY A FIELD WIDTH OF 5? JUST CURIOUS - Z
 	objectFile << setw(24) << operands;
 	//Output the comment 
-	objectFile << comment;
+	objectFile << comment << "\n";
 }
 
 // ---------------------------------------------------------------------------------
@@ -691,8 +691,10 @@ void Compiler::emitPrologue(string progName, string operand2)
   //Output identifying comments at beginning of objectFile 
   //Output the %INCLUDE directives 
 	//objectFile << "
+	objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n\n";
 	emit("SECTION", ".text");
 	emit("global", "_start", "", "; program" + progName);
+	objectFile << "\n";
 	emit("_start:");
 }
 
@@ -701,6 +703,7 @@ void Compiler::emitPrologue(string progName, string operand2)
 void Compiler::emitEpilogue(string operand1, string operand2)
 {
   emit("","Exit", "{0}");
+  objectFile << "\n";
   emitStorage();
 }
 
