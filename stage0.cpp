@@ -223,7 +223,7 @@ void Compiler::beginEndStmt()  //token should be "begin" - C
 
 void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need some work. not done right now)
 { 
-  string x, y, next, error;
+  string x, y, error;
 
   if (!isNonKeyId(token))
   {
@@ -233,7 +233,7 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
   x = token;
   //next = nextToken();
 
-  if (next != "=")
+  if (nextToken() != "=")
   {
     error = "\"=\" expected";
     processError(error);
