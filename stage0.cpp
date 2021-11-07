@@ -507,7 +507,6 @@ allocation inAlloc, int inUnits)
       name += *itr;
       ++itr;
     }
-  }
 
   if (name != "")                   //meaning that we have grabbed a name from the external names (if symbolTable name is defined)
     {
@@ -532,6 +531,17 @@ allocation inAlloc, int inUnits)
         }
       }
     }
+
+    if (itr == externalName.end())
+    {
+      break;
+    }
+    else
+    {
+      ++itr;
+    }
+  }
+
 
 
   /*
