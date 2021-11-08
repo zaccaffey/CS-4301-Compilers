@@ -596,21 +596,33 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 
 storeTypes Compiler::whichType(string name) //tells which data type a name has - Z (not even close to being done) - good
 {
-	storeTypes dataType;
+	map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
+
+  storeTypes type;
 
 	if (isLiteral(name))
+	{
 		if (isBoolean(name))
-			dataType = storeTypes::BOOLEAN;
+		{
+			type = BOOLEAN;
+		}
 		else
-			dataType = storeTypes::INTEGER;
+		{
+			type = INTEGER;
+		}
+	}
 	else //name is an identifier and hopefully a constant
 	{
 		if (symbolTable.count(name) > 0)
-			dataType = symbolTable.at(name).getDataType();
+		{
+			type = itr->second.getDataType();
+		}
 		else
+		{
 			processError("reference to undefined constant");
+		}
 	}
-	return dataType;
+	return type;
 }
 
 // ---------------------------------------------------------------------------------
