@@ -630,21 +630,37 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
 
 string Compiler::whichValue(string name) //tells which value a name has
 {
- 
-    string value;
+  map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
+  
+  string value;
 
-	if (isLiteral(name)) {
-		if (name == "true")
-			value = "-1";
-		else if (name == "false")
+	if (isLiteral(name)) 
+	{
+		// this is for the .asm file output to output '-1' or '0' instead of 'true' or 'false'
+		if (name == "false")
+		{
 			value = "0";
-		else value = name;
+		}
+		else if (name == "true")
+		{
+			value = "-1";
+		}
+		else 
+		{
+			value = name;
+		}
 	}
 	else //name is an identifier and hopefully a constant
-		if (symbolTable.count(name) > 0 && symbolTable.at(name).getValue() != "")
-			value = symbolTable.at(name).getValue();
+	{
+		if (itr->second.getValue() != "" && symbolTable.count(name) > 0)
+		{
+			value = itr->second.getValue();
+		}
 		else
+		{
 			processError("reference to undefined constant");
+		}
+	}
 	return value;
 }
 
