@@ -801,6 +801,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 			processError("illegal symbol");
 		}
 	}
+  token = token.substr(0,15);
 	return token;
 }
 
