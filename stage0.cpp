@@ -31,7 +31,7 @@ void Compiler::createListingHeader()
 {
 	time_t now = time(0);
 	char* time = ctime(&now);
-
+  // outputs our names and the time of compilation
 	listingFile << "STAGE0:  Zac Caffey and Cameron Ley       " << time << endl;
 	listingFile << "LINE NO.              " << "SOURCE STATEMENT" << endl << endl;
 }
@@ -40,11 +40,12 @@ void Compiler::createListingHeader()
 
 void Compiler::parser()
 {
-    string error;
+  string error;
 	nextChar();
-
-	string x = nextToken();
-	if (x != "program")
+  
+  // grabs the nextToken and ensures that it is program like it should be
+  // TOOK OUT STRING X HERE
+	if (nextToken() != "program")
 	{
 		error = "keyword \"program\" expected";
 		processError(error);
@@ -57,62 +58,66 @@ void Compiler::parser()
 
 void Compiler::createListingTrailer()
 {
-    listingFile << endl << "COMPILATION TERMINATED" << right << setw(7) << errorCount << " ERRORS ENCOUNTERED" << endl;
+  //outputs the listing trailer at the end of the .lst file 
+  listingFile << endl << "COMPILATION TERMINATED" << right << setw(7) << errorCount << " ERRORS ENCOUNTERED" << endl;
 }
 
 // ---------------------------------------------------------------------------------
 
 void Compiler::processError(string err)
 {
-    listingFile << endl << "Error: Line " << lineNo << ": " << err << endl;
+  // for processing errors outputs at the bottom with the specified error
+  listingFile << endl << "Error: Line " << lineNo << ": " << err << endl;
 	errorCount += 1;
 	listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
-    exit(-1);
+  exit(-1);
 }
 
 // ---------------------------------------------------------------------------------
 
 void Compiler::prog()  //token should be "program"
 {
-    string error;
-    if (token != "program")
-    {
-      error = "keyword \"program\" expected"; 
-	  processError(error);
-    }
-	
-    progStmt();
-	
-    if (token == "const") 
-    {
-      consts(); 
-    }
-	
-    if (token == "var")
-    { 
-      vars(); 
-    }
-	
-    if (token != "begin")
-    {
-      error = "keyword \"begin\" expected"; 
-	  processError(error);
-    }
+  // error is made due to error with a \ within "" 
+  string error;
+  if (token != "program")
+  {
+    error = "keyword \"program\" expected"; 
+  processError(error);
+  }
 
-    beginEndStmt();
-	
-    if (token[0] != END_OF_FILE)    
-    {
-      error = "no text may follow \"end\""; 
-	  processError(error);
-    }
+  progStmt();
+
+  if (token == "const") 
+  {
+    consts(); 
+  }
+
+  if (token == "var")
+  { 
+    vars(); 
+  }
+
+  if (token != "begin")
+  {
+    // we were not sure whether to add a case here for 017.lst
+    error = "keyword \"begin\" expected"; 
+    processError(error);
+  }
+
+  beginEndStmt();
+
+  if (token[0] != END_OF_FILE)    
+  {
+    error = "no text may follow \"end\""; 
+    processError(error);
+  }
 } 
 
 // ---------------------------------------------------------------------------------
 
 void Compiler::progStmt()  //token should be "program"
 {   
-    string x;
+  string x;
 	string error;
 	if (token != "program")
 	{
@@ -143,16 +148,15 @@ void Compiler::progStmt()  //token should be "program"
 
 void Compiler::consts()  //token should be "const"
 {  
-    string error;
+  string error;
 	if (token != "const")
-    {
-		error = "keyword \"const\" expected"; 
-		processError(error);
-    }
+  {
+    error = "keyword \"const\" expected"; 
+    processError(error);
+  }
 
-	string x = nextToken();
-	
-	if (!isNonKeyId(x))
+  // TOOK STRING X OUT
+	if (!isNonKeyId(nextToken()))
 	{
 		error = "non-keyword identifier must follow \"const\""; 
 		processError(error);
@@ -166,15 +170,15 @@ void Compiler::consts()  //token should be "const"
 void Compiler::vars()  //token should be "var"
 {   
     string error;
+
     if (token != "var")
     { 
 		error = "keyword \"var\" expected"; 
 		processError(error);
     }
 
-    string x = nextToken(); 
-	
-    if (!isNonKeyId(x))
+    // TOOK STRING X OUT HERE
+    if (!isNonKeyId(nextToken()))
     {
 		error = "non-keyword identifier must follow \"var\""; 
 		processError(error);
@@ -188,6 +192,7 @@ void Compiler::vars()  //token should be "var"
 void Compiler::beginEndStmt()  //token should be "begin"
 {   
     string error;
+
     if (token != "begin")
     {
 		error = "keyword \"begin\" expected";
@@ -199,6 +204,7 @@ void Compiler::beginEndStmt()  //token should be "begin"
 		error =  "keyword \"end\" expected";
 		processError(error);
     }
+
     if (nextToken() != ".") 
     {
 		processError("period expected");
@@ -215,17 +221,19 @@ void Compiler::constStmts() //token should be NON_KEY_ID
 
   string x, y, error;
 
-    if (!isNonKeyId(token))
+  if (!isNonKeyId(token))
 	{
 		processError("non-keyword identifier expected");
 	}
   
+  // for 020.lst
 	if (token.back() == '_')
 	{
 		error = "illegal character to end a var";
 		processError(error); 
 	}
-
+  
+  // for 049.lst
 	for (unsigned int i = 0; i < token.size(); i++)
 	{
 		if (token[i] == '_' && token[i+1] == '_')
@@ -261,7 +269,7 @@ void Compiler::constStmts() //token should be NON_KEY_ID
 		y = y + token;
 	}
 
-    if (y == "not")
+  if (y == "not")
 	{
 		if (!(isBoolean(nextToken())))  
 		{
@@ -279,7 +287,7 @@ void Compiler::constStmts() //token should be NON_KEY_ID
 		}
 	}
 
-    if (nextToken() != ";")
+  if (nextToken() != ";")
 	{
 		processError("semicolon expected");
 	}
@@ -315,14 +323,15 @@ void Compiler::varStmts() //token should be NON_KEY_ID
 	{
 		processError("non-keyword identifier expected");
 	}
-   	 
+  // for 020.lst
 	if (token.back() == '_')
 	{
 		error = "illegal character to end a var";
 		processError(error); 
 	}
-
-    for (unsigned int i = 0; i < token.size(); i++)
+   
+  // for 049.lst 
+  for (unsigned int i = 0; i < token.size(); i++)
 	{
 		if (token[i] == '_' && token[i+1] == '_')
 		{
@@ -376,7 +385,7 @@ void Compiler::varStmts() //token should be NON_KEY_ID
 
 string Compiler::ids() //token should be NON_KEY_ID
 {
-    string temp,tempString;
+  string temp,tempString;
 
 	if (!(isNonKeyId(token)))    //token is not a NON_KEY_ID
 	{
@@ -403,7 +412,7 @@ string Compiler::ids() //token should be NON_KEY_ID
 
 bool Compiler::isKeyword(string s) const // determines if s is a keyword
 {
-    if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not")
+  if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not")
 	{
 		return true;
 	}
@@ -417,7 +426,7 @@ bool Compiler::isKeyword(string s) const // determines if s is a keyword
 
 bool Compiler::isSpecialSymbol(char c) const // determines if c is a special symbol
 {
-    if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
+  if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
 	{
 		return true;
 	}
@@ -431,10 +440,10 @@ bool Compiler::isSpecialSymbol(char c) const // determines if c is a special sym
 
 bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id
 {
-    if(!isKeyword(s) && !isInteger(s) && !isSpecialSymbol(s[0]))
-    {
-        return true;
-    }
+  if(!isKeyword(s) && !isInteger(s) && !isSpecialSymbol(s[0]))
+  {
+    return true;
+  }
 	
 	return false;
 }
@@ -458,7 +467,7 @@ bool Compiler::isInteger(string s) const // determines if s is an integer
 // ---------------------------------------------------------------------------------
 
 bool Compiler::isBoolean(string s) const // determines if s is a boolean
-    if (s == "true" || s == "false")
+  if (s == "true" || s == "false")
 	{
 		return true;
 	}
@@ -473,8 +482,8 @@ bool Compiler::isBoolean(string s) const // determines if s is a boolean
 bool Compiler::isLiteral(string s) const // determines if s is a literal
 {
   //bool integer = isInteger(s);
-
-    if (isInteger(s) || s == "true" || s == "false" || s == "not" || s == "+" || s == "-")    
+  if (isInteger(s) || s == "true" || s == "false" || s == "not" || s == "+" || s == "-")
+  {    
 		return true;
 	}
 	else
@@ -488,7 +497,7 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal
 //generate the internal name when called upon
 string Compiler::genInternalName(storeTypes stype) const
 {
-    string internal;
+  string internal;
 	static int countI = 0, countB = 0;
 	//use case statements "INTEGER", "BOOLEAN", "PROG"
 	switch(stype)
@@ -691,7 +700,7 @@ void Compiler::emitPrologue(string progName, string operand2)
 	time_t now = time(0);
 	char* time = ctime(&now);
 	objectFile << "; Zac Caffey and Cameron Ley" << right << setw(6) << "" << time;
-    objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n\n";
+  objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n" << endl;
 	emit("SECTION", ".text");
 	emit("global", "_start", "", "; program " + progName);
 	objectFile << "\n";
@@ -702,7 +711,7 @@ void Compiler::emitPrologue(string progName, string operand2)
 
 void Compiler::emitEpilogue(string operand1, string operand2)
 {
-    emit("","Exit", "{0}");
+  emit("","Exit", "{0}");
 	objectFile << "\n";
 	emitStorage();
 }
@@ -712,7 +721,7 @@ void Compiler::emitEpilogue(string operand1, string operand2)
 void Compiler::emitStorage()
 {
 	
-    map<string,SymbolTableEntry>::iterator itr = symbolTable.begin();
+  map<string,SymbolTableEntry>::iterator itr = symbolTable.begin();
 	
 	emit("SECTION", ".data");
 	/*
@@ -823,7 +832,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 		}
 	}
 	
-    token = token.substr(0,15);
+  token = token.substr(0,15);
 
 	return token;
 }
@@ -833,7 +842,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 char Compiler::nextChar()   //returns the next character or end of file marker
 { 
 	// read in next character   
-    sourceFile.get(ch)
+  sourceFile.get(ch)
   
 	static char prev = '\n';
 
@@ -846,11 +855,11 @@ char Compiler::nextChar()   //returns the next character or end of file marker
     // print to listing file (starting new line if necessary) 
     if (prev == '\n')
     {
-        // ADD A NEW LINE COMPONENT HERE
-        lineNo += 1;
-        listingFile << right << setw(5) << lineNo << '|';    
+      // ADD A NEW LINE COMPONENT HERE
+      lineNo += 1;
+      listingFile << right << setw(5) << lineNo << '|';    
     }
-        listingFile << ch;     
+    listingFile << ch;     
 	}
 	prev = ch;
   
