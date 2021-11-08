@@ -91,11 +91,6 @@ void Compiler::prog()  //token should be "program" - C test
 	  processError(error);
     }
 	
-	if (nextToken() != ":")
-	{
-		processError("semicolon expected after program name");
-	}
-	
 	//lineNo += 1;
 	//listingFile << right << setw(5) << lineNo << '|'; 
     progStmt(); 
@@ -134,11 +129,13 @@ void Compiler::progStmt()  //token should be "program" - C
   }
   //Initialize so that we don't mess up nextToken
   x = nextToken(); 
+  cout << x;
   if (!isNonKeyId(x)) 
   {
 		processError("program name expected");
   }
-  if (nextToken() != ";") 
+  string y = nextToken();
+  if (y != ";") 
   {
 		processError("semicolon expected");
   }
