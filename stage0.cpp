@@ -93,15 +93,18 @@ void Compiler::prog()  //token should be "program" - C test
 	
 	//lineNo += 1;
 	//listingFile << right << setw(5) << lineNo << '|'; 
-    progStmt(); 
+    progStmt();
+	
     if (token == "const") 
     {
       consts(); 
     }
+	
     if (token == "var")
     { 
       vars(); 
     }
+	
     if (token != "begin")
     {
       error = "keyword \"begin\" expected"; 
@@ -109,6 +112,7 @@ void Compiler::prog()  //token should be "program" - C test
     }
 
     beginEndStmt();
+	
     if (token[0] != END_OF_FILE)       // might need to check this. getting error because END_OF_FILE is a char and token is a string
     {
       error = "no text may follow \"end\""; 
@@ -129,16 +133,19 @@ void Compiler::progStmt()  //token should be "program" - C
   }
   //Initialize so that we don't mess up nextToken
   x = nextToken(); 
-  cout << x;
+
   if (!isNonKeyId(x)) 
   {
 		processError("program name expected");
   }
+  
   string y = nextToken();
+  
   if (y != ";") 
   {
 		processError("semicolon expected");
   }
+  
   nextToken();
   code("program", x);
   insert(x,PROG_NAME,CONSTANT,x,NO,0);
@@ -155,7 +162,8 @@ void Compiler::consts()  //token should be "const" - C
 		processError(error);
     }
 	//Initialize so that we don't mess up nextToken
-	string x = nextToken(); 
+	string x = nextToken();
+	
 	if (!isNonKeyId(x))
 	{
 		error = "non-keyword identifier must follow \"const\""; 
@@ -177,6 +185,7 @@ void Compiler::vars()  //token should be "var" - C
     }
 	  //Initialize so that we don't mess up nextToken
     string x = nextToken(); 
+	
     if (!isNonKeyId(x))
     {
 		error = "non-keyword identifier must follow \"var\""; 
@@ -193,19 +202,20 @@ void Compiler::beginEndStmt()  //token should be "begin" - C
     string error;
     if (token != "begin")
     {
-      error = "keyword \"begin\" expected";
-		  processError(error);
+		error = "keyword \"begin\" expected";
+		processError(error);
     }
-                                             
+
     if (nextToken() != "end")
     {
-      error =  "keyword \"end\" expected";
-		  processError(error);
+		error =  "keyword \"end\" expected";
+		processError(error);
     }
     if (nextToken() != ".") 
     {
-		  processError("period expected");
+		processError("period expected");
     }
+
     nextToken();
     code("end", ".");
 }
@@ -217,260 +227,215 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
 
   string x, y, error;
 
-  if (!isNonKeyId(token))
-  {
-    processError("non-keyword identifier expected");
-  }
-  
-  if (token.back() == '_')
-	 {
-	  error = "illegal character to end a var";
-	  processError(error); 
-	 }
-
-  for (unsigned int i = 0; i < token.size(); i++)
+    if (!isNonKeyId(token))
 	{
-		 if (token[i] == '_' && token[i+1] == '_')
-		 {
-			 processError("'_' must be followed by a letter or number");
-		 }
+		processError("non-keyword identifier expected");
 	}
   
-  x = token;
-  if (nextToken() != "=")
-  {
-    error = "\"=\" expected";
-    processError(error);
-  }
+	if (token.back() == '_')
+	{
+		error = "illegal character to end a var";
+		processError(error); 
+	}
 
-  y = nextToken();
-  if (!(isNonKeyId(y)) && y != "+" && y != "-" && y != "not" && !(isBoolean(y)) && !(isInteger(y))) //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  need to see how we will compare these as y is a string  compare to a signal character
-  {
-    error = "token to right of \"=\" illegal";
-    processError(error);
-  }
+	for (unsigned int i = 0; i < token.size(); i++)
+	{
+		if (token[i] == '_' && token[i+1] == '_')
+		{
+			processError("'_' must be followed by a letter or number");
+		}
+	}
+  
+	x = token;
+  
+	if (nextToken() != "=")
+	{
+		error = "\"=\" expected";
+		processError(error);
+	}
 
-  if (y == "+" || y == "-")
-  {
-	string temp = nextToken();
-    if (!isInteger(temp))     //not sure if i need "" around integer since it is an enumerated type
-    {
-      processError("integer expected after sign");
-    }
+	y = nextToken();
+  
+	if (!(isNonKeyId(y)) && y != "+" && y != "-" && y != "not" && !(isBoolean(y)) && !(isInteger(y))) //y is not one of "+","-","not",NON_KEY_ID,"true","false",INTEGER)  need to see how we will compare these as y is a string  compare to a signal character
+	{
+		error = "token to right of \"=\" illegal";
+		processError(error);
+	}
 
-    y = y + token;
-  }
+	if (y == "+" || y == "-")
+	{
+		string temp = nextToken();
+		if (!isInteger(temp))     //not sure if i need "" around integer since it is an enumerated type
+		{
+			processError("integer expected after sign");
+		}
 
-  if (y == "not")
-  {
-    if (!(isBoolean(nextToken())))   //not sure if i need "" around boolean since it is an enumerated type
-    {
-      error = "boolean expected after \"not\"";
-      processError(error);
-    }
+		y = y + token;
+	}
+
+    if (y == "not")
+	{
+		if (!(isBoolean(nextToken())))   //not sure if i need "" around boolean since it is an enumerated type
+		{
+			error = "boolean expected after \"not\"";
+			processError(error);
+		}
       
-    if (token == "true")
-    {
-      y = "false";
-    }
-    else
-    {
-      y = "true";
-    }
-  }
+		if (token == "true")
+		{
+			y = "false";
+		}
+		else
+		{
+			y = "true";
+		}
+	}
 
-  if (nextToken() != ";")
-  {
-    processError("semicolon expected");
-  }
-  storeTypes temp = whichType(y);
-  if (temp != INTEGER && temp != BOOLEAN)       //the data type of y is not INTEGER or BOOLEAN
-  {
-    error = "data type of token on the right-hand side must be INTEGER or BOOLEAN";
-    processError(error);
-  }
+    if (nextToken() != ";")
+	{
+		processError("semicolon expected");
+	}
+	storeTypes temp = whichType(y);
+	
+	if (temp != INTEGER && temp != BOOLEAN)       //the data type of y is not INTEGER or BOOLEAN
+	{
+		error = "data type of token on the right-hand side must be INTEGER or BOOLEAN";
+		processError(error);
+	}
 
-  insert(x,whichType(y),CONSTANT,whichValue(y),YES,1);        // dont think this is complete but will check later (be very careful when placing function calls inside a function call MOTL SAYS TO NOT DO THIS AT ALL)
-  x = nextToken();
+	insert(x,whichType(y),CONSTANT,whichValue(y),YES,1);        // dont think this is complete but will check later (be very careful when placing function calls inside a function call MOTL SAYS TO NOT DO THIS AT ALL)
+	x = nextToken();
 
-  if (x != "begin" && x != "var" && !(isNonKeyId(x)))         //x is not one of "begin","var",NON_KEY_ID)
-  {
-    error = "non-keyword identifier, \"begin\", or \"var\" expected";               
-    processError(error);
-  }
+	if (x != "begin" && x != "var" && !(isNonKeyId(x)))         //x is not one of "begin","var",NON_KEY_ID)
+	{
+		error = "non-keyword identifier, \"begin\", or \"var\" expected";               
+		processError(error);
+	}
 
-  if (isNonKeyId(x))
-  {
-    constStmts();
-  }
+	if (isNonKeyId(x))
+	{
+		constStmts();
+	}
 }
 
 // ---------------------------------------------------------------------------------
 
 void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not done) - seems fine
 {
-	 string x,y, error;
-	 if (!isNonKeyId(token))
-	 {
-	  processError("non-keyword identifier expected");
-	 }
+	string x,y, error;
+	if (!isNonKeyId(token))
+	{
+		processError("non-keyword identifier expected");
+	}
    	 
-	 if (token.back() == '_')
-	 {
-	  error = "illegal character to end a var";
-	  processError(error); 
-	 }
+	if (token.back() == '_')
+	{
+		error = "illegal character to end a var";
+		processError(error); 
+	}
 
-   for (unsigned int i = 0; i < token.size(); i++)
-	 {
-		 if (token[i] == '_' && token[i+1] == '_')
-		 {
-			 processError("'_' must be followed by a letter or number");
-		 }
-	 }
+    for (unsigned int i = 0; i < token.size(); i++)
+	{
+		if (token[i] == '_' && token[i+1] == '_')
+		{
+			processError("'_' must be followed by a letter or number");
+		}
+	}
 
-	 x = ids();
+	x = ids();
 
-	 if (token != ":")
-	 {
-	  error = "\":\" expected";
-	  processError(error);
-	 }
+	if (token != ":")
+	{
+		error = "\":\" expected";
+		processError(error);
+	}
 
-	 if (nextToken() != "integer" && token != "boolean") //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
-	 {
-	  error = "illegal type follows \":\"";
-	  processError(error);
-	 }
+	if (nextToken() != "integer" && token != "boolean") //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
+	{
+		error = "illegal type follows \":\"";
+		processError(error);
+	}
 
-	 y = token;
+	y = token;
 
-	 if (nextToken() != ";")
-	 {
-	  processError("semicolon expected");
-	 }
+	if (nextToken() != ";")
+	{
+		processError("semicolon expected");
+	}
 
-	 if (y == "integer")
-	 {
-		  insert(x,INTEGER,VARIABLE,"1",YES,1);
-	 }
-	 else
-	 {
-	 insert(x,BOOLEAN,VARIABLE,"1",YES,1);     //this isnt going to work ** second argument must be of type storeTypes and y is not
-	 }
+	if (y == "integer")
+	{
+		insert(x,INTEGER,VARIABLE,"1",YES,1);
+	}
+	else
+	{
+		insert(x,BOOLEAN,VARIABLE,"1",YES,1);     //this isnt going to work ** second argument must be of type storeTypes and y is not
+	}
 	 
-	 if (nextToken() != "begin" && !(isNonKeyId(token)))    //is not one of "begin",NON_KEY_ID)
-	 {
-	  error = "non-keyword identifier or \"begin\" expected";
-	  processError(error);
-	 }
+	if (nextToken() != "begin" && !(isNonKeyId(token)))    //is not one of "begin",NON_KEY_ID)
+	{
+		error = "non-keyword identifier or \"begin\" expected";
+		processError(error);
+	}
 
-	 if (isNonKeyId(token))   //token is a NON_KEY_ID)
-	 {
-	  varStmts();
-	 }
-	 
-	/*
- string x,y, next, error;
- cout << token;
- if ((!isNonKeyId(token)))
- {
-  processError("non-keyword identifier expected");
- }
-
- x = ids();
-
- if (token != ":")
- {
-  error = "\":\" expected";
-  processError(error);
- }
-
- if (token != "boolean" && nextToken() != "integer") //thinking the correct use of getDataType might actually be getDataType(nextToken? We shall see)
- {
-  error = "illegal type follows \":\"";
-  processError(error);
- }
-
- y = token;
-
- if (nextToken() != ";")
- {
-  processError("semicolon expected");
- }
- if (y == "integer")
- {
-	  insert(x,INTEGER,VARIABLE,"1",YES,1);
- }
- else
- {
- insert(x,BOOLEAN,VARIABLE,"1",YES,1);     //this isnt going to work ********************************** second argument must be of type storeTypes and y is not
- }
- string z = nextToken();
- if (z != "begin" && !(isNonKeyId(z)))    //is not one of "begin",NON_KEY_ID)
- {
-  error = "non-keyword identifier or \"begin\" expected";
-  processError(error);
- }
-
- if (isNonKeyId(token))   //token is a NON_KEY_ID)
- {
-  varStmts();
- }
- */
- 
+	if (isNonKeyId(token))   //token is a NON_KEY_ID)
+	{
+		varStmts();
+	}
 }
 
 // ---------------------------------------------------------------------------------
 
 string Compiler::ids() //token should be NON_KEY_ID - Z - this is good
 {
- string temp,tempString;
+    string temp,tempString;
 
- if (!(isNonKeyId(token)))    //token is not a NON_KEY_ID
- {
-  processError("non-keyword identifier expected");
- }
+	if (!(isNonKeyId(token)))    //token is not a NON_KEY_ID
+	{
+		processError("non-keyword identifier expected");
+	}
 
- tempString = token;
- temp = token;
+	tempString = token;
+	temp = token;
 
- if (nextToken() == ",")
- {
-  if (!(isNonKeyId(nextToken())))    //nextToken() is not a NON_KEY_ID)
-  {
-    processError("non-keyword identifier expected");
-  }
-  tempString = temp + "," + ids();
- }
- return tempString;
+	if (nextToken() == ",")
+	{
+		if (!(isNonKeyId(nextToken())))    //nextToken() is not a NON_KEY_ID)
+		{
+			processError("non-keyword identifier expected");
+		}
+		
+		tempString = temp + "," + ids();
+	}
+	
+	return tempString;
 }
 
 // ---------------------------------------------------------------------------------
 bool Compiler::isKeyword(string s) const // determines if s is a keyword
 {
-  if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not")
-  {
-    return true;
-  }
-  else 
-  {
-    return false;
-  }
+    if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not")
+	{
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
 }
 
 // ---------------------------------------------------------------------------------
 
 bool Compiler::isSpecialSymbol(char c) const // determines if c is a special symbol
 {
-  if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
-  {
-    return true;
-  }
-  else 
-  {
-    return false;
-  }
+    if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
+	{
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
 }
 
 // ---------------------------------------------------------------------------------
@@ -481,6 +446,7 @@ bool Compiler::isNonKeyId(string s) const // determines if s is a non_key_id  //
     {
         return true;
     }
+	
 	return false;
 }
 
@@ -504,14 +470,14 @@ bool Compiler::isInteger(string s) const // determines if s is an integer			- go
 
 bool Compiler::isBoolean(string s) const // determines if s is a boolean - Cam
 {
-  if (s == "true" || s == "false")
-  {
-    return true;
-  }
-  else 
-  {
-    return false;
-  }
+    if (s == "true" || s == "false")
+	{
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
 }
 
 // ---------------------------------------------------------------------------------
@@ -520,14 +486,14 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 {
   //bool integer = isInteger(s);
 
-  if (isInteger(s) || s == "true" || s == "false" || s == "not" || s == "+" || s == "-")     //this doesnt seem like it will be right to me but I am not sure
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+    if (isInteger(s) || s == "true" || s == "false" || s == "not" || s == "+" || s == "-")     //this doesnt seem like it will be right to me but I am not sure
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 // ---------------------------------------------------------------------------------
@@ -535,30 +501,33 @@ bool Compiler::isLiteral(string s) const // determines if s is a literal - Z
 //generate the internal name when called upon
 string Compiler::genInternalName(storeTypes stype) const
 {
-  string internal;
-  static int countI = 0, countB = 0;
+    string internal;
+	static int countI = 0, countB = 0;
   //use case statements "INTEGER", "BOOLEAN", "PROG"
-  switch(stype)
-  {
-    case PROG_NAME:
+	switch(stype)
 	{
-      internal = "P0";
-      break;
+		case PROG_NAME:
+		{
+			internal = "P0";
+			break;
+		}
+		
+		case INTEGER:
+		{
+			internal = "I" + to_string(countI);
+			++countI;
+			break;
+		}
+		
+		case BOOLEAN:
+		{
+			internal = "B" + to_string(countB);
+			++countB;
+			break;
+		}
 	}
-    case INTEGER:
-	{
-      internal = "I" + to_string(countI);
-      ++countI;
-      break;
-	}
-    case BOOLEAN:
-	{
-      internal = "B" + to_string(countB);
-      ++countB;
-      break;
-	}
-  }
-  return internal;
+	
+	return internal;
 }
 
 // ---------------------------------------------------------------------------------
@@ -574,9 +543,12 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 
 	auto itr = externalName.begin();
 
-	while (itr < externalName.end()) {
+	while (itr < externalName.end())
+	{
 		name = "";
-		while (itr < externalName.end() && *itr != ',' ) {
+		
+		while (itr < externalName.end() && *itr != ',' )
+		{
 			name += *itr;
 			++itr;
 		}
@@ -584,9 +556,13 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 		if (name != "")
 		{
 			if (symbolTable.count(name) > 0)
+			{
 				processError("symbol " + name + " is multiply defined");
+			}
 			else if (isKeyword(name))
+			{
 				processError("illegal use of keyword");
+			}
 			else //create table entry
 			{
 				if (isupper(name[0]))
@@ -605,8 +581,14 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 			processError("symbolTable overflow");
 		}
 
-		if (itr == externalName.end()) break;
-		else ++itr;
+		if (itr == externalName.end())
+		{
+			break;
+		}
+		else 
+		{
+			++itr;
+		}
 	}
 }
 
@@ -614,7 +596,7 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 
 storeTypes Compiler::whichType(string name) //tells which data type a name has - Z (not even close to being done) - good
 {
-  storeTypes dataType;
+	storeTypes dataType;
 
 	if (isLiteral(name))
 		if (isBoolean(name))
@@ -636,7 +618,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
 string Compiler::whichValue(string name) //tells which value a name has
 {
  
-  string value;
+    string value;
 
 	if (isLiteral(name)) {
 		if (name == "true")
@@ -657,18 +639,18 @@ string Compiler::whichValue(string name) //tells which value a name has
 
 void Compiler::code(string op, string operand1, string operand2) // - Z
 {
- if (op == "program")
- {
-  emitPrologue(operand1);
- }
- else if (op == "end")
- {
-  emitEpilogue();
- }
- else
- {
-  processError("compiler error since function code should not be called with illegal arguments");
- }
+   if (op == "program")
+	{
+		emitPrologue(operand1);
+	}
+	else if (op == "end")
+	{
+		emitEpilogue();
+	}
+	else
+	{
+		processError("compiler error since function code should not be called with illegal arguments");
+	}
 }
 
 // ---------------------------------------------------------------------------------
@@ -707,9 +689,9 @@ void Compiler::emitPrologue(string progName, string operand2)
 
 void Compiler::emitEpilogue(string operand1, string operand2)
 {
-  emit("","Exit", "{0}");
-  objectFile << "\n";
-  emitStorage();
+    emit("","Exit", "{0}");
+	objectFile << "\n";
+	emitStorage();
 }
 
 // ---------------------------------------------------------------------------------
@@ -737,8 +719,8 @@ void Compiler::emitStorage()
 		}
 	}
  
- objectFile << "\n";
- emit("SECTION", ".bss");
+	objectFile << "\n";
+	emit("SECTION", ".bss");
  
 	for (itr = symbolTable.begin(); itr != symbolTable.end(); ++itr)
 	{
@@ -751,8 +733,6 @@ void Compiler::emitStorage()
 			}
 		}
 	}
- 
-
 }
 
 
@@ -805,11 +785,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 		else if (isdigit(ch))
 		{
 			token = ch;
-			//char next = nextChar();   //(changed from string to char and lost the error - Z
-			//while(isdigit(next) && next != sourceFile.eof())
-			//{
-			//	token = token + ch;
-			//}
+			
 			while (nextChar() != END_OF_FILE && isdigit(ch))
 			{
 				token += ch;
@@ -830,6 +806,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 			processError("illegal symbol");
 		}
 	}
+	
     token = token.substr(0,15);
 
 	return token;
@@ -840,16 +817,16 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 char Compiler::nextChar()   //returns the next character or end of file marker - C (needs to be edited)
 { 
   // read in next character   
-  sourceFile.get(ch);    //get does not need an argument - Z
+    sourceFile.get(ch);    //get does not need an argument - Z
   
-  static char prev = '\n';
+	static char prev = '\n';
 
-  if (sourceFile.eof())
-  {
-    ch = END_OF_FILE;
-  }
-  else 
-  {
+	if (sourceFile.eof())
+	{
+		ch = END_OF_FILE;
+	}
+	else 
+	{
     // print to listing file (starting new line if necessary) 
     if (prev == '\n')
     {
@@ -858,7 +835,8 @@ char Compiler::nextChar()   //returns the next character or end of file marker -
         listingFile << right << setw(5) << lineNo << '|';    //(changed from listingFile.write(ch); I think this way will work better - Z)
     }
         listingFile << ch;      //(changed from listingFile.write(ch); I think this way will work better - Z)
-  }
-  prev = ch;
-  return ch;
+	}
+	prev = ch;
+  
+	return ch;
 }
