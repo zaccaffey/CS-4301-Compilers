@@ -503,7 +503,7 @@ string Compiler::genInternalName(storeTypes stype) const
 {
     string internal;
 	static int countI = 0, countB = 0;
-  //use case statements "INTEGER", "BOOLEAN", "PROG"
+	//use case statements "INTEGER", "BOOLEAN", "PROG"
 	switch(stype)
 	{
 		case PROG_NAME:
@@ -541,7 +541,7 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 {
 	string name;
 
-	auto itr = externalName.begin();
+	string::iterator itr = externalName.begin();		//Just changed this
 
 	while (itr < externalName.end())
 	{
@@ -549,11 +549,11 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 		
 		while (itr < externalName.end() && *itr != ',' )
 		{
-			name += *itr;
+			name = name + *itr;
 			++itr;
 		}
 
-		if (name != "")
+		if (!name.empty())				// Just changed
 		{
 			if (symbolTable.count(name) > 0)
 			{
