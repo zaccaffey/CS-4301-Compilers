@@ -219,7 +219,21 @@ void Compiler::constStmts() //token should be NON_KEY_ID - Z (this will need som
   {
     processError("non-keyword identifier expected");
   }
+  
+  if (token.back() == '_')
+	 {
+	  error = "illegal character to end a var";
+	  processError(error); 
+	 }
 
+  for (unsigned int i = 0; i < token.size(); i++)
+	{
+		 if (token[i] == '_' && token[i+1] == '_')
+		 {
+			 processError("'_' must be followed by a letter or number");
+		 }
+	}
+  
   x = token;
   if (nextToken() != "=")
   {
@@ -303,6 +317,14 @@ void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not
 	 {
 	  error = "illegal character to end a var";
 	  processError(error); 
+	 }
+
+   for (unsigned int i = 0; i < token.size(); i++)
+	 {
+		 if (token[i] == '_' && token[i+1] == '_')
+		 {
+			 processError("'_' must be followed by a letter or number");
+		 }
 	 }
 
 	 x = ids();
