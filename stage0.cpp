@@ -76,7 +76,7 @@ void Compiler::processError(string err)   // - Z (not sure if this is done corre
 {
     listingFile << endl << "Error: Line " << lineNo << ": " << err << endl;
 	errorCount += 1;
-	listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl << endl;
+	listingFile << "\nCOMPILATION TERMINATED      " << errorCount << " ERROR ENCOUNTERED" << endl;
     exit(-1);
 }
 
