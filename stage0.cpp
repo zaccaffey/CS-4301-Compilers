@@ -91,6 +91,11 @@ void Compiler::prog()  //token should be "program" - C test
 	  processError(error);
     }
 	
+	if (nextToken() != ":")
+	{
+		processError("semicolon expected after program name");
+	}
+	
 	//lineNo += 1;
 	//listingFile << right << setw(5) << lineNo << '|'; 
     progStmt(); 
@@ -597,6 +602,11 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 				}
 			}
 		}
+		
+		if (symbolTable.size() > 256)
+		{
+			processError("symbolTable overflow");
+		}
 
 		if (itr == externalName.end()) break;
 		else ++itr;
@@ -764,7 +774,7 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 			}
 			// changed from '$'
 			if (ch == END_OF_FILE)
-				processError("unexpected end of file");
+		processError("unexpected end of file: '}' expected");
 			else 
 				nextChar();
 		}
@@ -823,7 +833,8 @@ string Compiler::nextToken()        //returns the next token or end of file mark
 			processError("illegal symbol");
 		}
 	}
-  token = token.substr(0,15);
+    token = token.substr(0,15);
+
 	return token;
 }
 
