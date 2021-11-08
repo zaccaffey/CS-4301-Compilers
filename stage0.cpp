@@ -34,33 +34,33 @@ void Compiler::createListingHeader() // - Z (needs to be formatted)
 
 	listingFile << "STAGE0:  Zac Caffey and Cameron Ley       " << time << endl;
 	listingFile << "LINE NO.              " << "SOURCE STATEMENT" << endl << endl;
- //print "STAGE0:", name(s), DATE, TIME OF DAY
- //print "LINE NO:", "SOURCE STATEMENT"
- //line numbers and source statements should be aligned under the headings
+	//print "STAGE0:", name(s), DATE, TIME OF DAY
+	//print "LINE NO:", "SOURCE STATEMENT"
+	//line numbers and source statements should be aligned under the headings
     //lineNo += 1;
-   // listingFile << right << setw(5) << lineNo << '|'; 
+	// listingFile << right << setw(5) << lineNo << '|'; 
 }
 
 // ---------------------------------------------------------------------------------
 
 void Compiler::parser()
 {
-  string error;
-  nextChar();
-  //ch must be initialized to the first character of the source file
-  string x = nextToken();
-  if (x != "program")
-  {
-    error = "keyword \"program\" expected";
-    processError(error);
-  }
-  //a call to nextToken() has two effects
-  // (1) the variable, token, is assigned the value of the next token
-  // (2) the next token is read from the source file in order to make
-  // the assignment. The value returned by nextToken() is also
-  // the next token.
-  prog();
-  //parser implements the grammar rules, calling first rule
+    string error;
+	nextChar();
+	//ch must be initialized to the first character of the source file
+	string x = nextToken();
+	if (x != "program")
+	{
+		error = "keyword \"program\" expected";
+		processError(error);
+	}
+	//a call to nextToken() has two effects
+	// (1) the variable, token, is assigned the value of the next token
+	// (2) the next token is read from the source file in order to make
+	// the assignment. The value returned by nextToken() is also
+	// the next token.
+	prog();
+	//parser implements the grammar rules, calling first rule
 }
 
 // ---------------------------------------------------------------------------------
@@ -124,31 +124,31 @@ void Compiler::prog()  //token should be "program" - C test
 
 void Compiler::progStmt()  //token should be "program" - C
 {   
-  string x;
-  string error;
-  if (token != "program")
-  {
-    error = "keyword \"program\" expected"; 
-	processError(error);
-  }
-  //Initialize so that we don't mess up nextToken
-  x = nextToken(); 
+    string x;
+	string error;
+	if (token != "program")
+	{
+		error = "keyword \"program\" expected"; 
+		processError(error);
+	}
+	//Initialize so that we don't mess up nextToken
+	x = nextToken(); 
 
-  if (!isNonKeyId(x)) 
-  {
+	if (!isNonKeyId(x)) 
+	{
 		processError("program name expected");
-  }
+	}
   
-  string y = nextToken();
+	string y = nextToken();
   
-  if (y != ";") 
-  {
+	if (y != ";") 
+	{
 		processError("semicolon expected");
-  }
+	}
   
-  nextToken();
-  code("program", x);
-  insert(x,PROG_NAME,CONSTANT,x,NO,0);
+	nextToken();
+	code("program", x);
+	insert(x,PROG_NAME,CONSTANT,x,NO,0);
 }
 
 // ---------------------------------------------------------------------------------
@@ -598,7 +598,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
 {
 	map<string,SymbolTableEntry>::iterator itr = symbolTable.find(name);
 
-  storeTypes type;
+	storeTypes type;
 
 	if (isLiteral(name))
 	{
@@ -622,6 +622,7 @@ storeTypes Compiler::whichType(string name) //tells which data type a name has -
 			processError("reference to undefined constant");
 		}
 	}
+	
 	return type;
 }
 
@@ -667,7 +668,7 @@ string Compiler::whichValue(string name) //tells which value a name has
 
 void Compiler::code(string op, string operand1, string operand2) // - Z
 {
-   if (op == "program")
+    if (op == "program")
 	{
 		emitPrologue(operand1);
 	}
