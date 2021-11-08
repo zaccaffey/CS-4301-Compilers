@@ -298,6 +298,12 @@ void Compiler::varStmts() //token should be NON_KEY_ID - Z (started this but not
 	 {
 	  processError("non-keyword identifier expected");
 	 }
+   	 
+	 if (token.back() == '_')
+	 {
+	  error = "illegal character to end a var";
+	  processError(error); 
+	 }
 
 	 x = ids();
 
