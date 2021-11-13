@@ -267,7 +267,7 @@ void assignStmt(); // stage 1, production 4
     processError();
   }
 
-  code(popOperator(), popOperator(), popOperator());
+  code(popOperator(), popOperand(), popOperand());
 
 }
 
@@ -307,12 +307,22 @@ void writeStmt(); // stage 1, production 7
 
 void express(); // stage 1, production 9
 {
-
+  term();
+  expresses();
 }
 
 void expresses(); // stage 1, production 10
 {
+  x = nextToken();
 
+  if (x == "=" || x == "<>" || x == "<=" || x == ">=" || x == "<" || x == ">")    //not sure if I need to use token or nextToken. This is true for most of the code I have written so far - Z
+  {
+    pushOperator(x);
+  }
+
+  term();
+
+  code(popOperator(), popOperand(), popOperand())
 }
 
 void term(); // stage 1, production 11
