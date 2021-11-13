@@ -197,6 +197,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
 		error = "keyword \"begin\" expected";
 		processError(error);
     }
+    
 
     if (nextToken() != "end")
     {
