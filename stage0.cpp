@@ -1078,23 +1078,33 @@ char Compiler::nextChar()   //returns the next character or end of file marker
 
 void Compiler::pushOperator(string name) //push name onto operatorStk
 {
- push name onto stack;
+ 	operatorStk.push(name);
 }
 
 void Compiler::pushOperand(string name) //push name onto operandStk
  //if name is a literal, also create a symbol table entry for it
 {
- if name is a literal and has no symbol table entry
- insert symbol table entry, call whichType to determine the data type of the literal
- push name onto stack;
+ 	if (isLiteral(name) && symbolTable.count(name) == 0)																					//name is a literal and has no symbol table entry
+	{
+ 		insert symbol table entry, call whichType to determine the data type of the literal
+ 		push name onto stack;
+	}
 }
 
 string Compiler::popOperator() //pop name from operatorStk
 {
- if operatorStk is not empty
- return top element removed from stack;
+
+ if (!operatorStk.empty())
+ {
+	string top = operatorStk.top();
+	operatorStk.pop()
+ 	return operandStk.top();			//top element removed from stack;		// ???does this mean we remove the top of the stack and return that element or do we remove the top of the stack and return the stack???
+ }
  else
- processError(compiler error; operator stack underflow)
+ {
+ 	processError("compiler error; operator stack underflow");
+ }
+
 }
 
 string Compiler::popOperand() //pop name from operandStk
