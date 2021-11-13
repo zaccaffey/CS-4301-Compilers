@@ -965,6 +965,96 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 }
 
+ void emitReadCode(string operand, string = "");
+ {
+
+ }
+
+ void emitWriteCode(string operand, string = "");
+ {
+
+ }
+
+ void emitAssignCode(string operand1, string operand2); // op2 = op1
+ {
+
+ }
+
+ void emitAdditionCode(string operand1, string operand2); // op2 + op1
+ {
+
+ }
+
+ void emitSubtractionCode(string operand1, string operand2); // op2 - op1
+ {
+
+ }
+
+ void emitMultiplicationCode(string operand1, string operand2); // op2 * op1
+ {
+
+ }
+
+ void emitDivisionCode(string operand1, string operand2); // op2 / op1
+ {
+
+ }
+
+ void emitModuloCode(string operand1, string operand2); // op2 % op1
+ {
+
+ }
+
+ void emitNegationCode(string operand1, string = ""); // -op1
+ {
+
+ }
+
+ void emitNotCode(string operand1, string = ""); // !op1
+ {
+
+ }
+
+ void emitAndCode(string operand1, string operand2); // op2 && op1
+ {
+	 
+ }
+
+ void emitOrCode(string operand1, string operand2); // op2 || op1
+ {
+
+ }
+
+ void emitEqualityCode(string operand1, string operand2); // op2 == op1
+ {
+
+ }
+
+ void emitInequalityCode(string operand1, string operand2); // op2 != op1
+ {
+
+ }
+
+ void emitLessThanCode(string operand1, string operand2); // op2 < op1
+ {
+	 
+ }
+
+ void emitLessThanOrEqualToCode(string operand1, string operand2); // op2 <= op1
+ {
+
+ }
+
+ void emitGreaterThanCode(string operand1, string operand2); // op2 > op1
+ {
+
+ }
+ 
+ void emitGreaterThanOrEqualToCode(string operand1, string operand2); // op2 >= op1
+ {
+
+ }
+
 
 // ---------------------------------------------------------------------------------
 
@@ -1087,7 +1177,8 @@ void Compiler::pushOperand(string name) //push name onto operandStk
  	if (isLiteral(name) && symbolTable.count(name) == 0)																					//name is a literal and has no symbol table entry
 	{
  		symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, whichType(name), inMode, inValue, inAlloc, inUnits)));			//insert symbol table entry, call whichType to determine the data type of the literal
- 		operandStk.push(name);					//push name onto stack;
+		 // may want to be like this instead insert(x,whichType(y),CONSTANT,whichValue(y),YES,1); 
+ 		operandStk.push(name);																																		//push name onto stack;
 	}
 }
 
