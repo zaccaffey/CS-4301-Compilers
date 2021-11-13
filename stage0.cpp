@@ -1086,7 +1086,7 @@ void Compiler::pushOperand(string name) //push name onto operandStk
 {
  	if (isLiteral(name) && symbolTable.count(name) == 0)																					//name is a literal and has no symbol table entry
 	{
- 		insert symbol table entry, call whichType to determine the data type of the literal
+ 		symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, whichType(name), inMode, inValue, inAlloc, inUnits)));			//insert symbol table entry, call whichType to determine the data type of the literal
  		operandStk.push(name);					//push name onto stack;
 	}
 }
@@ -1109,7 +1109,7 @@ string Compiler::popOperator() //pop name from operatorStk
 
 string Compiler::popOperand() //pop name from operandStk
 {
-	
+
  if (!operandStk.empty())
  {
 	string top = operandStk.top();
