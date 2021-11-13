@@ -197,7 +197,8 @@ void Compiler::beginEndStmt()	//token should be "begin"
 		error = "keyword \"begin\" expected";
 		processError(error);
     }
-    
+
+    execStmts();
 
     if (nextToken() != "end")
     {
@@ -212,6 +213,81 @@ void Compiler::beginEndStmt()	//token should be "begin"
 
     nextToken();
     code("end", ".");
+}
+
+void execStmts(); // stage 1, production 2
+{
+    if (isNonKeyId(token) || token == "read" || token == "write")
+    {
+      execStmt();
+      execStmts();
+    }
+}
+
+void execStmt(); // stage 1, production 3
+{
+    if (isNonKeyId(token))
+    {
+      assignStmt();
+    }
+    else if (token == "read")
+    {
+      readStmt();
+    }
+    else if (token == "write")
+    {
+      writeStmt();
+    }
+}
+
+void assignStmt(); // stage 1, production 4
+{
+
+}
+
+void readStmt(); // stage 1, production 5
+{
+
+}
+
+void writeStmt(); // stage 1, production 7
+{
+
+}
+
+void express(); // stage 1, production 9
+{
+
+}
+
+void expresses(); // stage 1, production 10
+{
+
+}
+
+void term(); // stage 1, production 11
+{
+
+}
+
+void terms(); // stage 1, production 12
+{
+
+}
+
+void factor(); // stage 1, production 13
+{
+
+}
+
+void factors(); // stage 1, production 14
+{
+
+}
+
+void part(); // stage 1, production 15
+{
+
 }
 
 // ---------------------------------------------------------------------------------
@@ -662,18 +738,72 @@ string Compiler::whichValue(string name) //tells which value a name has
 
 void Compiler::code(string op, string operand1, string operand2)	//Calls emitPrologue when our op is "program" and calls emitEpilogue when our op is "end"
 {
-    if (op == "program")
+  if (op == "program")
 	{
 		emitPrologue(operand1);
 	}
+
 	else if (op == "end")
 	{
 		emitEpilogue();
 	}
-	else
-	{
-		processError("compiler error since function code should not be called with illegal arguments");
-	}
+
+	else if (op == "read")
+  {
+    emit read code
+  }
+
+  else if (op == "write")
+  {
+    emit write code
+  }
+
+  else if (op == "+") // this must be binary '+'
+  {
+    emit addition code
+  }
+
+  else if (op == "-") // this must be binary '-'
+  {
+    emit subtraction code
+  }
+
+  else if (op == "neg") // this must be unary '-'
+  {
+    emit negation code;
+  }
+
+  else if (op == "not")
+  {
+    emit not code
+  }
+
+  else if (op == "*")
+  {
+    emit multiplication code
+  }
+
+  else if (op == "div")
+  {
+    emit division code
+  }
+  else if (op == "mod")
+  {
+    emit modulo code
+  }
+
+  else if (op == "and")
+  {
+    emit and code
+  }
+ …
+ else if (op == "=")
+ emit equality code
+ else if (op == ":=")
+ emit assignment code
+ else
+ processError(compiler error since function code should not be called with
+ illegal arguments)
 }
 
 // ---------------------------------------------------------------------------------
