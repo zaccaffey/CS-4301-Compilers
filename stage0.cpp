@@ -315,10 +315,12 @@ void expresses(); // stage 1, production 10
 {
   x = nextToken();
 
-  if (x == "=" || x == "<>" || x == "<=" || x == ">=" || x == "<" || x == ">")    //not sure if I need to use token or nextToken. This is true for most of the code I have written so far - Z
+  if (x != "=" || x != "<>" || x != "<=" || x != ">=" || x != "<" || x != ">")    //not sure if I need to use token or nextToken. This is true for most of the code I have written so far - Z
   {
-    pushOperator(x);
+    processError();
   }
+
+  pushOperator(x);
 
   term();
 
@@ -352,9 +354,18 @@ void factor(); // stage 1, production 13
   factors();
 }
 
-void factors(); // stage 1, production 14
+void factors(); // stage 1, production 14	// need to account for epsilon move
 {
+	x = nextToken();		//idk if we need to use nextToken or just token here
+	if (x != "*" || x != "div" || x != "mod" || x != "and")
+	{
+		processError();
+	}
 
+	pushOperator(x);
+	part();
+	code(popOperator(), popOperand(), popOperand());
+	factors();
 }
 
 void part(); // stage 1, production 15
