@@ -833,60 +833,97 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 
 	else if (op == "read")
   {
-    emit read code
+    emitReadCode();
   }
 
   else if (op == "write")
   {
-    emit write code
+    emitWriteCode();
+  }
+
+  else if (op == "=")
+  {
+    emitAssignCode();
   }
 
   else if (op == "+") // this must be binary '+'
   {
-    emit addition code
+    emitAdditionCode();
   }
 
   else if (op == "-") // this must be binary '-'
   {
-    emit subtraction code
+    emitSubtractionCode();
   }
 
   else if (op == "neg") // this must be unary '-'
   {
-    emit negation code;
+    emitNegationCode();
   }
 
   else if (op == "not")
   {
-    emit not code
+    emitNotCode();
   }
 
   else if (op == "*")
   {
-    emit multiplication code
+    emitMultiplicationCode();
   }
 
   else if (op == "div")
   {
-    emit division code
+    emitDivisionCode();
   }
   else if (op == "mod")
   {
-    emit modulo code
+    emitModuloCode();
   }
 
   else if (op == "and")
   {
-    emit and code
+    emitAndCode();
   }
- …
- else if (op == "=")
- emit equality code
- else if (op == ":=")
- emit assignment code
+  else if (op == "or")
+  {
+    emitOrCode();
+  }
+
+  else if (op == "<")
+  {
+    emitLessThanCode();
+  }
+  else if (op == "<=")
+  {
+    emitLessThanOrEqualToCode();
+  }
+
+  else if (op == ">")
+  {
+    emitGreaterThanCode();
+  }
+
+  else if (op == ">=")
+  {
+    emitGreaterThanOrEqualToCode();
+  }
+
+  else if (op == "!=")
+  {
+    emitInequalityCode();
+  }
+  else if (op == "==")
+  {
+ 	emitEqualityCode();
+  }
+  else if (op == ":=")
+  {
+ 	emitAssignCode();
+  }
  else
- processError(compiler error since function code should not be called with
- illegal arguments)
+ {
+ 	processError("compiler error since function code should not be called with illegal arguments");
+ }
 }
 
 // ---------------------------------------------------------------------------------
@@ -1049,7 +1086,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
  {
 
  }
- 
+
  void emitGreaterThanOrEqualToCode(string operand1, string operand2); // op2 >= op1
  {
 
