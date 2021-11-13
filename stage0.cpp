@@ -238,26 +238,58 @@ void execStmt(); // stage 1, production 3
     {
       writeStmt();
     }
+    else
+    {
+      processError();
+    }
 }
 
 void assignStmt(); // stage 1, production 4
 {
+  if (!isNonKeyId(token))
+  {
+    processError();
+  }
 
+  pushOperand(token);
+
+  if (nextToken() != ":=")
+  {
+    processError();
+  }
+
+  pushOperator(":=");
+
+  express();
+
+  if (nextToken() != ";")
+  {
+    processError();
+  }
+
+  code(popOperator(), popOperator(), popOperator());
 
 }
 
 void readStmt(); // stage 1, production 5
 {
-
-}
-
-void writeStmt(); // stage 1, production 7
-{
-  if (token != "write")   //not sure if this is necessary
+  if (nextToken() != '(')
   {
     processError();
   }
 
+  x = ids();
+
+  if (nextToken() != ')')
+  {
+    processError();
+  }
+
+  code("read", x);
+}
+
+void writeStmt(); // stage 1, production 7
+{
   if (nextToken() != '(')
   {
     processError();
@@ -271,8 +303,6 @@ void writeStmt(); // stage 1, production 7
   }
 
   code("write", x);
-
-
 }
 
 void express(); // stage 1, production 9
