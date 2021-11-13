@@ -327,17 +327,29 @@ void expresses(); // stage 1, production 10
 
 void term(); // stage 1, production 11
 {
-
+  factor();
+  terms();
 }
 
-void terms(); // stage 1, production 12
+void terms(); // stage 1, production 12   //need to account for epsilon some how
 {
+  x = nextToken();
 
+  if (x != "+" || x != "-" || x != "or")
+  {
+    processError();
+  }
+
+  pushOperator(x);
+  factor();
+  code(popOperator(), popOperand(), popOperand());
+  terms();
 }
 
 void factor(); // stage 1, production 13
 {
-
+  part();
+  factors();
 }
 
 void factors(); // stage 1, production 14
