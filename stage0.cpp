@@ -243,6 +243,7 @@ void execStmt(); // stage 1, production 3
 void assignStmt(); // stage 1, production 4
 {
 
+
 }
 
 void readStmt(); // stage 1, production 5
@@ -252,6 +253,25 @@ void readStmt(); // stage 1, production 5
 
 void writeStmt(); // stage 1, production 7
 {
+  if (token != "write")   //not sure if this is necessary
+  {
+    processError();
+  }
+
+  if (nextToken() != '(')
+  {
+    processError();
+  }
+
+  x = ids();
+
+  if (nextToken() != ')')
+  {
+    processError();
+  }
+
+  code("write", x);
+
 
 }
 
