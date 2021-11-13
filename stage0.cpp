@@ -1087,7 +1087,7 @@ void Compiler::pushOperand(string name) //push name onto operandStk
  	if (isLiteral(name) && symbolTable.count(name) == 0)																					//name is a literal and has no symbol table entry
 	{
  		insert symbol table entry, call whichType to determine the data type of the literal
- 		push name onto stack;
+ 		operandStk.push(name);					//push name onto stack;
 	}
 }
 
@@ -1098,7 +1098,7 @@ string Compiler::popOperator() //pop name from operatorStk
  {
 	string top = operatorStk.top();
 	operatorStk.pop()
- 	return operandStk.top();			//top element removed from stack;		// ???does this mean we remove the top of the stack and return that element or do we remove the top of the stack and return the stack???
+ 	return top;			//top element removed from stack;		// ???does this mean we remove the top of the stack and return that element or do we remove the top of the stack and return the stack???
  }
  else
  {
@@ -1109,8 +1109,15 @@ string Compiler::popOperator() //pop name from operatorStk
 
 string Compiler::popOperand() //pop name from operandStk
 {
- if operandStk is not empty
- return top element removed from stack;
+	
+ if (!operandStk.empty())
+ {
+	string top = operandStk.top();
+	operandStk.pop();
+ 	return top;
  else
- processError(compiler error; operand stack underflow)
+ {
+ 	processError("compiler error; operand stack underflow");
+ }
+
 }
