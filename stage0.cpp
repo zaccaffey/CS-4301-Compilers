@@ -370,7 +370,7 @@ void factors(); // stage 1, production 14	// need to account for epsilon move
 
 void part(); // stage 1, production 15
 {
-	
+
 }
 
 // ---------------------------------------------------------------------------------
@@ -1074,4 +1074,33 @@ char Compiler::nextChar()   //returns the next character or end of file marker
 	prev = ch;
   
 	return ch;
+}
+
+void Compiler::pushOperator(string name) //push name onto operatorStk
+{
+ push name onto stack;
+}
+
+void Compiler::pushOperand(string name) //push name onto operandStk
+ //if name is a literal, also create a symbol table entry for it
+{
+ if name is a literal and has no symbol table entry
+ insert symbol table entry, call whichType to determine the data type of the literal
+ push name onto stack;
+}
+
+string Compiler::popOperator() //pop name from operatorStk
+{
+ if operatorStk is not empty
+ return top element removed from stack;
+ else
+ processError(compiler error; operator stack underflow)
+}
+
+string Compiler::popOperand() //pop name from operandStk
+{
+ if operandStk is not empty
+ return top element removed from stack;
+ else
+ processError(compiler error; operand stack underflow)
 }
