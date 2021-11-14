@@ -220,8 +220,15 @@ void execStmts(); // stage 1, production 2
     if (isNonKeyId(token) || token == "read" || token == "write")
     {
       execStmt();
+	  nextToken();
       execStmts();
     }
+	else if (token == "end");
+
+	else
+	{
+		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected");
+	}
 }
 
 void execStmt(); // stage 1, production 3
@@ -240,34 +247,46 @@ void execStmt(); // stage 1, production 3
     }
     else
     {
-      processError();
+      processError("non-keyword id, \"read\", or \"write\" expected");
     }
 }
 
 void assignStmt(); // stage 1, production 4
 {
+  string first, second;
+
   if (!isNonKeyId(token))
   {
-    processError();
+    processError("non - keyword identifier expected");
+  }
+
+  if (symbolTable.count(token) == 0)
+  {
+	  processError("reference to undefined variable")
   }
 
   pushOperand(token);
+  nextToken();
 
   if (nextToken() != ":=")
   {
-    processError();
+    processError("':=' expected; found " + token);
   }
 
   pushOperator(":=");
-
-  express();
-
-  if (nextToken() != ";")
+  nextToken();
+  
+  if (token && "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
   {
-    processError();
+	processError("one of \"*\", \"and\", \"div\", \"mod\", \")\", \"+\", \"-\", \";\", \"<\", \"<=\", \"<>\", \"=\", \">\", \">=\", or \"or\" expected")
   }
 
-  code(popOperator(), popOperand(), popOperand());
+  express();
+  
+  second = popOperand();
+  first = popOperand();
+
+  code(popOperator(), second, first);
 
 }
 
@@ -1029,7 +1048,26 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void emitAdditionCode(string operand1, string operand2); // op2 + op1
  {
+	 	/*if type of either operand is not integer
+		processError(illegal type)
+		if the A Register holds a temp not operand1 nor operand2 then
+		emit code to store that temp into memory
+		change the allocate entry for the temp in the symbol table to yes
+		deassign it
+		if the A register holds a non-temp not operand1 nor operand2 then deassign it
+		if neither operand is in the A register then
+		emit code to load operand2 into the A register
+		emit code to perform register-memory addition
+		deassign all temporaries involved in the addition and free those names for reuse
+		A Register = next available temporary name and
+		*/
 
+	if (!(isInteger(operand1)) && !(isInteger(operand2)))
+	{
+		processError("illegal type")
+	}
+
+	if ()
  }
 
  void emitSubtractionCode(string operand1, string operand2); // op2 - op1
