@@ -843,92 +843,92 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 
 	else if (op == "read")
   {
-    emitReadCode();
+    emitReadCode(/*need something here*/);
   }
 
   else if (op == "write")
   {
-    emitWriteCode();
+    emitWriteCode(/*need something here*/);
   }
 
   else if (op == "=")
   {
-    emitAssignCode();
+    emitAssignCode(operand1, operand2);
   }
 
   else if (op == "+") // this must be binary '+'
   {
-    emitAdditionCode();
+    emitAdditionCode(operand1, operand2));
   }
 
   else if (op == "-") // this must be binary '-'
   {
-    emitSubtractionCode();
+    emitSubtractionCode(operand1, operand2));
   }
 
   else if (op == "neg") // this must be unary '-'
   {
-    emitNegationCode();
+    emitNegationCode(operand1, op);
   }
 
   else if (op == "not")
   {
-    emitNotCode();
+    emitNotCode(operand1, op);
   }
 
   else if (op == "*")
   {
-    emitMultiplicationCode();
+    emitMultiplicationCode(operand1, operand2));
   }
 
   else if (op == "div")
   {
-    emitDivisionCode();
+    emitDivisionCode(operand1, operand2));
   }
   else if (op == "mod")
   {
-    emitModuloCode();
+    emitModuloCode(operand1, operand2));
   }
 
   else if (op == "and")
   {
-    emitAndCode();
+    emitAndCode(operand1, operand2));
   }
   else if (op == "or")
   {
-    emitOrCode();
+    emitOrCode(operand1, operand2));
   }
 
   else if (op == "<")
   {
-    emitLessThanCode();
+    emitLessThanCode(operand1, operand2));
   }
   else if (op == "<=")
   {
-    emitLessThanOrEqualToCode();
+    emitLessThanOrEqualToCode(operand1, operand2));
   }
 
   else if (op == ">")
   {
-    emitGreaterThanCode();
+    emitGreaterThanCode(operand1, operand2));
   }
 
   else if (op == ">=")
   {
-    emitGreaterThanOrEqualToCode();
+    emitGreaterThanOrEqualToCode(operand1, operand2));
   }
 
   else if (op == "!=")
   {
-    emitInequalityCode();
+    emitInequalityCode(operand1, operand2));
   }
   else if (op == "==")
   {
- 	emitEqualityCode();
+ 	emitEqualityCode(operand1, operand2));
   }
   else if (op == ":=")
   {
- 	emitAssignCode();
+ 	emitAssignCode(operand1, operand2));
   }
  else
  {
@@ -1258,4 +1258,22 @@ string Compiler::popOperand() //pop name from operandStk
  	processError("compiler error; operand stack underflow");
  }
 
+}
+
+void freeTemp()
+{
+ currentTempNo--;
+ if (currentTempNo < -1)
+ processError(compiler error, currentTempNo should be ≥ –1)
+}
+
+string getTemp()
+{
+ string temp;
+ currentTempNo++;
+ temp = "T" + currentTempNo;
+ if (currentTempNo > maxTempNo)
+ insert(temp, UNKNOWN, VARIABLE, "", NO, 1)
+ maxTempNo++
+ return temp
 }
