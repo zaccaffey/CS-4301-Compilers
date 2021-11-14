@@ -286,6 +286,11 @@ void readStmt(); // stage 1, production 5
   }
 
   code("read", x);
+
+  if (nextToken() != ";")
+  {
+	processError();
+  }
 }
 
 void writeStmt(); // stage 1, production 7
@@ -303,6 +308,11 @@ void writeStmt(); // stage 1, production 7
   }
 
   code("write", x);
+
+  if (nextToken() != ";")
+  {
+	processError();
+  }
 }
 
 void express(); // stage 1, production 9
