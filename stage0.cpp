@@ -372,16 +372,23 @@ void term(); // stage 1, production 11
 
 void terms(); // stage 1, production 12   //need to account for epsilon some how
 {
-  x = nextToken();
+  string first, second;
 
-  if (x != "+" || x != "-" || x != "or")
+  if (token != "+" && token != "-" && token != "or")
   {
     processError();
   }
 
-  pushOperator(x);
+  pushOperator(token);
+  nextToken();
+  //error checks here
   factor();
-  code(popOperator(), popOperand(), popOperand());
+  second = popOperand();
+  first = popOperand();
+
+  code(popOperator(), second, first);
+
+  //error checks here
   terms();
 }
 
