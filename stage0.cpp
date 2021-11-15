@@ -352,13 +352,15 @@ void expresses(); // stage 1, production 10
 {
   string first, second;
 
-  if (x != "=" || x != "<>" || x != "<=" || x != ">=" || x != "<" || x != ">")    //not sure if I need to use token or nextToken. This is true for most of the code I have written so far - Z
+  if (token != "=" && token != "<>" && token != "<=" && token != ">=" && token != "<" && token != ">")
   {
-    processError();
+	processError("\"=\", \"<>\", \"<=\", \">=\", \"<\", or \">\" expected");  
   }
 
   pushOperator(token);
+  nextToken();
 
+  //error checking here
   term();
 
   second = popOperand();
