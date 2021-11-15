@@ -292,6 +292,8 @@ void assignStmt(); // stage 1, production 4
 
 void readStmt(); // stage 1, production 5
 {
+  if (nextToken() != "read")	processError();
+
   if (nextToken() != '(')
   {
     processError();
@@ -314,6 +316,10 @@ void readStmt(); // stage 1, production 5
 
 void writeStmt(); // stage 1, production 7
 {
+  string next = nextToken();	//don't know if this is necessary
+
+  if (next != "write")	processError();
+
   if (nextToken() != '(')
   {
     processError();
