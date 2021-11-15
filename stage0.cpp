@@ -376,7 +376,7 @@ void terms(); // stage 1, production 12   //need to account for epsilon some how
 
   if (token != "+" && token != "-" && token != "or")
   {
-    processError();
+    processError("\"+\", \"-\", or \"or\" expected");
   }
 
   pushOperator(token);
@@ -389,6 +389,11 @@ void terms(); // stage 1, production 12   //need to account for epsilon some how
   code(popOperator(), second, first);
 
   //error checks here
+  if (token != "+" && token != "-" && token != "or")
+  {
+    processError("\"+\", \"-\", or \"or\" expected");
+  }
+  
   terms();
 }
 
