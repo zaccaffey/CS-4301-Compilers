@@ -292,25 +292,27 @@ void assignStmt(); // stage 1, production 4
 
 void readStmt(); // stage 1, production 5
 {
-  if (nextToken() != "read")	processError();
+  if (token != "read")	processError();
+  nextToken();
 
-  if (nextToken() != '(')
+  if (token != '(')
   {
     processError();
   }
 
   x = ids();
+  nextToken();
 
-  if (nextToken() != ')')
+  if (token != ')')
   {
-    processError();
+    processError("')' expected; found " + token);
   }
 
   code("read", x);
 
   if (nextToken() != ";")
   {
-	processError();
+	processError("';' expected; found " + token);
   }
 }
 
