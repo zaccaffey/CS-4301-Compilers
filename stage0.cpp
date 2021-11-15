@@ -350,18 +350,21 @@ void express(); // stage 1, production 9
 
 void expresses(); // stage 1, production 10
 {
-  x = nextToken();
+  string first, second;
 
   if (x != "=" || x != "<>" || x != "<=" || x != ">=" || x != "<" || x != ">")    //not sure if I need to use token or nextToken. This is true for most of the code I have written so far - Z
   {
     processError();
   }
 
-  pushOperator(x);
+  pushOperator(token);
 
   term();
 
-  code(popOperator(), popOperand(), popOperand())
+  second = popOperand();
+  first = popOperand();
+
+  code(popOperator(), second, first);
 }
 
 void term(); // stage 1, production 11
@@ -393,7 +396,7 @@ void terms(); // stage 1, production 12   //need to account for epsilon some how
   {
     processError("\"+\", \"-\", or \"or\" expected");
   }
-  
+
   terms();
 }
 
