@@ -361,7 +361,7 @@ void expresses(); // stage 1, production 10
   nextToken();
 
   //error checking here
-  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-", && !isInteger(token) && !isNonKeyId(token))
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
   {
 	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
   }
@@ -373,7 +373,7 @@ void expresses(); // stage 1, production 10
 
   code(popOperator(), second, first);
 
-  if (token == "=" && token == "<>" && token == "<=" && token == ">=" && token == "<" && token == ">")
+  if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">")
   {
 	expresses();
   }
@@ -381,8 +381,17 @@ void expresses(); // stage 1, production 10
 
 void term(); // stage 1, production 11
 {
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
   factor();
-  terms();
+
+  if (token == "-" || token == "+" || token == "or")
+  {
+  	terms();
+  }
 }
 
 void terms(); // stage 1, production 12   //need to account for epsilon some how
