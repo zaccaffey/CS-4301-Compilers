@@ -423,8 +423,18 @@ void terms(); // stage 1, production 12   //need to account for epsilon some how
 
 void factor(); // stage 1, production 13
 {
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError();
+  }
+  
   part();
-  factors();
+
+  if (token == "*" && token == "div" && token == "mod" && token == "and" && token == "<>" && token == "=" && 
+  token == "<=" && token == ">=" && token == "<" && token == ">" && token == ")" && token == ";" && token == "-" && token == "+" && token == "or")
+  {
+	factors();
+  }
 }
 
 void factors(); // stage 1, production 14	// need to account for epsilon move
@@ -436,6 +446,7 @@ void factors(); // stage 1, production 14	// need to account for epsilon move
 	}
 
 	pushOperator(x);
+
 	part();
 	code(popOperator(), popOperand(), popOperand());
 	factors();
@@ -556,6 +567,7 @@ void Compiler::varStmts() //token should be NON_KEY_ID
 	{
 		processError("non-keyword identifier expected");
 	}
+
 	// for 020.lst
 	if (token.back() == '_')
 	{
@@ -876,6 +888,7 @@ string Compiler::whichValue(string name) //tells which value a name has
 			value = name;
 		}
 	}
+
 	else 
 	{
 		if (itr->second.getValue() != "" && symbolTable.count(name) > 0)
@@ -895,9 +908,9 @@ string Compiler::whichValue(string name) //tells which value a name has
 void Compiler::code(string op, string operand1, string operand2)	//Calls emitPrologue when our op is "program" and calls emitEpilogue when our op is "end"
 {
   if (op == "program")
-	{
-		emitPrologue(operand1);
-	}
+  {
+	emitPrologue(operand1);
+  }
 
 	else if (op == "end")
 	{
