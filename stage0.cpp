@@ -361,12 +361,22 @@ void expresses(); // stage 1, production 10
   nextToken();
 
   //error checking here
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-", && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
   term();
 
   second = popOperand();
   first = popOperand();
 
   code(popOperator(), second, first);
+
+  if (token == "=" && token == "<>" && token == "<=" && token == ">=" && token == "<" && token == ">")
+  {
+	expresses();
+  }
 }
 
 void term(); // stage 1, production 11
