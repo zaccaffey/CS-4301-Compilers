@@ -1292,12 +1292,28 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		A Register = next available temporary name and
 		*/
 
-	if (!(isInteger(operand1)) && !(isInteger(operand2)))
+	//if type of either operand is not integer
+	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
-		processError("illegal type")
+		processError("illegal type");
 	}
 
-	if ()
+	//if the A Register holds a temp not operand1 nor operand2
+	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg && contentsOfAReg[0] == 'T')
+	{
+		//emit code to store that temp into memory (store contentsofareg? - Z)
+		//change the allocate entry for the temp in the symbol table to yes
+		
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	//if the A register holds a non-temp not operand1 nor operand2
+	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg && !contentsOfAReg.empty() && contentsOfAReg[0] != 'T')
+	{
+		//deassign it
+		contentsOfAReg = "";
+	}
  }
 
  void emitSubtractionCode(string operand1, string operand2); // op2 - op1
@@ -1533,7 +1549,7 @@ void freeTemp()
  currentTempNo--;
  if (currentTempNo < -1)
  {
- processError("compiler error, currentTempNo should be ≥ –1");
+   processError("compiler error, currentTempNo should be ≥ –1");
  }
 }
 
@@ -1548,7 +1564,7 @@ string getTemp()
  {
   insert(temp, UNKNOWN, VARIABLE, "", NO, 1);
  }
- 
+
  maxTempNo++;
  return temp;
 }
