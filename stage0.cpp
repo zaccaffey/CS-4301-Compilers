@@ -292,7 +292,11 @@ void assignStmt(); // stage 1, production 4
 
 void readStmt(); // stage 1, production 5
 {
-  if (token != "read")	processError();
+  if (token != "read")
+  {	
+	processError();
+  }
+
   nextToken();
 
   if (token != '(')
@@ -344,8 +348,18 @@ void writeStmt(); // stage 1, production 7
 
 void express(); // stage 1, production 9
 {
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
   term();
-  expresses();
+  nextToken();
+
+  if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">")
+  {
+    expresses();
+  }
 }
 
 void expresses(); // stage 1, production 10
