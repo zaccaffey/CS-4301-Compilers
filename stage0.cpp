@@ -406,6 +406,11 @@ void terms(); // stage 1, production 12   //need to account for epsilon some how
   pushOperator(token);
   nextToken();
   //error checks here
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
   factor();
   second = popOperand();
   first = popOperand();
@@ -413,25 +418,22 @@ void terms(); // stage 1, production 12   //need to account for epsilon some how
   code(popOperator(), second, first);
 
   //error checks here
-  if (token != "+" && token != "-" && token != "or")
+  if (token == "+" || token == "-" || token == "or")
   {
-    processError("\"+\", \"-\", or \"or\" expected");
+    terms();
   }
-
-  terms();
 }
 
 void factor(); // stage 1, production 13
 {
   if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
   {
-	processError();
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
   }
   
   part();
 
-  if (token == "*" && token == "div" && token == "mod" && token == "and" && token == "<>" && token == "=" && 
-  token == "<=" && token == ">=" && token == "<" && token == ">" && token == ")" && token == ";" && token == "-" && token == "+" && token == "or")
+  if (token == "*" && token == "div" && token == "mod" && token == "and")
   {
 	factors();
   }
@@ -439,17 +441,32 @@ void factor(); // stage 1, production 13
 
 void factors(); // stage 1, production 14	// need to account for epsilon move
 {
-	x = nextToken();		//idk if we need to use nextToken or just token here
-	if (x != "*" || x != "div" || x != "mod" || x != "and")
+	string first, second;
+
+	if (token != "*" && token != "div" && token != "mod" && token != "and")
+	{
+	  processError();
+	}
+
+	pushOperator(token);
+	nextToken();
+	
+	if (token != "not" && token != "(" && !isBoolean(token) && !isNonKeyId(token) && token != "+" && token != "-" && token != "true" && token != "false")
 	{
 		processError();
 	}
 
-	pushOperator(x);
-
 	part();
-	code(popOperator(), popOperand(), popOperand());
-	factors();
+
+	second = popOperand();
+	first = popOperand();
+	
+	code(popOperator(), second, first);
+
+	if (token == "*" || token == "div" || token == "mod" || token == "and")
+	{
+		factors();
+	}
 }
 
 void part(); // stage 1, production 15
