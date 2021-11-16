@@ -458,7 +458,7 @@ void factors(); // stage 1, production 14	// need to account for epsilon move
 
 	part();
 
-	second = popOperand();
+	second = popOperand();		
 	first = popOperand();
 	
 	code(popOperator(), second, first);
@@ -471,7 +471,69 @@ void factors(); // stage 1, production 14	// need to account for epsilon move
 
 void part(); // stage 1, production 15
 {
+	if (token == "not")
+	{
+		nextToken();
 
+		if (token == "(")
+		{
+			nextToken();
+
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
+			{
+				processError();
+			}
+
+			express();
+			nextToken();
+
+			if (token != ")")
+			{
+				processError();
+			}
+
+			nextToken();
+			code("not", popOperand());
+		}
+		else if (isBoolean(token))
+		{
+			if (token == "true")
+			{
+				pushOperand("false");
+			}
+			else 
+			{
+				pushOperand("true");
+			}
+		}
+		else if (isNonKeyId(token))
+		{
+			code("not", token);
+		}
+	}
+
+	if (token == "+")
+	{
+		nextToken();
+
+		if (token == "(")
+		{
+			nextToken();
+
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
+			{
+				processError();
+			}
+
+			express();
+			nextToken();
+
+			if (token != ")")
+			{
+				processError();
+			}
+		}
+	}
 }
 
 // ---------------------------------------------------------------------------------
