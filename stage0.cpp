@@ -512,7 +512,7 @@ void part(); // stage 1, production 15
 		}
 	}
 
-	if (token == "+")
+	else if (token == "+")
 	{
 		nextToken();
 
@@ -533,7 +533,81 @@ void part(); // stage 1, production 15
 				processError();
 			}
 		}
+		else if (isInteger(token))
+		{
+			pushOperand(token);
+		}
+		else if (isNonKeyId(token))
+		{
+			pushOperand(token);
+		}
 	}
+
+	else if (token == "-")
+	{
+		string first;
+		nextToken();
+
+		if (token == "(")
+		{
+			nextToken();
+
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
+			{
+				processError();
+			}
+
+			express();
+			nextToken();
+
+			if (token != ")")
+			{
+				processError();
+			}
+
+			first = popOperand();
+			code("neg", first);
+		}
+		else if (isInteger(token))
+		{
+			pushOperand("-" + token);
+		}
+		else if (isNonKeyId(token))
+		{
+			code("neg", token)
+		}
+	}
+
+	else if (isInteger(token) || isBoolean(token) || isNonKeyId(token))
+	{
+		pushOperand(token);
+	}
+
+	else if (token == "(")
+	{
+		nextToken();
+
+		if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
+		{
+			processError();
+		}
+
+		express();
+		nextToken();
+
+		if (token != ")")
+		{
+			processError();
+		}
+
+		nextToken();
+	}
+
+	else
+	{
+		processError();
+	}
+
 }
 
 // ---------------------------------------------------------------------------------
