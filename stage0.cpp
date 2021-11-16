@@ -1303,7 +1303,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	{
 		//emit code to store that temp into memory (store contentsofareg? - Z)
 		//change the allocate entry for the temp in the symbol table to yes
-		
+
 		//deassign it
 		contentsOfAReg = "";
 	}
@@ -1313,6 +1313,15 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	{
 		//deassign it
 		contentsOfAReg = "";
+	}
+
+	//if neither operand is in the A register then
+	if (symbolTable.at(operand1).value != contentsOfAReg && symbolTable.at(operand2).value != contentsOfAReg)		//not sure if this is how I access the value of each operand
+	{
+		//emit code to load operand2 into the A register
+		//emit code to perform register-memory addition
+		//deassign all temporaries involved in the addition and free those names for reuse
+		//A Register = next available temporary name and
 	}
  }
 
