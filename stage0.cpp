@@ -1532,16 +1532,23 @@ void freeTemp()
 {
  currentTempNo--;
  if (currentTempNo < -1)
- processError(compiler error, currentTempNo should be ≥ –1)
+ {
+ processError("compiler error, currentTempNo should be ≥ –1");
+ }
 }
 
 string getTemp()
 {
  string temp;
  currentTempNo++;
+
  temp = "T" + currentTempNo;
+
  if (currentTempNo > maxTempNo)
- insert(temp, UNKNOWN, VARIABLE, "", NO, 1)
- maxTempNo++
- return temp
+ {
+  insert(temp, UNKNOWN, VARIABLE, "", NO, 1);
+ }
+ 
+ maxTempNo++;
+ return temp;
 }
