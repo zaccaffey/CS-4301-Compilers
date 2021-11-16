@@ -211,7 +211,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
 		processError("period expected");
     }
 
-    nextToken();
+    nextToken();		//I feel like this may be un-needed
     code("end", ".");
 }
 
@@ -301,7 +301,7 @@ void readStmt(); // stage 1, production 5
 
   if (token != '(')
   {
-    processError();
+    processError("'(' expected; found " + token);
   }
 
   x = ids();
@@ -313,8 +313,9 @@ void readStmt(); // stage 1, production 5
   }
 
   code("read", x);
+  nextToken();
 
-  if (nextToken() != ";")
+  if (token != ";")
   {
 	processError("';' expected; found " + token);
   }
@@ -322,25 +323,30 @@ void readStmt(); // stage 1, production 5
 
 void writeStmt(); // stage 1, production 7
 {
-  string next = nextToken();	//don't know if this is necessary
+  if (token != "write")
+  {
+	processError();
+  }
 
-  if (next != "write")	processError();
+  nextToken();
 
-  if (nextToken() != '(')
+  if (token != '(')
   {
     processError();
   }
 
   x = ids();
+  nextToken();
 
-  if (nextToken() != ')')
+  if (token != ')')
   {
-    processError();
+    processError("')' expected; found " + token);
   }
 
   code("write", x);
+  nextToken();
 
-  if (nextToken() != ";")
+  if (token != ";")
   {
 	processError();
   }
