@@ -1361,7 +1361,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	{
 		//emit code to store that temp into memory (store contentsofareg? - Z)
 		//store contentsofAReg into eax by emitting assembly code
-		emit("", "mov", "[" + contentsOfAReg + "]", "eax", "deassign A register");		//do we need commas in here
+		emit("", "mov", "[" + contentsOfAReg + "]", "eax", "deassign A register");		//do we need commas in here?
 		
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc("YES");
@@ -1378,9 +1378,10 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	//if neither operand is in the A register then
-	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg)		//not sure if this is how I access the value of each operand
+	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg)		
 	{
 		//emit code to load operand2 into the A register
+		emit("", "mov", "eax", "[" + symbolTable.at(operand2).genInternalName() + "]", "A register =" + operand2)		//CHECK THIS
 
 		//emit code to perform register-memory addition
 
