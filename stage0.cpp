@@ -1377,10 +1377,21 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		//emit code to perform register-memory addition
 
 		//deassign all temporaries involved in the addition and free those names for reuse
-		freeTemp();		//?? not sure if this is right - Z
+		if (operand1[0] == 'T')
+		{
+			freeTemp();		//?? not sure if this is right - Z
+		}
+		if (operand2[0] == 'T')
+		{
+			freeTemp();
+		}
 
-		//A Register = next available temporary name and
-		contentsOfAReg = getTemp();		//?? not sure if this is right - Z
+		//A Register = next available temporary name and change type of its symbol table entry to integer
+		contentsOfAReg = getTemp();
+		symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+
+		//push the name of the result onto operandStk
+		pushOperand(contentsOfAReg);
 	}
  }
 
