@@ -1344,6 +1344,12 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 }
 	// CAM ABOVE */
 
+	//make sure that neither of these are empty
+	if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
+	{
+		processError();
+	}
+
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
@@ -1354,9 +1360,10 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg && contentsOfAReg[0] == 'T')
 	{
 		//emit code to store that temp into memory (store contentsofareg? - Z)
+		//store contentsofAReg into eax by emitting assembly code
 		
 		//change the allocate entry for the temp in the symbol table to yes
-		symbolTable.at("the location of the temp variable").setAlloc("YES");
+		symbolTable.at(contentsOfAReg).setAlloc("YES");
 
 		//deassign it
 		contentsOfAReg = "";
@@ -1370,7 +1377,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	//if neither operand is in the A register then
-	if (symbolTable.at(operand1).getValue() != contentsOfAReg && symbolTable.at(operand2).getValue() != contentsOfAReg)		//not sure if this is how I access the value of each operand
+	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg)		//not sure if this is how I access the value of each operand
 	{
 		//emit code to load operand2 into the A register
 
@@ -1379,7 +1386,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		//deassign all temporaries involved in the addition and free those names for reuse
 		if (operand1[0] == 'T')
 		{
-			freeTemp();		//?? not sure if this is right - Z
+			freeTemp();		
 		}
 		if (operand2[0] == 'T')
 		{
@@ -1556,14 +1563,14 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		//emit code to store that temp into memory
 
 		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at("the location of the temp variable").setAlloc("YES");
+		symbolTable.at(contentsOfAReg).setAlloc("YES");
 
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if the A register holds a non-temp not operand2
-	if (contentsOfAReg[0] !- 'T' && contentsOfAReg != symbolTable.at(operand2).genInternalName())
+	if (!contentsOfAReg.empty() && contentsOfAReg[0] != 'T' && contentsOfAReg != symbolTable.at(operand2).genInternalName())
 	{
 		//deassign it
 		contentsOfAReg = "";
@@ -1579,13 +1586,21 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		//emit code to perform a register-memory division
 
 		//deassign all temporaries involved and free those names for reuse
-		freeTemp();
+		if (operand1[0] == 'T')
+		{
+			freeTemp();
+		}
+		if (operand2[0] == 'T')
+		{
+			freeTemp();
+		}
 
 		//A Register = next available temporary name and change type of its symbol table entry to integer	(this needs to be looked at further)
 		contentsOfAReg = getTemp();
+		symbolTable.at(contentsOfAReg).setDataType(INTEGER);
 
 		//push the name of the result onto operandStk	(this needs to be looked at further)
-		pushOperand("result")
+		pushOperand(contentsOfAReg);e
 	}
  }
 
