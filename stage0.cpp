@@ -1386,11 +1386,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		//emit code to perform register-memory addition
 
 		//deassign all temporaries involved in the addition and free those names for reuse
-		if (operand1[0] == 'T')
+		if (isTemporary(operand1))
 		{
 			freeTemp();		
 		}
-		if (operand2[0] == 'T')
+		if (isTemporary(operand2))
 		{
 			freeTemp();
 		}
