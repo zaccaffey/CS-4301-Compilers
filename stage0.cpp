@@ -1295,7 +1295,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
-		processError("illegal type");
+		processError();
 	}
 
 	//if the A Register holds a temp not operand1 nor operand2
@@ -1321,9 +1321,12 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	if (symbolTable.at(operand1).getValue() != contentsOfAReg && symbolTable.at(operand2).getValue() != contentsOfAReg)		//not sure if this is how I access the value of each operand
 	{
 		//emit code to load operand2 into the A register
+
 		//emit code to perform register-memory addition
+
 		//deassign all temporaries involved in the addition and free those names for reuse
 		freeTemp();		//?? not sure if this is right - Z
+
 		//A Register = next available temporary name and
 		contentsOfAReg = getTemp();		//?? not sure if this is right - Z
 	}
@@ -1341,7 +1344,66 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void emitDivisionCode(string operand1, string operand2); // op2 / op1
  {
+	/*
+	if type of either operand is not integer
+	processError(illegal type)
+	if the A Register holds a temp not operand2 then
+	emit code to store that temp into memory
+	change the allocate entry for it in the symbol table to yes
+	deassign it
+	if the A register holds a non-temp not operand2 then deassign it
+	if operand2 is not in the A register
+	emit instruction to do a register-memory load of operand2 into the A register
+	emit code to extend sign of dividend from the A register to edx:eax
+	emit code to perform a register-memory division
+	deassign all temporaries involved and free those names for reuse
+	A Register = next available temporary name and change type of its symbol table entry to integer
+	push the name of the result onto operandStk
+	*/
 
+	//if type of either operand is not integer
+	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
+	{
+		processError();
+	}
+
+	//if the A Register holds a temp not operand2
+	if (contentsOfAReg != symbolTable.at(operand2).genInternalName())
+	{
+		//emit code to store that temp into memory
+
+		//change the allocate entry for it in the symbol table to yes
+		symbolTable.at("the location of the temp variable").setAlloc("YES");
+
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	//if the A register holds a non-temp not operand2
+	if (contentsOfAReg[0] !- 'T' && contentsOfAReg != symbolTable.at(operand2).genInternalName())
+	{
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	//if operand2 is not in the A register
+	if (symbolTable.at(operand2).genInternalName() != contentsOfAReg)
+	{
+		//emit instruction to do a register-memory load of operand2 into the A register
+
+		//emit code to extend sign of dividend from the A register to edx:eax
+
+		//emit code to perform a register-memory division
+
+		//deassign all temporaries involved and free those names for reuse
+		freeTemp();
+
+		//A Register = next available temporary name and change type of its symbol table entry to integer	(this needs to be looked at further)
+		contentsOfAReg = getTemp();
+
+		//push the name of the result onto operandStk	(this needs to be looked at further)
+		pushOperand("result")
+	}
  }
 
  void emitModuloCode(string operand1, string operand2); // op2 % op1
