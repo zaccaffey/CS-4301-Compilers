@@ -1390,14 +1390,51 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 			//emit code to call the Irvine Crlf function
 			emit("","call","Crlf","; Crlf function called")
 		}
+		// This may not be needed - C
 		name = "";
 	 }
 
  }
 
  void emitAssignCode(string operand1, string operand2); // op2 = op1
- {
+ {	
+	//if types of operands are not the same
+	//processError(incompatible types)
+	if (symbolTable.at(operand1).getDataType() !=symbolTable.at(operand2).getDataType())
+	{
+	 processError("incompatible types");
+	}
+	//if storage mode of operand2 is not VARIABLE
+	//processError(symbol on left-hand side of assignment must have a storage mode of VARIABLE)
 
+	if (symbolTable.at(operand2).getMode() != VARIABLE)
+	{
+	 processError("symbol on left-hand side of assignment must have a storage mode of VARIABLE");
+	}
+
+	//if operand1 = operand2 return
+	if (operand1 == operand2)
+	{
+		return;
+	}
+
+	//if operand1 is not in the A register then
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
+	{
+		//emit code to load operand1 into the A register
+		emit("","mov","eax[" + symbolTable.at(operand1).getInternalName() + "]", ";load " + operand1 +" in A register");
+	}
+	//emit code to store the contents of that register into the memory location pointed to by operand2
+	emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "],eax", ";store contents at " + operand2);
+	//set the contentsOfAReg = operand2
+	contentsOfAReg = symbolTable.at(operand2).getInternalName();
+
+	//if operand1 is a temp then free its name for reuse
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+	//operand2 can never be a temporary since it is to the left of ':='
  }
 
  void emitAdditionCode(string operand1, string operand2); // op2 + op1
