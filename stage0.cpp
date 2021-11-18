@@ -1305,6 +1305,93 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void emitWriteCode(string operand, string = "");
  {
+	string name;
+	static bool definedStorage = false;
+	int loopC = 0;
+	int size = operand.size();
+	 //while (name is broken from list (operand) and put in name != "")
+	 while (loopC < size)
+	 {
+		loopC++;
+		if (operand[loopC] != ',' && loopC < size)
+		{
+			name = name + operand[loopC];
+			continue;
+		}
+
+		if (name != "")
+		{
+			//if name is not in symbol table
+			if (symbolTable.count(name) == 0)
+			{
+				processError("reference to undefined symbol");
+			}
+			//if name is not in the A register
+			//emit the code to load name in the A register
+			//set the contentsOfAReg = name
+			if (contentsOfAReg != symbolTable.at(name).getInternalName())
+			{
+				emit("","mov","eax[" + symbolTable.at(name).getInternalName() + "]", ";load " + name +" in A register");
+				contentsOfAReg = symbolTable.at(name).getInternalName();
+			}
+			/*if data type of name is INTEGER
+			emit code to call the Irvine WriteInt function
+			else // data type is BOOLEAN
+			{
+			emit code to compare the A register to 0
+			acquire a new label Ln
+			emit code to jump if equal to the acquired label Ln
+			emit code to load address of TRUE literal in the D register
+			acquire a second label L(n + 1)
+			emit code to unconditionally jump to label L(n + 1)
+			emit code to label the next line with the first acquired label Ln
+			emit code to load address of FALSE literal in the D register
+			emit code to label the next line with the second acquired label L(n + 1)
+			emit code to call the Irvine WriteString function*/
+			if (symbolTable.at(name).getDataType() == INTEGER)
+			{
+				emit("","call","WriteInt",";WriteInt function called")
+			}
+			else // symbolTable.at(name).getDataType() == BOOLEAN
+			{
+				emit("","cmp","eax,0",";compare A register to 0");
+				// need to write getLabel still and check this line
+				string newLabel = getLabel();
+				emit("","je","." + newLabel, ";jump if equal to the acquired label Ln");
+				emit("","mov", "edx,TRUELIT", ";load address of TRUE literal in the D register");
+				string secondLabel = getLabel();
+				emit("","jmp","." + secondLabel, ";unconditionally jump to label L(n + 1)");
+				emit("." + newLabel + ":");
+				emit("","mov", "edx,FALSLIT", ";load address of FALSE literal in the D register");
+				emit("." + secondLabel + ":");
+				emit("","call","WriteString",";WriteString function called")
+
+				/*
+				if static variable definedStorage is false
+				{
+				set definedStorage to true
+				output an endl to objectFile
+				emit code to begin a .data SECTION
+				emit code to create label TRUELIT, instruction db, operands 'TRUE',0
+				emit code to create label FALSELIT, instruction db, operands 'FALSE',0
+				output an endl to objectFile
+				emit code to resume .text SECTION*/
+				if (definedStorage == false)
+				{
+					definedStorage = true;
+					objectFile << "\n";
+					emit("SECTION", ".data");
+					emit("TRUELIT", "db", "'TRUE',0", "; TRUE Literal");
+					emit("FALSLIT", "db", "'FALSE',0", "; FALSE Literal");
+					objectFile << "\n";
+					emit("SECTION", ".text");
+				}			
+			}
+			//emit code to call the Irvine Crlf function
+			emit("","call","Crlf","; Crlf function called")
+		}
+		name = "";
+	 }
 
  }
 
