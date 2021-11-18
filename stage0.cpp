@@ -1770,6 +1770,14 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		contentsOfAReg = "";
 	}
 
+	// if the A register holds a non-temp not operand2 then deassign it
+	if (symbolTable.count(contentsOfAReg) != 0 && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		contentsOfAReg = "";
+	}
+
+
+
  }
 
  void emitNegationCode(string operand1, string = ""); // -op1
