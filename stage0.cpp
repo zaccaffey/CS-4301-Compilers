@@ -1490,11 +1490,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
 	// push the name of the result onto operandStk
-	if (operand1[0] == 'T')
+	if (isTemporary(operand1))
 	{
 		freeTemp();
 	}
-	if (operand2[0] == 'T')
+	if (isTemporary(operand2))
 	{
 		freeTemp();
 	}
@@ -1618,11 +1618,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
 	// push the name of the result onto operandStk
-	if (operand1[0] == 'T')
+	if (isTemporary(operand1))
 	{
 		freeTemp();
 	}
-	if (operand2[0] == 'T')
+	if (isTemporary(operand2))
 	{
 		freeTemp();
 	}
@@ -1652,7 +1652,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//emit code to store that temp into memory
 	//change the allocate entry for the temp in the symbol table to yes
 	//deassign it
-	 if (contentsOfAReg[0] == 'T' && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	 if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		emit("","mov","[" + contentsOfAReg + "]","eax", "deassign A Register");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
@@ -1660,7 +1660,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	// if the A register holds a non-temp not operand2 then deassign it
-	if (symbolTable.count(contentsOfAReg) != 0 && contentsOfAReg[0] != 'T' && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (symbolTable.count(contentsOfAReg) != 0 && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		contentsOfAReg = "";
 	}
@@ -1681,11 +1681,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
 	// push the name of the result onto operandStk
-	if (operand1[0] == 'T')
+	if (isTemporary(operand1))
 	{
 		freeTemp();
 	}
-	if (operand2[0] == 'T')
+	if (isTemporary(operand2))
 	{
 		freeTemp();
 	}
@@ -1732,11 +1732,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		//emit code to perform a register-memory division
 
 		//deassign all temporaries involved and free those names for reuse
-		if (operand1[0] == 'T')
+		if (isTemporary(operand1))
 		{
 			freeTemp();
 		}
-		if (operand2[0] == 'T')
+		if (isTemporary(operand2))
 		{
 			freeTemp();
 		}
