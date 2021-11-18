@@ -1679,6 +1679,20 @@ string Compiler::nextToken()    //returns the next token or end of file marker {
 		{
 			token = ch;
 			nextChar();
+
+			//Assignment operation :=
+			if (token == ":" && ch == '=') 
+			{
+				token += ch;
+				nextChar();
+			}
+			
+			// Not sure if this is needed - C
+			//if ((token == "<" && ch == '=') || (token == "<" && ch == '>') || (token == ">" && ch == '=')) 
+			//{
+			//	token += ch;
+			//	nextChar();
+			//}
 		}
 		else if (islower(ch))
 		{
@@ -1807,7 +1821,7 @@ void freeTemp()
  currentTempNo--;
  if (currentTempNo < -1)
  {
-   processError("compiler error, currentTempNo should be ≥ –1");
+   processError("compiler error, currentTempNo should be >= –1");
  }
 }
 
