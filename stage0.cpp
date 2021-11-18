@@ -1263,7 +1263,44 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void emitReadCode(string operand, string = "");
  {
+	 string name;
+	 int loopC = 0;
+	 int size = operand.size();
+	 //while (name is broken from list (operand) and put in name != "")
+	 while (loopC < size)
+	 {
+		loopC++;
+		if (operand[loopC] != ',' && loopC < size)
+		{
+			name = name + operand[loopC];
+			continue;
+		}
 
+		if (name != "")
+		{
+			//if name is not in symbol table
+			if (symbolTable.count(name) == 0)
+			{
+				processError("reference to undefined symbol");
+			}
+			//if data type of name is not INTEGER
+			if (symbolTable.at(name).getDataType() != INTEGER)
+			{
+				processError("can't read variables of this type");
+			}
+			//if storage mode of name is not VARIABLE
+			if (symbolTable.at(name).getMode() != VARIABLE)
+			{
+				processError("attempting to read to a read-only location");
+			}
+			//emit code to call the Irvine ReadInt function
+			emit("","call","ReadInt",";ReadInt function called")
+			//emit code to store the contents of the A register at name
+			emit("","mov","[" + symbolTable.at(name).getInternalName() + "],eax", ";store contents at " + name);
+			//set the contentsOfAReg = name
+			contentsOfAReg = symbolTable.at(name).getInternalName();
+		}
+	 }
  }
 
  void emitWriteCode(string operand, string = "");
