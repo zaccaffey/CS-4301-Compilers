@@ -1826,3 +1826,13 @@ string getTemp()
  maxTempNo++;
  return temp;
 }
+
+// if s[0] == 'T' then s is temporary
+bool Compiler::isTemporary(string s) const 
+{
+	if (s[0] == 'T') 
+	{
+		return true;
+	}
+	return false;
+}
