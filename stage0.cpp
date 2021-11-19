@@ -1782,18 +1782,13 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void emitNegationCode(string operand1, string = ""); // -op1
  {
-
- }
-
- void emitNotCode(string operand1, string = ""); // !op1
- {
-	 //if type of either operand is not boolean
-	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
+	//if type of either operand is not boolean
+	if (symbolTable.at(operand1).getDataType() != INTEGER)
 	{
 		//processError(illegal type)
 		processError("illegal type");
 	}
-	//if the A Register holds a temp not operand1 nor operand2
+	//if the A Register holds a temp not operand1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to store that temp into memory
@@ -1803,7 +1798,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		//deassign it
 		contentsOfAReg = "";
 	}
-	//if the A register holds a non-temp not operand1 nor operand2 then deassign it
+	//if the A register holds a non-temp not operand1 then deassign it
 	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//deassign it
@@ -1813,7 +1808,57 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//if neither operand is in the A register then
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
-		//emit code to load operand2 into the A register
+		//emit code to load operand1 into the A register
+		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", ";load " + operand1 + " into A register");
+		contentsOfAReg = symbolTable.at(operand1).getInternalName();
+	}
+
+	//emit code to perform register-memory NOT
+	emit("","neg", "eax", "; Register A = NEG Register A";
+	
+	//deassign all temporaries involved in the and operation and free those names for reuse
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+
+	//A Register = next available temporary name and change type of its symbol table entry to INTEGER
+	contentsOfAReg = getTemp();
+	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+
+	//push the name of the result onto operandStk
+	pushOperand(contentsOfAReg);
+ }
+
+ void emitNotCode(string operand1, string = ""); // !op1
+ {
+	//if type of either operand is not boolean
+	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
+	{
+		//processError(illegal type)
+		processError("illegal type");
+	}
+	//if the A Register holds a temp not operand1
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
+	{
+		//emit code to store that temp into memory
+		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory")
+		//change the allocate entry for the temp in the symbol table to yes
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		//deassign it
+		contentsOfAReg = "";
+	}
+	//if the A register holds a non-temp not operand1 then deassign it
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
+	{
+		//deassign it
+		contentsOfAReg = "";
+	} 
+
+	//if neither operand is in the A register then
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
+	{
+		//emit code to load operand1 into the A register
 		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", ";load " + operand1 + " into A register");
 		contentsOfAReg = symbolTable.at(operand1).getInternalName();
 	}
