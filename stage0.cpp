@@ -1675,6 +1675,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	// emit code to extend sign of dividend from the A register to edx:eax
+	emit("", "mov", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", "sign extend to edx:eax");	//almost certain this is incorrect
+	
 	// emit code to perform a register-memory division
 
 	// something here
