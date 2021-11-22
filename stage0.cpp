@@ -2792,8 +2792,11 @@ string getTemp()
 
 string getLabel()
 {
+	static int labelNumber = 0;
 	string label;
-
+	label = 'L' + to_string(labelNumber);
+	labelNumber = labelNumber + 1;
+	return label;
 }
 
 // if s[0] == 'T' then s is temporary
