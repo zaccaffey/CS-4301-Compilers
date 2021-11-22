@@ -1542,9 +1542,10 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg)		
 	{
 		//emit code to load operand2 into the A register
-		emit("", "mov", "eax", "[" + symbolTable.at(operand2).genInternalName() + "]", "A register =" + operand2)		//CHECK THIS
+		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", "A register =" + operand2);		//CHECK THIS
 
 		//emit code to perform register-memory addition
+		emit("", "add", "eax,", "[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
 
 		//deassign all temporaries involved in the addition and free those names for reuse
 		if (isTemporary(operand1))
@@ -2789,7 +2790,7 @@ string getTemp()
 string getLabel()
 {
 	string label;
-	
+
 }
 
 // if s[0] == 'T' then s is temporary
