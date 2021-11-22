@@ -1674,12 +1674,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
-	// emit code to extend sign of dividend from the A register to edx:eax
-	emit("", "mov", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", "sign extend to edx:eax");	//almost certain this is incorrect
-	
-	// emit code to perform a register-memory division
-
-	// something here
+	//multiply EAX by operand 2
+	emit("", "imul", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", "multiply eax and operand2");	
 
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
