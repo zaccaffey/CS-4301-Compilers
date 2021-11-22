@@ -1725,10 +1725,15 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	if (symbolTable.at(operand2).genInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","eax", "A Register =" + operand2);
+		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 
 		//emit code to extend sign of dividend from the A register to edx:eax
+		emit("", "cdq");
 
 		//emit code to perform a register-memory division
+		emit("", "mov", "ebx,", "[" + symbolTable.at(operand2).getInternalName() + "]")
+		emit("", "idiv", "ebx");		//not sure if this is right. we will need to add a comment here as well
 
 		//deassign all temporaries involved and free those names for reuse
 		if (isTemporary(operand1))
