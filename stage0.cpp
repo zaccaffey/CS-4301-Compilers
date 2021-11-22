@@ -1923,7 +1923,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	{
 		emit("","and", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; Register A = " + operand1 + " and " + operand2);
 	}
-	
+
 	//deassign all temporaries involved in the and operation and free those names for reuse
 	if (isTemporary(operand1))
 	{
@@ -2791,6 +2791,12 @@ string getTemp()
 string getLabel()
 {
 	string label;
+	static int count = 0
+
+	label = "L" + count;
+	++count;
+
+	return label;
 
 }
 
