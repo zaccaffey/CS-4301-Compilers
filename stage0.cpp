@@ -1729,7 +1729,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 
 		//emit code to extend sign of dividend from the A register to edx:eax
-		emit("", "cdq");
+		emit("", "cdq", "", "extend sign of dividend from the A register to edx:eax");
 
 		//emit code to perform a register-memory division
 		emit("", "mov", "ebx,", "[" + symbolTable.at(operand2).getInternalName() + "]")
