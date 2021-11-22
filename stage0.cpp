@@ -2786,6 +2786,12 @@ string getTemp()
  return temp;
 }
 
+string getLabel()
+{
+	string label;
+	
+}
+
 // if s[0] == 'T' then s is temporary
 bool Compiler::isTemporary(string s) const 
 {
