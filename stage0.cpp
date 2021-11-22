@@ -1791,7 +1791,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
 	//emit code to perform a register-memory division - MAY NEED CHANGING
 	emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]")
-	emit("", "idiv", "eax");		//not sure if this is right. we will need to add a comment here as well
+	emit("", "idiv", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
 	emit("", "xchg", "eax,edx", "; grab remainder and put into eax");
 
 	//deassign all temporaries involved and free those names for reuse
