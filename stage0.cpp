@@ -1444,14 +1444,12 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	 {
 		 processError("operands conatin a reference to an undefined symbol");
 	 }
-
 	//if type of either operand is not integer
 	//processError(illegal type)
 	 if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	 {
 		 processError("Illegal type");
 	 }
-
 	//if the A Register holds a temp not operand1 nor operand2 then
 	//emit code to store that temp into memory
 	//change the allocate entry for the temp in the symbol table to yes
@@ -1462,13 +1460,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
-
 	// if the A register holds a non-temp not operand1 nor operand2 then deassign it
 	if (symbolTable.count(contentsOfAReg) != 0 && contentsOfAReg[0] != 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
 	{
 		contentsOfAReg = "";
 	}
-
 	// if neither operand is in the A register then
 	// emit code to load operand2 into the A register
 	// emit code to perform register-memory addition
@@ -1477,7 +1473,6 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","eax", "A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
-
 	if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
 		emit("", "add", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " + " + operand2);
@@ -1486,7 +1481,6 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	{
 		emit("", "add", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " + " + operand1);
 	}
-
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
 	// push the name of the result onto operandStk
@@ -1498,7 +1492,6 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	{
 		freeTemp();
 	}
-
 	contentsOfAReg = getTemp();
 	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
 	pushOperand(contentsOfAReg);
