@@ -1,12 +1,10 @@
 //Zac Caffey and Cameron Ley
 //CS 4301
-//Compiler Stage 0
+//Compiler Stage 1
 
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
-#include <stage0.h>
-
-using namespace std;
+#include <stage1.h>
 
 Compiler::Compiler(char **argv) // constructor
 {
@@ -215,7 +213,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
     code("end", ".");
 }
 
-void execStmts(); // stage 1, production 2
+void Compiler::execStmts(); // stage 1, production 2
 {
     if (isNonKeyId(token) || token == "read" || token == "write")
     {
@@ -231,7 +229,7 @@ void execStmts(); // stage 1, production 2
 	}
 }
 
-void execStmt(); // stage 1, production 3
+void Compiler::execStmt(); // stage 1, production 3
 {
     if (isNonKeyId(token))
     {
@@ -251,7 +249,7 @@ void execStmt(); // stage 1, production 3
     }
 }
 
-void assignStmt(); // stage 1, production 4
+void Compiler::assignStmt(); // stage 1, production 4
 {
   string first, second;
 
@@ -290,7 +288,7 @@ void assignStmt(); // stage 1, production 4
 
 }
 
-void readStmt(); // stage 1, production 5
+void Compiler::readStmt(); // stage 1, production 5
 {
   if (token != "read")
   {	
@@ -321,7 +319,7 @@ void readStmt(); // stage 1, production 5
   }
 }
 
-void writeStmt(); // stage 1, production 7
+void Compiler::writeStmt(); // stage 1, production 7
 {
   if (token != "write")
   {
@@ -352,7 +350,7 @@ void writeStmt(); // stage 1, production 7
   }
 }
 
-void express(); // stage 1, production 9
+void Compiler::express(); // stage 1, production 9
 {
   if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
   {
@@ -368,7 +366,7 @@ void express(); // stage 1, production 9
   }
 }
 
-void expresses(); // stage 1, production 10
+void Compiler::expresses(); // stage 1, production 10
 {
   string first, second;
 
@@ -399,7 +397,7 @@ void expresses(); // stage 1, production 10
   }
 }
 
-void term(); // stage 1, production 11
+void Compiler::term(); // stage 1, production 11
 {
   if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
   {
@@ -414,7 +412,7 @@ void term(); // stage 1, production 11
   }
 }
 
-void terms(); // stage 1, production 12   //need to account for epsilon some how
+void Compiler::terms(); // stage 1, production 12   //need to account for epsilon some how
 {
   string first, second;
 
@@ -444,7 +442,7 @@ void terms(); // stage 1, production 12   //need to account for epsilon some how
   }
 }
 
-void factor(); // stage 1, production 13
+void Compiler::factor(); // stage 1, production 13
 {
   if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
   {
@@ -459,7 +457,7 @@ void factor(); // stage 1, production 13
   }
 }
 
-void factors(); // stage 1, production 14	// need to account for epsilon move
+void Compiler::factors(); // stage 1, production 14	// need to account for epsilon move
 {
 	string first, second;
 
@@ -489,7 +487,7 @@ void factors(); // stage 1, production 14	// need to account for epsilon move
 	}
 }
 
-void part(); // stage 1, production 15
+void Compiler::part(); // stage 1, production 15
 {
 	if (token == "not")
 	{
@@ -885,7 +883,7 @@ bool Compiler::isInteger(string s) const //determines if s is an integer
 // ---------------------------------------------------------------------------------
 
 bool Compiler::isBoolean(string s) const // determines if s is a boolean
-
+{
 	if (s == "true" || s == "false")
 	{
 		return true;
@@ -1107,12 +1105,12 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 
   else if (op == "+") // this must be binary '+'
   {
-    emitAdditionCode(operand1, operand2));
+    emitAdditionCode(operand1, operand2);
   }
 
   else if (op == "-") // this must be binary '-'
   {
-    emitSubtractionCode(operand1, operand2));
+    emitSubtractionCode(operand1, operand2);
   }
 
   else if (op == "neg") // this must be unary '-'
@@ -1127,57 +1125,57 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 
   else if (op == "*")
   {
-    emitMultiplicationCode(operand1, operand2));
+    emitMultiplicationCode(operand1, operand2);
   }
 
   else if (op == "div")
   {
-    emitDivisionCode(operand1, operand2));
+    emitDivisionCode(operand1, operand2);
   }
   else if (op == "mod")
   {
-    emitModuloCode(operand1, operand2));
+    emitModuloCode(operand1, operand2);
   }
 
   else if (op == "and")
   {
-    emitAndCode(operand1, operand2));
+    emitAndCode(operand1, operand2);
   }
   else if (op == "or")
   {
-    emitOrCode(operand1, operand2));
+    emitOrCode(operand1, operand2);
   }
 
   else if (op == "<")
   {
-    emitLessThanCode(operand1, operand2));
+    emitLessThanCode(operand1, operand2);
   }
   else if (op == "<=")
   {
-    emitLessThanOrEqualToCode(operand1, operand2));
+    emitLessThanOrEqualToCode(operand1, operand2);
   }
 
   else if (op == ">")
   {
-    emitGreaterThanCode(operand1, operand2));
+    emitGreaterThanCode(operand1, operand2);
   }
 
   else if (op == ">=")
   {
-    emitGreaterThanOrEqualToCode(operand1, operand2));
+    emitGreaterThanOrEqualToCode(operand1, operand2);
   }
 
   else if (op == "!=")
   {
-    emitInequalityCode(operand1, operand2));
+    emitInequalityCode(operand1, operand2);
   }
   else if (op == "==")
   {
- 	emitEqualityCode(operand1, operand2));
+ 	emitEqualityCode(operand1, operand2);
   }
   else if (op == ":=")
   {
- 	emitAssignCode(operand1, operand2));
+ 	emitAssignCode(operand1, operand2);
   }
  else
  {
@@ -1725,8 +1723,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		emit("", "cdq", "", "extend sign of dividend from the A register to edx:eax");
 
 		//emit code to perform a register-memory division
-		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]")
-		emit("", "idiv", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
+		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]");
+		emit("", "idiv", "", "[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
 
 		//deassign all temporaries involved and free those names for reuse
 		if (isTemporary(operand1))
