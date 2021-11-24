@@ -916,7 +916,7 @@ bool Compiler::isLiteral(string s) const //determines if s is a literal
 string Compiler::genInternalName(storeTypes stype) const	//generate the internal name when called upon
 {
 	string internal;
-	static int countI = 0, countB = 0;
+	static int countI = 0, countB = 0, countU = 0;
 	//use case statements "INTEGER", "BOOLEAN", "PROG"
 	switch(stype)
 	{
@@ -938,6 +938,10 @@ string Compiler::genInternalName(storeTypes stype) const	//generate the internal
 			internal = "B" + to_string(countB);
 			++countB;
 			break;
+		}
+		case UNKNOWN:
+		{
+			internal = "U" + to_string(countU);
 		}
 	}
 	
@@ -1092,12 +1096,12 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 
 	else if (op == "read")
   {
-    emitReadCode(operand1, "");
+    emitReadCode(operand1);
   }
 
   else if (op == "write")
   {
-    emitWriteCode(operand1, "");
+    emitWriteCode(operand1);
   }
 
   else if (op == "=")
@@ -1261,7 +1265,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 }
 
- void Compiler::emitReadCode(string operand, string = "")
+ void Compiler::emitReadCode(string operand, string)
  {
 	 string name;
 	 int loopC = 0;
@@ -1303,7 +1307,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	 }
  }
 
- void Compiler::emitWriteCode(string operand, string = "")
+ void Compiler::emitWriteCode(string operand, string)
  {
 	string name;
 	static bool definedStorage = false;
@@ -1746,7 +1750,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 		pushOperand(contentsOfAReg);
  }
 
- void Compiler::emitNegationCode(string operand1, string = "") // -op1
+ void Compiler::emitNegationCode(string operand1, string) // -op1
  {
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != INTEGER)
@@ -1796,7 +1800,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
- void Compiler::emitNotCode(string operand1, string = "") // !op1
+ void Compiler::emitNotCode(string operand1, string) // !op1
  {
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
@@ -2699,33 +2703,37 @@ void Compiler::pushOperand(string name) //push name onto operandStk
 
 string Compiler::popOperator() //pop name from operatorStk
 {
-
+ string top;
+ 
  if (!operatorStk.empty())
  {
-	string top = operatorStk.top();
+	top = operatorStk.top();
 	operatorStk.pop();
- 	return top;			//top element removed from stack;		// ???does this mean we remove the top of the stack and return that element or do we remove the top of the stack and return the stack???
  }
  else
  {
  	processError("compiler error; operator stack underflow");
  }
+ 
+ return top;
 
 }
 
 string Compiler::popOperand() //pop name from operandStk
 {
-
+ string top;
+ 
  if (!operandStk.empty())
  {
-	string top = operandStk.top();
+	top = operandStk.top();
 	operandStk.pop();
- 	return top;
  }
  else
  {
  	processError("compiler error; operand stack underflow");
  }
+ 
+ return top;
 
 }
 
