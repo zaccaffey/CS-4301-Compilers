@@ -844,7 +844,7 @@ bool Compiler::isKeyword(string s) const //determines if s is a keyword
 
 bool Compiler::isSpecialSymbol(char c) const //determines if c is a special symbol
 {
-	if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
+	if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.' || c == '*' || c == '<' || c == '>' || c == '(' || c == ')')
 	{
 		return true;
 	}
