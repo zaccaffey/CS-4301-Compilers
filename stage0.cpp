@@ -901,7 +901,7 @@ bool Compiler::isBoolean(string s) const // determines if s is a boolean
 bool Compiler::isLiteral(string s) const //determines if s is a literal
 {
 	//bool integer = isInteger(s);
-	if (isInteger(s) || isBoolean(s) || s.front == '+' || s.front == '-')// s[0] == "+" || s[0] == "-")
+	if (isInteger(s) || isBoolean(s) || s.front() == '+' || s.front() == '-')// s[0] == "+" || s[0] == "-")
 	{    
 		return true;
 	}
