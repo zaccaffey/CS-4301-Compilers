@@ -1092,12 +1092,12 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 
 	else if (op == "read")
   {
-    emitReadCode(/*need something here*/);
+    emitReadCode(operand1, "");
   }
 
   else if (op == "write")
   {
-    emitWriteCode(/*need something here*/);
+    emitWriteCode(operand1, "");
   }
 
   else if (op == "=")
