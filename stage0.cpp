@@ -1350,7 +1350,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 			emit code to call the Irvine WriteString function*/
 			if (symbolTable.at(name).getDataType() == INTEGER)
 			{
-				emit("","call","WriteInt",";WriteInt function called")
+				emit("","call","WriteInt",";WriteInt function called");
 			}
 			else // symbolTable.at(name).getDataType() == BOOLEAN
 			{
@@ -1364,7 +1364,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 				emit("." + newLabel + ":");
 				emit("","mov", "edx,FALSLIT", ";load address of FALSE literal in the D register");
 				emit("." + secondLabel + ":");
-				emit("","call","WriteString",";WriteString function called")
+				emit("","call","WriteString",";WriteString function called");
 
 				/*
 				if static variable definedStorage is false
@@ -1388,7 +1388,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 				}			
 			}
 			//emit code to call the Irvine Crlf function
-			emit("","call","Crlf","; Crlf function called")
+			emit("","call","Crlf","; Crlf function called");
 		}
 		// This may not be needed - C
 		name = "";
@@ -1452,34 +1452,34 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	//if the A Register holds a temp not operand1 nor operand2
-	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg && contentsOfAReg[0] == 'T')
+	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg && contentsOfAReg[0] == 'T')
 	{
 		//emit code to store that temp into memory (store contentsofareg? - Z)
 		//store contentsofAReg into eax by emitting assembly code
-		emit("", "mov", "[" + contentsOfAReg + "]", "eax", "deassign A register");		//do we need commas in here?
+		emit("", "mov", "[" + contentsOfAReg + "]", ";deassign A register");		//do we need commas in here?
 		
 		//change the allocate entry for the temp in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc("YES");
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
 
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if the A register holds a non-temp not operand1 nor operand2
-	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg && !contentsOfAReg.empty() && contentsOfAReg[0] != 'T')
+	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg && !contentsOfAReg.empty() && contentsOfAReg[0] != 'T')
 	{
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if neither operand is in the A register then
-	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg)		
+	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg)		
 	{
 		//emit code to load operand2 into the A register
-		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", "A register =" + operand2);		//CHECK THIS
+		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "A register =" + operand2);		//CHECK THIS
 
 		//emit code to perform register-memory addition
-		emit("", "add eax,", "[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
+		emit("", "add", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
 
 		//deassign all temporaries involved in the addition and free those names for reuse
 		if (isTemporary(operand1))
@@ -1608,7 +1608,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	//multiply EAX by operand 2
-	emit("imul", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", ";multiply eax and operand2");	
+	emit("imul", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]", ";multiply eax and operand2");	
 
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
@@ -1636,7 +1636,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	//if the A Register holds a temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
 		emit("", "mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
@@ -1648,14 +1648,14 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 
 	//if the A register holds a non-temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if operand2 is not in the A register
-	if (symbolTable.at(operand2).genInternalName() != contentsOfAReg)
+	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
 		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","A Register =" + operand2);
@@ -1695,26 +1695,26 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 
 	//if the A Register holds a temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
 		emit("", "mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
 		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc("YES");
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
 
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if the A register holds a non-temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if operand2 is not in the A register
-	if (symbolTable.at(operand2).genInternalName() != contentsOfAReg)
+	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
 		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","A Register =" + operand2);
@@ -1724,7 +1724,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 		emit("", "cdq", "", "extend sign of dividend from the A register to edx:eax");
 
 		//emit code to perform a register-memory division
-		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]")
+		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]");
 		emit("", "idiv", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
 		emit("", "xchg", "eax,edx", "; grab remainder and put into eax");
 		
