@@ -1773,8 +1773,6 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 		processError("reference to undefined symbol " + operand1);
-	else if (symbolTable.count(operand2) == 0)
-		processError("reference to undefined symbol " + operand2);
 
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != INTEGER)
@@ -1829,8 +1827,6 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 		processError("reference to undefined symbol " + operand1);
-	else if (symbolTable.count(operand2) == 0)
-		processError("reference to undefined symbol " + operand2);
 
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
@@ -2682,11 +2678,11 @@ string Compiler::nextToken()    //returns the next token or end of file marker {
 			}
 			
 			// Not sure if this is needed - C
-			//if ((token == "<" && ch == '=') || (token == "<" && ch == '>') || (token == ">" && ch == '=')) 
-			//{
-			//	token += ch;
-			//	nextChar();
-			//}
+			if ((token == "<" && ch == '=') || (token == "<" && ch == '>') || (token == ">" && ch == '=')) 
+			{
+				token += ch;
+				nextChar();
+			}
 		}
 		else if (islower(ch))
 		{
