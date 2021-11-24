@@ -196,7 +196,12 @@ void Compiler::beginEndStmt()	//token should be "begin"
 		processError(error);
     }
 
-    execStmts();
+    nextToken();
+	
+	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") {
+		execStmts();
+	}
+	
 
     if (nextToken() != "end")
     {
@@ -209,7 +214,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
 		processError("period expected");
     }
 
-    nextToken();		//I feel like this may be un-needed
+    nextToken();
     code("end", ".");
 }
 
