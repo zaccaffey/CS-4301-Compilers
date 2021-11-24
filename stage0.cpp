@@ -215,7 +215,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
 
 void Compiler::execStmts() // stage 1, production 2
 {
-    if (isNonKeyId(token) || token == "read" || token == "write")
+    if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin")
     {
       execStmt();
 	  nextToken();
