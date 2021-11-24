@@ -7,6 +7,8 @@
         "xlocale": "cpp",
         "xutility": "cpp",
         "map": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "stage0main copy.C": "cpp",
+        "stage1main.C": "cpp"
     }
 }
