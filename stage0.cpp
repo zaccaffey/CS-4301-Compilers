@@ -1402,6 +1402,12 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void Compiler::emitAssignCode(string operand1, string operand2) // op2 = op1
  {	
+	// check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if types of operands are not the same
 	//processError(incompatible types)
 	if (symbolTable.at(operand1).getDataType() !=symbolTable.at(operand2).getDataType())
@@ -1506,11 +1512,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void Compiler::emitSubtractionCode(string operand1, string operand2) // op2 - op1
  {
-	 //  Make sure that both operands are defined in the symbol Table
-	 if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
-	 {
-		 processError("operands conatin a reference to an undefined symbol");
-	 }
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
 
 	//if type of either operand is not integer
 	//processError(illegal type)
@@ -1573,11 +1579,11 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void Compiler::emitMultiplicationCode(string operand1, string operand2) // op2 * op1
  {
-	  //  Make sure that both operands are defined in the symbol Table
-	 if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
-	 {
-		 processError("operands conatin a reference to an undefined symbol");
-	 }
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
 
 	//if type of either operand is not integer
 	//processError(illegal type)
@@ -1633,6 +1639,12 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
  void Compiler::emitDivisionCode(string operand1, string operand2) // op2 / op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
@@ -1692,6 +1704,12 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
 void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 {
+	// check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
@@ -1752,6 +1770,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitNegationCode(string operand1, string) // -op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != INTEGER)
 	{
@@ -1802,6 +1826,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitNotCode(string operand1, string) // !op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
 	{
@@ -1852,6 +1882,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitAndCode(string operand1, string operand2) // op2 && op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN || symbolTable.at(operand2).getDataType() != BOOLEAN)
 	{
@@ -1913,6 +1949,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitOrCode(string operand1, string operand2) // op2 || op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	  //if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN || symbolTable.at(operand2).getDataType() != BOOLEAN)
 	{
@@ -1974,6 +2016,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitEqualityCode(string operand1, string operand2) // op2 == op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
@@ -2072,6 +2120,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitInequalityCode(string operand1, string operand2) // op2 != op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	 //if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
@@ -2170,6 +2224,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitLessThanCode(string operand1, string operand2) // op2 < op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
@@ -2268,6 +2328,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitLessThanOrEqualToCode(string operand1, string operand2) // op2 <= op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
@@ -2366,6 +2432,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitGreaterThanCode(string operand1, string operand2) // op2 > op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	//if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
@@ -2464,6 +2536,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
  void Compiler::emitGreaterThanOrEqualToCode(string operand1, string operand2) // op2 >= op1
  {
+	 // check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
+		processError("reference to undefined symbol " + operand1);
+	else if (symbolTable.count(operand2) == 0)
+		processError("reference to undefined symbol " + operand2);
+
 	 //if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
