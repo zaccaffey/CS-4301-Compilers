@@ -5,6 +5,7 @@
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
 #include <stage1.h>
+#include <iostream>
 
 Compiler::Compiler(char **argv) // constructor
 {
@@ -219,18 +220,19 @@ void Compiler::beginEndStmt()	//token should be "begin"
 }
 
 void Compiler::execStmts() // stage 1, production 2
-{
+{  
     if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin")
-    {
-      execStmt();
-	  nextToken();
-      execStmts();
-    }
-	else if (token == "end");
+	{
+		execStmt();
+		nextToken();
+		execStmts();
+	}
+	
+	if (token == "end");
 
 	else
 	{
-		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected");
+		processError("ZZZnon-keyword identifier, \"read\", \"write\", or \"begin\" expected");		//error here
 	}
 }
 
@@ -271,7 +273,7 @@ void Compiler::assignStmt() // stage 1, production 4
   pushOperand(token);
   nextToken();
 
-  if (nextToken() != ":=")
+  if (token != ":=")
   {
     processError("':=' expected; found " + token);
   }
@@ -308,9 +310,9 @@ void Compiler::readStmt() // stage 1, production 5
     processError("'(' expected; found " + token);
   }
 
-  x = ids();
   nextToken();
-
+  x = ids();
+  
   if (token != ")")
   {
     processError("')' expected; found " + token);
@@ -340,8 +342,8 @@ void Compiler::writeStmt() // stage 1, production 7
     processError("error msg");
   }
 
-  x = ids();
   nextToken();
+  x = ids();
 
   if (token != ")")
   {
@@ -1094,12 +1096,12 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 	emitPrologue(operand1);
   }
 
-	else if (op == "end")
-	{
-		emitEpilogue();
-	}
+  else if (op == "end")
+  {
+	emitEpilogue();
+  }
 
-	else if (op == "read")
+  else if (op == "read")
   {
     emitReadCode(operand1);
   }
@@ -2772,12 +2774,16 @@ void Compiler::pushOperator(string name) //push name onto operatorStk
 void Compiler::pushOperand(string name) //push name onto operandStk
  //if name is a literal, also create a symbol table entry for it
 {
- 	if (isLiteral(name) && symbolTable.count(name) == 0)																					
+ 	if (symbolTable.count(name) == 0)																					
 	{
- 		symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, whichType(name), symbolTable.at(name).getMode(), whichValue(name), symbolTable.at(name).getAlloc(), symbolTable.at(name).getUnits())));			//insert symbol table entry, call whichType to determine the data type of the literal
-		 // may want to be like this instead insert(x,whichType(y),CONSTANT,whichValue(y),YES,1); 
- 		operandStk.push(name);																																		
+		if (isInteger(name) || name == "true" || name == "false")
+		{
+ 		insert(name, whichType(name), CONSTANT, whichValue(name), YES, 1);		//insert symbol table entry, call whichType to determine the data type of the literal
+		 // may want to be like this instead insert(x,whichType(y),CONSTANT,whichValue(y),YES,1); 																																	
+		}
 	}
+	
+	operandStk.push(name);	
 }
 
 string Compiler::popOperator() //pop name from operatorStk
@@ -2795,7 +2801,6 @@ string Compiler::popOperator() //pop name from operatorStk
  }
  
  return top;
-
 }
 
 string Compiler::popOperand() //pop name from operandStk
@@ -2813,7 +2818,6 @@ string Compiler::popOperand() //pop name from operandStk
  }
  
  return top;
-
 }
 
 void Compiler::freeTemp()
