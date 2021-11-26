@@ -228,7 +228,7 @@ void Compiler::execStmts() // stage 1, production 2
 		execStmts();
 	}
 	
-	if (token == "end");
+	else if (token == "end");
 
 	else
 	{
@@ -453,17 +453,19 @@ void Compiler::terms() // stage 1, production 12   //need to account for epsilon
 
 void Compiler::factor() // stage 1, production 13
 {
-  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-  {
-	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
-  }
-  
-  part();
+	/*CHANGE THIS IN THE FINAL PRODUCT*/
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+"
+		&& token != "-" && !isInteger(token) && !isNonKeyId(token))
+		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
 
-  if (token == "*" && token == "div" && token == "mod" && token == "and")
-  {
-	factors();
-  }
+	part();
+
+	if (token == "*" || token == "div" || token == "mod" || token == "and")
+		factors();
+
+	else if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">" ||
+		token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin");
+	else processError("invalid expression");
 }
 
 void Compiler::factors() // stage 1, production 14	// need to account for epsilon move
@@ -498,142 +500,100 @@ void Compiler::factors() // stage 1, production 14	// need to account for epsilo
 
 void Compiler::part() // stage 1, production 15
 {
+	string x = "";
 	if (token == "not")
 	{
 		nextToken();
-
-		if (token == "(")
-		{
+		if (token == "(") {
 			nextToken();
-
-			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-			{
-				processError("error msg");
-			}
-
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+"
+				&& token != "-" && !isInteger(token) && !isNonKeyId(token))
+				processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
 			express();
-			nextToken();
-
 			if (token != ")")
-			{
-				processError("error msg");
-			}
-
+				processError(") expected; found " + token);
 			nextToken();
 			code("not", popOperand());
 		}
-		else if (isBoolean(token))
-		{
-			if (token == "true")
-			{
+
+		else if (isBoolean(token)) {
+			if (token == "true") {
 				pushOperand("false");
+				nextToken();
 			}
-			else 
-			{
+			else {
 				pushOperand("true");
+				nextToken();
 			}
 		}
-		else if (isNonKeyId(token))
-		{
+
+		else if (isNonKeyId(token)) {
 			code("not", token);
+			nextToken();
 		}
 	}
 
 	else if (token == "+")
 	{
 		nextToken();
-
-		if (token == "(")
-		{
+		if (token == "(") {
 			nextToken();
-
-			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-			{
-				processError("error msg");
-			}
-
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+"
+				&& token != "-" && !isInteger(token) && !isNonKeyId(token))
+				processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
 			express();
-			nextToken();
-
 			if (token != ")")
-			{
-				processError("error msg");
-			}
+				processError("expected ')'; found " + token);
+			nextToken();
 		}
-		else if (isInteger(token))
-		{
+		else if (isInteger(token) || isNonKeyId(token)) {
 			pushOperand(token);
+			nextToken();
 		}
-		else if (isNonKeyId(token))
-		{
-			pushOperand(token);
-		}
+
+		else processError("expected '(', integer, or non-keyword id; found " + token);
 	}
 
 	else if (token == "-")
 	{
-		string first;
 		nextToken();
-
-		if (token == "(")
-		{
+		if (token == "(") {
 			nextToken();
-
-			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-			{
-				processError("error msg");
-			}
-
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+"
+				&& token != "-" && !isInteger(token) && !isNonKeyId(token))
+				processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
 			express();
-			nextToken();
-
 			if (token != ")")
-			{
-				processError("error msg");
-			}
-
-			first = popOperand();
-			code("neg", first);
+				processError("expected ')'; found " + token);
+			nextToken();
+			code("neg", popOperand());
 		}
-		else if (isInteger(token))
-		{
+		else if (isInteger(token)) {
 			pushOperand("-" + token);
+			nextToken();
 		}
-		else if (isNonKeyId(token))
-		{
+		else if (isNonKeyId(token)) {
 			code("neg", token);
+			nextToken();
 		}
 	}
 
-	else if (isInteger(token) || isBoolean(token) || isNonKeyId(token))
-	{
-		pushOperand(token);
-	}
-
-	else if (token == "(")
-	{
+	else if (token == "(") {
 		nextToken();
-
-		if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-		{
-			processError("error msg");
-		}
-
+		if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+"
+			&& token != "-" && !isInteger(token) && !isNonKeyId(token))
+			processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
 		express();
-		nextToken();
-
-		if (token != ")")
-		{
-			processError("error msg");
-		}
-
+		if (token != ")") processError(") expected; found " + token);
 		nextToken();
 	}
 
-	else
-	{
-		processError("error msg");
+	else if (isInteger(token) || isBoolean(token) || isNonKeyId(token)) {
+		pushOperand(token);
+		nextToken();
 	}
+
+	else processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, boolean, or non - keyword identifier expected");
 
 }
 
@@ -2778,8 +2738,8 @@ void Compiler::pushOperand(string name) //push name onto operandStk
 	{
 		if (isInteger(name) || name == "true" || name == "false")
 		{
- 		insert(name, whichType(name), CONSTANT, whichValue(name), YES, 1);		//insert symbol table entry, call whichType to determine the data type of the literal
-		 // may want to be like this instead insert(x,whichType(y),CONSTANT,whichValue(y),YES,1); 																																	
+ 		  insert(name, whichType(name), CONSTANT, whichValue(name), YES, 1);		//insert symbol table entry, call whichType to determine the data type of the literal
+		  // may want to be like this instead insert(x,whichType(y),CONSTANT,whichValue(y),YES,1); 																																	
 		}
 	}
 	
