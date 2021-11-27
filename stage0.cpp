@@ -204,7 +204,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
 	}
 	
 
-    if (nextToken() != "end")
+    if (token != "end")
     {
 		error =  "keyword \"end\" expected";
 		processError(error);
@@ -1280,9 +1280,9 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 				processError("attempting to read to a read-only location");
 			}
 			//emit code to call the Irvine ReadInt function
-			emit("","call","ReadInt",";ReadInt function called");
+			emit("","call","ReadInt","; ReadInt function called");
 			//emit code to store the contents of the A register at name
-			emit("","mov","[" + symbolTable.at(name).getInternalName() + "],eax", ";store contents at " + name);
+			emit("","mov","[" + symbolTable.at(name).getInternalName() + "],eax", "; store contents at " + name);
 			//set the contentsOfAReg = name
 			contentsOfAReg = symbolTable.at(name).getInternalName();
 		}
@@ -1382,7 +1382,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	string name;
 	static bool definedStorage = false;
 
-	for (unsigned int i = 0; i < operand.size(); ++i) {
+	for (uint i = 0; i < operand.size(); ++i) {
 
 		if (operand[i] != ',' && i < operand.size()) {
 			name += operand[i];
@@ -1490,10 +1490,10 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to load operand1 into the A register
-		emit("","mov","eax[" + symbolTable.at(operand1).getInternalName() + "]", ";load " + operand1 +" in A register");
+		emit("","mov","eax[" + symbolTable.at(operand1).getInternalName() + "]", "; load " + operand1 +" in A register");
 	}
 	//emit code to store the contents of that register into the memory location pointed to by operand2
-	emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "],eax", ";store contents at " + operand2);
+	emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "],eax", "; store contents at " + operand2);
 	//set the contentsOfAReg = operand2
 	contentsOfAReg = symbolTable.at(operand2).getInternalName();
 
@@ -1524,7 +1524,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	{
 		//emit code to store that temp into memory (store contentsofareg? - Z)
 		//store contentsofAReg into eax by emitting assembly code
-		emit("", "mov", "[" + contentsOfAReg + "],eax", ";deassign A register");		//do we need commas in here?
+		emit("", "mov", "[" + contentsOfAReg + "],eax", "; deassign A register");		//do we need commas in here?
 		
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
@@ -1601,7 +1601,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//deassign it
 	 if (contentsOfAReg[0] == 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
 	{
-		emit("","mov","[" + contentsOfAReg + "]",";deassign A Register");
+		emit("","mov","[" + contentsOfAReg + "]","; deassign A Register");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
@@ -1617,7 +1617,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	// emit code to perform register-memory addition
 	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
-		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]",";A Register =" + operand2);
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","; A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -1668,7 +1668,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//deassign it
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
-		emit("","mov","[" + contentsOfAReg + "]",";deassign A Register");
+		emit("","mov","[" + contentsOfAReg + "]","; deassign A Register");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
@@ -1683,12 +1683,12 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	// emit instruction to do a register-memory load of operand2 into the A register
 	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
-		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]", ";A Register =" + operand2);
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]", "; A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
 	//multiply EAX by operand 2
-	emit("imul", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]", ";multiply eax and operand2");	
+	emit("", "imul", "dword [" + symbolTable.at(operand2).getInternalName() + "]", "; multiply eax and operand2");	
 
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
@@ -1744,15 +1744,15 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
-		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","A Register =" + operand2);
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","; A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 		//emit code to extend sign of dividend from the A register to edx:eax
-		emit("", "cdq", "", "extend sign of dividend from the A register to edx:eax");
+		emit("", "cdq", "", "; extend sign of dividend from the A register to edx:eax");
 
 		//emit code to perform a register-memory division
 		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]");
-		emit("", "idiv", "[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
+		emit("", "idiv", "[" + symbolTable.at(operand1).getInternalName() + "]", "; A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
 
 		//deassign all temporaries involved and free those names for reuse
 		if (isTemporary(operand1))
@@ -1774,6 +1774,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
 void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 {
+
 	// check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 		processError("reference to undefined symbol " + operand1);
@@ -1799,7 +1800,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 
 	//if the A register holds a non-temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName() && !contentsOfAReg.empty())
 	{
 		//deassign it
 		contentsOfAReg = "";
@@ -1809,15 +1810,14 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
-		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","A Register =" + operand2);
+		emit("","mov","eax,[" + symbolTable.at(operand2).getInternalName() + "]","; A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 		//emit code to extend sign of dividend from the A register to edx:eax
-		emit("", "cdq", "", "extend sign of dividend from the A register to edx:eax");
+		emit("", "cdq", "", "; extend sign of dividend from the A register to edx:eax");
 
 		//emit code to perform a register-memory division
-		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]");
-		emit("", "idiv", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
+		emit("", "idiv", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
 		emit("", "xchg", "eax,edx", "; grab remainder and put into eax");
 
 		//deassign all temporaries involved and free those names for reuse
@@ -1854,7 +1854,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -1871,7 +1871,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to load operand1 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", ";load " + operand1 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", "; load " + operand1 + " into A register");
 		contentsOfAReg = symbolTable.at(operand1).getInternalName();
 	}
 
@@ -1908,7 +1908,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -1925,12 +1925,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to load operand1 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", ";load " + operand1 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", "; load " + operand1 + " into A register");
 		contentsOfAReg = symbolTable.at(operand1).getInternalName();
 	}
 
 	//emit code to perform register-memory NOT
-	emit("","not", "eax", "; Register A = NOT Register A");
+	emit("","not", "eax", " ; Register A = NOT Register A");
 	
 	//deassign all temporaries involved in the and operation and free those names for reuse
 	if (isTemporary(operand1))
@@ -1964,7 +1964,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -1981,7 +1981,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "],eax", ";load operand2 into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "],eax", "; load operand2 into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -2031,7 +2031,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2048,7 +2048,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "],eax", ";load operand2 into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "],eax", "; load operand2 into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -2098,7 +2098,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp in register A");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2116,7 +2116,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", ";load " + operand2 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -2202,7 +2202,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp in register A");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2220,7 +2220,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", ";load " + operand2 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -2306,7 +2306,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp in register A");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2324,7 +2324,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", ";load " + operand2 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -2410,7 +2410,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp in register A");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2428,7 +2428,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", ";load " + operand2 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -2514,7 +2514,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp in register A");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2532,7 +2532,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", ";load " + operand2 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
@@ -2618,7 +2618,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp in register A");
+		emit("","mov", "[" + contentsOfAReg + "],eax", "; store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2636,7 +2636,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", ";load " + operand2 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
