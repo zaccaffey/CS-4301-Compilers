@@ -951,19 +951,34 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 			{
 				processError("symbol " + name + " is multiply defined");
 			}
-			else if (isKeyword(name))
+			else if (isKeyword(name) && name != "true" && name != "false")
 			{
 				processError("illegal use of keyword");
 			}
 			else 
 			{
-				if (isupper(name[0]))
+				if (isupper(name[0]) || name == "true" || name == "false")
 				{
-					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, inType, inMode, inValue, inAlloc, inUnits)));
+					if (name == "true")
+					{
+						symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
+						SymbolTableEntry("TRUE", inType, inMode, inValue, inAlloc, inUnits)));
+					}
+					else if (name == "false")
+					{
+						symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
+						SymbolTableEntry("FALSE", inType, inMode, inValue, inAlloc, inUnits)));
+					}
+					else 
+					{
+						symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
+						SymbolTableEntry(name, inType, inMode, inValue, inAlloc, inUnits)));
+					}
 				}
 				else
 				{
-					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(genInternalName(inType), inType, inMode, inValue, inAlloc, inUnits)));
+					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
+					SymbolTableEntry(genInternalName(inType), inType, inMode, inValue, inAlloc, inUnits)));
 				}
 			}
 		}
@@ -2710,7 +2725,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
 	{
-		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
+		symbolTable.at("false").setInternalName("FALSE");
 	}
 
 	string secondLabel = getLabel();
@@ -2722,7 +2738,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
 	{
-		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
+		symbolTable.at("true").setInternalName("TRUE");
 	}
 
 	//emit code to label the next instruction with the second acquired label L(n+1)
