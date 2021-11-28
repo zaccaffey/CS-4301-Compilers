@@ -1302,10 +1302,10 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	 
 	 string name;
 
-	for (uint i = 0; i < operand.size(); ++i) {
+	for (uint loopC = 0; loopC < operand.size(); ++loopC) {
 				
-		if (operand[i] != ',' && i < operand.size()) {
-			name += operand[i];
+		if (operand[loopC] != ',' && loopC < operand.size()) {
+			name += operand[loopC];
 			continue;
 		}
 
@@ -1329,7 +1329,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 
 		if (symbolTable.count(name) == 0)
 			processError("reference to undefined symbol " + name);
-		if (symbolTable.at(name).getDataType() != storeTypes::INTEGER)
+		if (symbolTable.at(name).getDataType() != INTEGER)
 			processError("can't read variables of this type");
 		if (symbolTable.at(name).getMode() != modes::VARIABLE)
 			processError("attempting to read to a read-only location");
@@ -2200,7 +2200,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
 	{
-		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
 	}
 
 	string secondLabel = getLabel();
@@ -2212,7 +2212,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
 	{
-		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
 	}
 
 	//emit code to label the next instruction with the second acquired label L(n+1)
@@ -2385,7 +2385,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
 	{
-		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
 	}
 
 	string secondLabel = getLabel();
@@ -2397,7 +2397,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
 	{
-		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
 	}
 
 	//emit code to label the next instruction with the second acquired label L(n+1)
@@ -2489,7 +2489,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
 	{
-		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
 	}
 
 	string secondLabel = getLabel();
@@ -2501,7 +2501,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
 	{
-		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
 	}
 
 	//emit code to label the next instruction with the second acquired label L(n+1)
@@ -2593,7 +2593,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
 	{
-		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
 	}
 
 	string secondLabel = getLabel();
@@ -2605,7 +2605,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
 	{
-		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
 	}
 
 	//emit code to label the next instruction with the second acquired label L(n+1)
