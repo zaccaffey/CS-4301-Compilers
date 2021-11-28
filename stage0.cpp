@@ -1330,253 +1330,246 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 // GOOD I THINK 
  void Compiler::emitReadCode(string operand, string)
  {
-	 /*
-	 string name;
-	 int loopC = 0;
-	 int size = operand.size();
-	 //while (name is broken from list (operand) and put in name != "")
-	 while (loopC < size)
-	 {
-		loopC++;
-		if (operand[loopC] != ',' && loopC < size)
-		{
-			name = name + operand[loopC];
+	string name;
+	int size = operand.size()
+	//while (name is broken from list (operand) and put in name != "")
+	for (unsigned int loopC = 0; loopC < size; ++loopC) {
+				
+		if (operand[loopC] != ',' && loopC < size) {
+			name += operand[loopC];
 			continue;
 		}
-
-		if (name != "")
+		//if name is not empty
+		if (name != "") 
 		{
 			//if name is not in symbol table
 			if (symbolTable.count(name) == 0)
 			{
-				processError("reference to undefined symbol");
+				//processError(reference to undefined symbol)
+				processError("reference to undefined symbol " + name);
 			}
+
 			//if data type of name is not INTEGER
 			if (symbolTable.at(name).getDataType() != INTEGER)
 			{
+				//processError(can't read variables of this type)
 				processError("can't read variables of this type");
 			}
+
 			//if storage mode of name is not VARIABLE
 			if (symbolTable.at(name).getMode() != VARIABLE)
 			{
+				//processError(attempting to read to a read-only location)
 				processError("attempting to read to a read-only location");
 			}
+			
 			//emit code to call the Irvine ReadInt function
-			emit("","call","ReadInt","; ReadInt function called");
-			//emit code to store the contents of the A register at name
-			emit("","mov","[" + symbolTable.at(name).getInternalName() + "],eax", "; store contents at " + name);
-			//set the contentsOfAReg = name
-			contentsOfAReg = symbolTable.at(name).getInternalName();
-		}
-	 }
-	 */
-	 
-	string name;
-
-	for (uint loopC = 0; loopC < operand.size(); ++loopC) {
-				
-		if (operand[loopC] != ',' && loopC < operand.size()) {
-			name += operand[loopC];
-			continue;
-		}
-
-		if (name != "") {
-
-			if (symbolTable.count(name) == 0)
-				processError("reference to undefined symbol " + name);
-			if (symbolTable.at(name).getDataType() != INTEGER)
-				processError("can't read variables of this type");
-			if (symbolTable.at(name).getMode() != VARIABLE)
-				processError("attempting to read to a read-only location");
 			emit("", "call", "ReadInt", "; read int; value placed in eax");
+			//emit code to store the contents of the A register at name
 			emit("", "mov", "[" + symbolTable.at(name).getInternalName() + "],eax", "; store eax at " + name);
+			//set the contentsOfAReg = name
 			contentsOfAReg = symbolTable.at(name).getInternalName();
 		}
 
 		name = "";
 	}
 
-	if (name != "") {
-
+	// check if anything is left inside name
+	if (name != "") 
+	{
+		//if name is not in symbol table
 		if (symbolTable.count(name) == 0)
+		{
+			//processError(reference to undefined symbol)
 			processError("reference to undefined symbol " + name);
+		}
+
+		//if data type of name is not INTEGER
 		if (symbolTable.at(name).getDataType() != INTEGER)
+		{
+			//processError(can't read variables of this type)
 			processError("can't read variables of this type");
-		if (symbolTable.at(name).getMode() != modes::VARIABLE)
+		}
+
+		//if storage mode of name is not VARIABLE
+		if (symbolTable.at(name).getMode() != VARIABLE)
+		{
+			//processError(attempting to read to a read-only location)
 			processError("attempting to read to a read-only location");
+		}
+		
+		//emit code to call the Irvine ReadInt function
 		emit("", "call", "ReadInt", "; read int; value placed in eax");
+		//emit code to store the contents of the A register at name
 		emit("", "mov", "[" + symbolTable.at(name).getInternalName() + "],eax", "; store eax at " + name);
+		//set the contentsOfAReg = name
 		contentsOfAReg = symbolTable.at(name).getInternalName();
 	}
  }
 
  void Compiler::emitWriteCode(string operand, string)
  {
-	//string name;
-	//static bool definedStorage = false;
-	//int loopC = 0;
-	//int size = operand.size();
-	 //while (name is broken from list (operand) and put in name != "")
-	 /*while (loopC < size)
-	 {
-		loopC++;
-		if (operand[loopC] != ',' && loopC < size)
-		{
-			name = name + operand[loopC];
+	string name;
+	static bool definedStorage = false;
+	int size = operand.size();
+
+	//while (name is broken from list (operand) and put in name != "")
+	for (unsigned int loopC = 0; loopC < size; ++loopC) {
+
+		if (operand[loopC] != ',' && loopC < size) {
+			name += operand[loopC];
 			continue;
 		}
 
-		if (name != "")
+		if (name != "") 
 		{
 			//if name is not in symbol table
 			if (symbolTable.count(name) == 0)
 			{
-				processError("reference to undefined symbol");
-			}
-			//if name is not in the A register
-			//emit the code to load name in the A register
-			//set the contentsOfAReg = name
-			if (contentsOfAReg != symbolTable.at(name).getInternalName())
-			{
-				emit("","mov","eax[" + symbolTable.at(name).getInternalName() + "]", ";load " + name +" in A register");
-				contentsOfAReg = symbolTable.at(name).getInternalName();
-			}
-			//if data type of name is INTEGER
-			//emit code to call the Irvine WriteInt function
-			//else // data type is BOOLEAN
-			//{
-			//emit code to compare the A register to 0
-			//acquire a new label Ln
-			//emit code to jump if equal to the acquired label Ln
-			//emit code to load address of TRUE literal in the D register
-			//acquire a second label L(n + 1)
-			//emit code to unconditionally jump to label L(n + 1)
-			//emit code to label the next line with the first acquired label Ln
-			//emit code to load address of FALSE literal in the D register
-			//emit code to label the next line with the second acquired label L(n + 1)
-			//emit code to call the Irvine WriteString function
-			if (symbolTable.at(name).getDataType() == INTEGER)
-			{
-				emit("","call","WriteInt",";WriteInt function called");
-			}
-			else // symbolTable.at(name).getDataType() == BOOLEAN
-			{
-				emit("","cmp","eax,0",";compare A register to 0");
-				// need to write getLabel still and check this line
-				string newLabel = getLabel();
-				emit("","je","." + newLabel, ";jump if equal to the acquired label Ln");
-				emit("","mov", "edx,TRUELIT", ";load address of TRUE literal in the D register");
-				string secondLabel = getLabel();
-				emit("","jmp","." + secondLabel, ";unconditionally jump to label L(n + 1)");
-				emit("." + newLabel + ":");
-				emit("","mov", "edx,FALSLIT", ";load address of FALSE literal in the D register");
-				emit("." + secondLabel + ":");
-				emit("","call","WriteString",";WriteString function called");
-
-				
-				//if static variable definedStorage is false
-				//{
-				//set definedStorage to true
-				//output an endl to objectFile
-				//emit code to begin a .data SECTION
-				//emit code to create label TRUELIT, instruction db, operands 'TRUE',0
-				//emit code to create label FALSELIT, instruction db, operands 'FALSE',0
-				//output an endl to objectFile
-				//emit code to resume .text SECTION
-				if (definedStorage == false)
-				{
-					definedStorage = true;
-					objectFile << "\n";
-					emit("SECTION", ".data");
-					emit("TRUELIT", "db", "'TRUE',0", "; TRUE Literal");
-					emit("FALSLIT", "db", "'FALSE',0", "; FALSE Literal");
-					objectFile << "\n";
-					emit("SECTION", ".text");
-				}			
-			}
-			//emit code to call the Irvine Crlf function
-			emit("","call","Crlf","; Crlf function called");
-		}
-		// This may not be needed - C
-		name = "";
-	}*/
-	string name;
-	static bool definedStorage = false;
-
-	for (uint i = 0; i < operand.size(); ++i) {
-
-		if (operand[i] != ',' && i < operand.size()) {
-			name += operand[i];
-			continue;
-		}
-
-		if (name != "") {
-			if (symbolTable.count(name) == 0)
+				//processError(reference to undefined symbol)
 				processError("reference to undefined symbol " + name);
-			if (symbolTable.at(name).getInternalName() != contentsOfAReg) {
+			}
+
+			//if name is not in the A register
+			if (symbolTable.at(name).getInternalName() != contentsOfAReg) 
+			{
+				//emit the code to load name in the A register
 				emit("", "mov", "eax,[" + symbolTable.at(name).getInternalName() + "]", "; load " + name + " in eax");
+				//set the contentsOfAReg = name
 				contentsOfAReg = symbolTable.at(name).getInternalName();
 			}
+
+			//if data type of name is INTEGER
 			if (symbolTable.at(name).getDataType() == storeTypes::INTEGER)
+			{
+				//emit code to call the Irvine WriteInt function
 				emit("", "call", "WriteInt", "; write int in eax to standard out");
-			else { //data type is BOOLEAN
+			}
+
+			//data type is BOOLEAN
+			else 
+			{
+				//emit code to compare the A register to 0
 				emit("", "cmp", "eax,0", "; compare to 0");
-				string firstLabel = getLabel(), secondLabel = getLabel();
-				emit("", "je", "." + firstLabel, "; jump if equal to print FALSE");
+				//acquire a new label Ln
+				string firstL = getLabel();
+				//emit code to jump if equal to the acquired label Ln
+				emit("", "je", "." + firstL, "; jump if equal to print FALSE");
+				//emit code to load address of TRUE literal in the D register
 				emit("", "mov", "edx,TRUELIT", "; load address of TRUE literal in edx");
-				emit("", "jmp", "." + secondLabel, "; unconditionally jump to ." + secondLabel);
-				emit("." + firstLabel + ":");
+				//acquire a second label L(n + 1)
+				string secondL = getLabel();
+				//emit code to unconditionally jump to label L(n + 1)
+				emit("", "jmp", "." + secondL, "; unconditionally jump to ." + secondL);
+				//emit code to label the next line with the first acquired label Ln
+				emit("." + firstL + ":");
+				//emit code to load address of FALSE literal in the D register
 				emit("", "mov", "edx,FALSLIT", "; load address of FALSE literal in edx");
-				emit("." + secondLabel + ":");
+				//emit code to label the next line with the second acquired label L(n + 1)
+				emit("." + secondL + ":");
+				//emit code to call the Irvine WriteString function
 				emit("", "call", "WriteString", "; write string to standard out");
 
-				if (definedStorage == false) {
+				//if static variable definedStorage is false
+				if (definedStorage == false) 
+				{
+					//set definedStorage to true
 					definedStorage = true;
+					//output an endl to objectFile
 					objectFile << endl;
+					//emit code to begin a .data SECTION
 					emit("SECTION", ".data");
+					//emit code to create label TRUELIT, instruction db, operands 'TRUE',0
 					emit("TRUELIT", "db", "'TRUE',0", "; literal string TRUE");
+					//emit code to create label FALSELIT, instruction db, operands 'FALSE',0
 					emit("FALSLIT", "db", "'FALSE',0", "; literal string FALSE");
+					//output an endl to objectFile
 					objectFile << endl;
+					//emit code to resume .text SECTION
 					emit("SECTION", ".text");
-				} // end if
-			} // end else
+				}
 
+			}
+			
+			//emit code to call the Irvine Crlf function
 			emit("", "call", "Crlf", "; write \\r\\n to standard out");
 		}
 		name = "";
-	} // end for loop
-	
-	if (symbolTable.count(name) == 0)
-		processError("reference to undefined symbol " + name);
-	if (symbolTable.at(name).getInternalName() != contentsOfAReg) {
-		emit("", "mov", "eax,[" + symbolTable.at(name).getInternalName() + "]", "; load " + name + " in eax");
-		contentsOfAReg = symbolTable.at(name).getInternalName();
 	}
-	if (symbolTable.at(name).getDataType() == storeTypes::INTEGER)
-		emit("", "call", "WriteInt", "; write int in eax to standard out");
-	else { //data type is BOOLEAN
-		emit("", "cmp", "eax,0", "; compare to 0");
-		string firstLabel = getLabel(), secondLabel = getLabel();
-		emit("", "je", "." + firstLabel, "; jump if equal to print FALSE");
-		emit("", "mov", "edx,TRUELIT", "; load address of TRUE literal in edx");
-		emit("", "jmp", "." + secondLabel, "; unconditionally jump to ." + secondLabel);
-		emit("." + firstLabel + ":");
-		emit("", "mov", "edx,FALSLIT", "; load address of FALSE literal in edx");
-		emit("." + secondLabel + ":");
-		emit("", "call", "WriteString", "; write string to standard out");
+	//check if anything is left inside name
+	if (name != "") 
+		{
+			//if name is not in symbol table
+			if (symbolTable.count(name) == 0)
+			{
+				//processError(reference to undefined symbol)
+				processError("reference to undefined symbol " + name);
+			}
 
-		if (definedStorage == false) {
-			definedStorage = true;
-			objectFile << endl;
-			emit("SECTION", ".data");
-			emit("TRUELIT", "db", "'TRUE',0", "; literal string TRUE");
-			emit("FALSLIT", "db", "'FALSE',0", "; literal string FALSE");
-			objectFile << endl;
-			emit("SECTION", ".text");
-		} // end if
-	} // end else
+			//if name is not in the A register
+			if (symbolTable.at(name).getInternalName() != contentsOfAReg) 
+			{
+				//emit the code to load name in the A register
+				emit("", "mov", "eax,[" + symbolTable.at(name).getInternalName() + "]", "; load " + name + " in eax");
+				//set the contentsOfAReg = name
+				contentsOfAReg = symbolTable.at(name).getInternalName();
+			}
 
-	emit("", "call", "Crlf", "; write \\r\\n to standard out");
+			//if data type of name is INTEGER
+			if (symbolTable.at(name).getDataType() == storeTypes::INTEGER)
+			{
+				//emit code to call the Irvine WriteInt function
+				emit("", "call", "WriteInt", "; write int in eax to standard out");
+			}
+
+			//data type is BOOLEAN
+			else 
+			{
+				//emit code to compare the A register to 0
+				emit("", "cmp", "eax,0", "; compare to 0");
+				//acquire a new label Ln
+				string firstL = getLabel();
+				//emit code to jump if equal to the acquired label Ln
+				emit("", "je", "." + firstL, "; jump if equal to print FALSE");
+				//emit code to load address of TRUE literal in the D register
+				emit("", "mov", "edx,TRUELIT", "; load address of TRUE literal in edx");
+				//acquire a second label L(n + 1)
+				string secondL = getLabel();
+				//emit code to unconditionally jump to label L(n + 1)
+				emit("", "jmp", "." + secondL, "; unconditionally jump to ." + secondL);
+				//emit code to label the next line with the first acquired label Ln
+				emit("." + firstL + ":");
+				//emit code to load address of FALSE literal in the D register
+				emit("", "mov", "edx,FALSLIT", "; load address of FALSE literal in edx");
+				//emit code to label the next line with the second acquired label L(n + 1)
+				emit("." + secondL + ":");
+				//emit code to call the Irvine WriteString function
+				emit("", "call", "WriteString", "; write string to standard out");
+
+				//if static variable definedStorage is false
+				if (definedStorage == false) 
+				{
+					//set definedStorage to true
+					definedStorage = true;
+					//output an endl to objectFile
+					objectFile << endl;
+					//emit code to begin a .data SECTION
+					emit("SECTION", ".data");
+					//emit code to create label TRUELIT, instruction db, operands 'TRUE',0
+					emit("TRUELIT", "db", "'TRUE',0", "; literal string TRUE");
+					//emit code to create label FALSELIT, instruction db, operands 'FALSE',0
+					emit("FALSLIT", "db", "'FALSE',0", "; literal string FALSE");
+					//output an endl to objectFile
+					objectFile << endl;
+					//emit code to resume .text SECTION
+					emit("SECTION", ".text");
+				}
+
+			}
+			
+			//emit code to call the Irvine Crlf function
+			emit("", "call", "Crlf", "; write \\r\\n to standard out");
+		}
  }
 
  void Compiler::emitAssignCode(string operand1, string operand2) // op2 = op1
