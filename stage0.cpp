@@ -1649,9 +1649,9 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//emit code to store that temp into memory
 	//change the allocate entry for the temp in the symbol table to yes
 	//deassign it
-	 if (contentsOfAReg[0] == 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
+	 if (isTemporary(contentsOfAReg) && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
 	{
-		emit("","mov","[" + contentsOfAReg + "]","; deassign A Register");
+		emit("","mov","[" + contentsOfAReg + "],eax","; deassign A Register");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
@@ -1716,15 +1716,15 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//emit code to store that temp into memory
 	//change the allocate entry for the temp in the symbol table to yes
 	//deassign it
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
-		emit("","mov","[" + contentsOfAReg + "]","; deassign A Register");
+		emit("","mov","[" + contentsOfAReg + "],eax","; deassign A Register");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
 
 	// if the A register holds a non-temp not operand2 then deassign it
-	if (symbolTable.count(contentsOfAReg) != 0 && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (!contentsOfAReg.empty() && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		contentsOfAReg = "";
 	}
@@ -1732,15 +1732,22 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	
 	// if operand2 is not in the A register
 	// emit instruction to do a register-memory load of operand2 into the A register
-	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
+	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		emit("","mov","eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 	
 
-	//multiply EAX by operand 2
-	emit("", "imul", "dword [" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " * " + operand1);	
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("", "imul", "dword [" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " * " + operand1);
+	}
+	
+	else 
+	{
+		emit("", "imul", "dword [" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " * " + operand2);	
+	}
 
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
@@ -1803,8 +1810,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		emit("", "cdq", "", "; sign extend dividend from eax to edx:eax");
 
 		//emit code to perform a register-memory division
-		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
-		emit("", "idiv", "[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " div " + operand1);	//not sure if this is right. we will need to add a comment here as well
+		//emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		emit("", "idiv", "dword [" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " div " + operand1);	//not sure if this is right. we will need to add a comment here as well
 
 		//deassign all temporaries involved and free those names for reuse
 		if (isTemporary(operand1))
@@ -2195,7 +2202,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 
 	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; load false into register A");
+	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
 
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
@@ -2205,11 +2212,11 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	emit("","jmp","." + secondLabel, "; unconditionally jump");
 	
 	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; load true into register A");
+	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
 
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
@@ -2382,7 +2389,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 
 	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; load false into register A");
+	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
 
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
@@ -2392,12 +2399,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	emit("","jmp","." + secondLabel, "; unconditionally jump");
 	
 	emit("." + newLabel + ":");
 	
 	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; load true into register A");
+	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
 
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
@@ -2489,7 +2496,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 
 	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; load false into register A");
+	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
 
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
@@ -2499,11 +2506,11 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	emit("","jmp","." + secondLabel, "; unconditionally jump");
 	
 	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; load true into register A");
+	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
 
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
@@ -2575,11 +2582,11 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//emit code to perform a register-memory compare
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " to " + operand1);
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " to " + operand2);
+		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
 	}
 
 	//emit code to jump if NOT equal to the next available Ln (call getLabel)
@@ -2587,15 +2594,15 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","jg", "." + newLabel, "; jump to " + newLabel + " if " + operand2 + " > " + operand1);
+		emit("","jg", "." + newLabel, "; if " + operand2 + " > " + operand1 + " then jump to set eax to TRUE");
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","jg", "." + newLabel, "; jump to " + newLabel + " if " + operand1 + " > " + operand2);
+		emit("","jg", "." + newLabel, "; if " + operand1 + " > " + operand2 + " then jump to set eax to TRUE");
 	}
 
 	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; load false into register A");
+	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
 
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
@@ -2605,11 +2612,11 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	emit("","jmp","." + secondLabel, "; unconditionally jump");
 	
 	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; load true into register A");
+	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
 
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
@@ -2701,7 +2708,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 
 	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; load false into register A");
+	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
 
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
@@ -2712,11 +2719,11 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	emit("","jmp","." + secondLabel, "; unconditionally jump");
 	
 	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; load true into register A");
+	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
 
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
