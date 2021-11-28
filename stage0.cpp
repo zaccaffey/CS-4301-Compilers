@@ -1,4 +1,5 @@
 //Zac Caffey and Cameron Ley
+//Zac Caffey and Cameron Ley
 //CS 4301
 //Compiler Stage 1
 
@@ -1190,7 +1191,7 @@ void Compiler::emit(string label, string instruction, string operands, string co
 	//Output the operands in a field of width 24     
 	objectFile << left << setw(24) << operands;
 	//Output the comment 
-	objectFile << comment << "\n";
+	objectFile << comment << endl;
 }
 
 // ---------------------------------------------------------------------------------
@@ -1204,7 +1205,7 @@ void Compiler::emitPrologue(string progName, string operand2)	//Output identifyi
 	objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n" << endl;
 	emit("SECTION", ".text");
 	emit("global", "_start", "", "; program " + progName.substr(0, 15));
-	objectFile << "\n";
+	objectFile << endl;
 	emit("_start:");
 }
 
@@ -1214,13 +1215,13 @@ void Compiler::emitPrologue(string progName, string operand2)	//Output identifyi
 void Compiler::emitEpilogue(string operand1, string operand2)	//emits our epilogue to the ASM file and calls emitStorage()
 {
 	emit("","Exit", "{0}");
-	objectFile << "\n";
+	objectFile << endl;
 	emitStorage();
 }
 
 // ---------------------------------------------------------------------------------
 
-//GOOD I THINK
+//NOT THIS ONE
 void Compiler::emitStorage()    //for those entries in the symbolTable that have an allocation of YES and a storage mode of CONSTANT { call emit to output a line to objectFile }
 {
 	
@@ -2752,8 +2753,6 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
  }
- 
-
 
 // ---------------------------------------------------------------------------------
 
