@@ -202,10 +202,11 @@ void Compiler::beginEndStmt()	//token should be "begin"
 	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") {
 		execStmts();
 	}
-	else
-	{
-		processError("non_key_id, \"read\", or \"write\" expected");
-	}
+	//data set 145 fix
+	//else
+	//{
+	//	processError("non_key_id, \"read\", or \"write\" expected");
+	//}
 	
 
     if (token != "end")
