@@ -1331,7 +1331,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
  void Compiler::emitReadCode(string operand, string)
  {
 	string name;
-	int size = operand.size()
+	unsigned int size = operand.size();
 	//while (name is broken from list (operand) and put in name != "")
 	for (unsigned int loopC = 0; loopC < size; ++loopC) {
 				
@@ -1411,7 +1411,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
  {
 	string name;
 	static bool definedStorage = false;
-	int size = operand.size();
+	unsigned int size = operand.size();
 
 	//while (name is broken from list (operand) and put in name != "")
 	for (unsigned int loopC = 0; loopC < size; ++loopC) {
