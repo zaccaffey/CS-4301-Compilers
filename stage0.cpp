@@ -1977,12 +1977,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to load operand1 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", "; load " + operand1 + " into A register");
+		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; load " + operand1 + " into A register");
 		contentsOfAReg = symbolTable.at(operand1).getInternalName();
 	}
 
 	//emit code to perform register-memory NOT
-	emit("","not", "eax", " ; Register A = NOT Register A");
+	emit("","not", "eax", "; Register A = NOT Register A");
 	
 	//deassign all temporaries involved in the and operation and free those names for reuse
 	if (isTemporary(operand1))
@@ -2187,7 +2187,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","je", "." + newLabel + "]", "; jump to " + newLabel + " if " + operand2 + " == " + operand1);
+		emit("","je", "." + newLabel, "; jump to " + newLabel + " if " + operand2 + " == " + operand1);
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
@@ -2206,6 +2206,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
 	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	
+	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
 	emit("", "mov", "eax,[TRUE]", "; load true into register A");
 
@@ -2372,11 +2374,11 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","jl", "." + newLabel + "]", "; jump to " + newLabel + " if " + operand2 + " < " + operand1);
+		emit("","jl", "." + newLabel, "; jump to " + newLabel + " if " + operand2 + " < " + operand1);
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","jl", "." + newLabel + "]", "; jump to " + newLabel + " if " + operand1 + " < " + operand2);
+		emit("","jl", "." + newLabel, "; jump to " + newLabel + " if " + operand1 + " < " + operand2);
 	}
 
 	//emit code to load FALSE into the A register
@@ -2391,6 +2393,9 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
 	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	
+	emit("." + newLabel + ":");
+	
 	//emit code to load TRUE into A register
 	emit("", "mov", "eax,[TRUE]", "; load true into register A");
 
@@ -2495,6 +2500,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
 	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	
+	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
 	emit("", "mov", "eax,[TRUE]", "; load true into register A");
 
@@ -2599,6 +2606,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
 	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	
+	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
 	emit("", "mov", "eax,[TRUE]", "; load true into register A");
 
@@ -2704,6 +2713,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
 	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel);
+	
+	emit("." + newLabel + ":");
 	//emit code to load TRUE into A register
 	emit("", "mov", "eax,[TRUE]", "; load true into register A");
 
