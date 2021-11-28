@@ -202,6 +202,10 @@ void Compiler::beginEndStmt()	//token should be "begin"
 	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") {
 		execStmts();
 	}
+	else
+	{
+		processError("non_key_id, \"read\", or \"write\" expected");
+	}
 	
 
     if (token != "end")
@@ -222,7 +226,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
 // GOOD
 void Compiler::execStmts() // stage 1, production 2
 {  
-    if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin")
+    if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin")
 	{
 		execStmt();
 		nextToken();
@@ -285,7 +289,7 @@ void Compiler::assignStmt() // stage 1, production 4
   
   if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
   {
-	processError("one of \"*\", \"and\", \"div\", \"mod\", \")\", \"+\", \"-\", \";\", \"<\", \"<=\", \"<>\", \"=\", \">\", \">=\", or \"or\" expected");
+	processError("expected non_key_id, integer, \"not\", \"true\", \"false\", '(', '+', or '-'");
   }
 
   express();
@@ -302,7 +306,7 @@ void Compiler::readStmt() // stage 1, production 5
   string x;
   if (token != "read")
   {	
-	processError("error msg");
+	processError("werror msg");
   }
 
   nextToken();
@@ -334,14 +338,14 @@ void Compiler::writeStmt() // stage 1, production 7
   string x;
   if (token != "write")
   {
-	processError("error msg");
+	processError("eror");
   }
 
   nextToken();
 
   if (token != "(")
   {
-    processError("error msg");
+    processError("'(' expected after \"write\"");
   }
 
   nextToken();
@@ -357,7 +361,7 @@ void Compiler::writeStmt() // stage 1, production 7
 
   if (token != ";")
   {
-	processError("error msg");
+	processError("';' expected");
   }
 }
 
@@ -475,7 +479,7 @@ void Compiler::factor() // stage 1, production 13
 
 	else if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">" ||
 		token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin");
-	else processError("invalid expression");
+	else processError("expected '(', integer, or non_key_id");
 }
 
 void Compiler::factors() // stage 1, production 14	// need to account for epsilon move
@@ -484,7 +488,7 @@ void Compiler::factors() // stage 1, production 14	// need to account for epsilo
 
 	if (token != "*" && token != "div" && token != "mod" && token != "and")
 	{
-	  processError("error msg");
+	  processError("zerror msg");
 	}
 
 	pushOperator(token);
@@ -492,7 +496,7 @@ void Compiler::factors() // stage 1, production 14	// need to account for epsilo
 	
 	if (token != "not" && token != "(" && !isBoolean(token) && !isNonKeyId(token) && token != "+" && token != "-" && token != "true" && token != "false")
 	{
-		processError("error msg");
+		processError("expected '(', boolean, or non-keyword id");
 	}
 
 	part();
@@ -1825,7 +1829,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
-		processError("error msg");
+		processError("binary 'div' requires integer operands");
 	}
 
 	//if the A Register holds a temp not operand2
@@ -1891,7 +1895,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
-		processError("error msg");
+		processError("binary 'mod' requires integer operands");
 	}
 
 	//if the A Register holds a temp not operand2
