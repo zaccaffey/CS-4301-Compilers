@@ -1,5 +1,4 @@
 //Zac Caffey and Cameron Ley
-//Zac Caffey and Cameron Ley
 //CS 4301
 //Compiler Stage 1
 
@@ -1635,30 +1634,81 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
  {
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
+	{
 		processError("reference to undefined symbol " + operand1);
+	}
+	
+	// check that neither operand is empty
 	else if (symbolTable.count(operand2) == 0)
+	{
 		processError("reference to undefined symbol " + operand2);
+	}
+
+	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
+	{
+		processError("illegal type. binary '-' requires integer operands");
+	}
+
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+
+		emit("", "mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		contentsOfAReg = "";
+	}
+
+	if (!contentsOfAReg.empty() && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		contentsOfAReg = "";
+	}
+
+	if (contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		contentsOfAReg = symbolTable.at(operand2).getInternalName();
+	}
+
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("", "sub", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
+	}
+
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+	
+	if (isTemporary(operand2))
+	{
+		freeTemp();
+	}
+
+	contentsOfAReg = getTemp();
+	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+	pushOperand(contentsOfAReg);
+	 /*
+	 // check that neither operand is empty
 
 	//if type of either operand is not integer
 	//processError(illegal type)
-	 if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
-	 {
-		 processError("Illegal type");
-	 }
+	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
+	{
+		processError("Illegal type. Binary '-' requires integer operands");
+	}
 
 	//if the A Register holds a temp not operand1 nor operand2 then
 	//emit code to store that temp into memory
 	//change the allocate entry for the temp in the symbol table to yes
 	//deassign it
-	 if (isTemporary(contentsOfAReg) && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
-		emit("","mov","[" + contentsOfAReg + "],eax","; deassign A Register");
+		emit("","mov","[" + contentsOfAReg + "],eax","; deassign AReg");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
 
 	// if the A register holds a non-temp not operand1 nor operand2 then deassign it
-	if (symbolTable.count(contentsOfAReg) != 0 && contentsOfAReg[0] != 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
+	if (!contentsOfAReg.empty() && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		contentsOfAReg = "";
 	}
@@ -1666,19 +1716,15 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	// if neither operand is in the A register then
 	// emit code to load operand2 into the A register
 	// emit code to perform register-memory addition
-	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg)
+	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
-		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","; AReg = " + operand2);
+		emit("","mov","eax,[" + symbolTable.at(operand2).getInternalName() + "]","; AReg = " + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
-	if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
 		emit("", "sub", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " - " + operand2);
-	}
-	else if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("", "sub", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
 	}
 
 	// deassign all temporaries involved in the addition and free those names for reuse
@@ -1696,6 +1742,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	contentsOfAReg = getTemp();
 	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
 	pushOperand(contentsOfAReg);
+	*/
 }
 
  void Compiler::emitMultiplicationCode(string operand1, string operand2) // op2 * op1
@@ -1719,7 +1766,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//deassign it
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
-		emit("","mov","[" + contentsOfAReg + "],eax","; deassign A Register");
+		emit("","mov","[" + contentsOfAReg + "],eax","; deassign AReg");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
@@ -2952,9 +2999,8 @@ string Compiler::getTemp()
  {
   insert(temp, UNKNOWN, VARIABLE, "1", NO, 1);
   symbolTable.at(temp).setInternalName(temp);
+  maxTempNo++;
  }
-
- maxTempNo++;
  return temp;
 }
 
