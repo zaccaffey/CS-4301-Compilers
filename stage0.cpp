@@ -478,7 +478,7 @@ void Compiler::factor()
 	}
 
 	//{'<>','=','<=','>=','<','>',')',';','-','+','or'}
-	else if (token == "<>" token == "=" || || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin");
+	else if (token == "<>" || token == "=" || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin")
 	{
 
 	}
@@ -1626,10 +1626,16 @@ void Compiler::emitReadCode(string operand, string)
 
  void Compiler::emitAdditionCode(string operand1, string operand2) // op2 + op1
  {
-	//make sure that neither of these are undefined
-	if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
+	// check that neither operand is empty
+	if (symbolTable.count(operand1) == 0)
 	{
-		processError("operand makes a reference to an undefined symbol");
+		processError("reference to undefined symbol " + operand1);
+	}
+	
+	// check that neither operand is empty
+	else if (symbolTable.count(operand2) == 0)
+	{
+		processError("reference to undefined symbol " + operand2);
 	}
 
 	//if type of either operand is not integer
@@ -1653,7 +1659,7 @@ void Compiler::emitReadCode(string operand, string)
 	}
 
 	//if the A register holds a non-temp not operand1 nor operand2
-	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg && !contentsOfAReg.empty() && !isTemporary(contentsOfAReg))
+	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg && !isTemporary(contentsOfAReg))
 	{
 		//deassign it
 		contentsOfAReg = "";
@@ -1715,47 +1721,60 @@ void Compiler::emitReadCode(string operand, string)
 		processError("reference to undefined symbol " + operand2);
 	}
 
+	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
 		processError("illegal type. binary '-' requires integer operands");
 	}
 
+	//if the A Register holds a temp not operand2
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
-
+		//emit code to store that temp into memory (store contentsofareg? - Z)
+		//store contentsofAReg into eax by emitting assembly code
 		emit("", "mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		//deassign it
 		contentsOfAReg = "";
 	}
 
-	if (!contentsOfAReg.empty() && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	//if the A register holds a non-temp not operand1 nor operand2
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		contentsOfAReg = "";
 	}
 
+	//if operand2 is NOT in the A register then
 	if (contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
+		//emit code to load operand2 into the A register
 		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		// A Reg == operand2
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
+	//emit code to perform register-memory subtraction with operand1
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
 		emit("", "sub", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
 	}
 
+	//deassign all temporaries involved in the addition and free those names for reuse
 	if (isTemporary(operand1))
 	{
-		freeTemp();
+		freeTemp();		
 	}
-	
 	if (isTemporary(operand2))
 	{
 		freeTemp();
 	}
 
+	//A Register = next available temporary name and change type of its symbol table entry to integer
 	contentsOfAReg = getTemp();
 	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+
+	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
 }
 
@@ -1793,7 +1812,7 @@ void Compiler::emitReadCode(string operand, string)
 	}
 
 	// if the A register holds a non-temp not operand2 then deassign it
-	if (!contentsOfAReg.empty() && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		contentsOfAReg = "";
 	}
@@ -1941,7 +1960,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 
 	//if the A register holds a non-temp not operand2
-	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName() && !contentsOfAReg.empty())
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//deassign it
 		contentsOfAReg = "";
