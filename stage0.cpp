@@ -320,7 +320,7 @@ void Compiler::readStmt()	//stage 1 production 5
   
 	if (token != ")")
 	{
-		processError("')' expected; found " + token);
+		processError("',' or ')' expected; found " + token);
 	}
 
 	code("read", x);
@@ -353,7 +353,7 @@ void Compiler::writeStmt()	//stage 1 production 7
 
 	if (token != ")")
 	{
-		processError("')' expected; found " + token);
+		processError("',' or ')' expected; found " + token);
 	}
 
 	code("write", x);
