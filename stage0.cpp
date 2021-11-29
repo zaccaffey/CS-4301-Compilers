@@ -226,7 +226,7 @@ void Compiler::beginEndStmt()	//token should be "begin"
 }
 
 // GOOD
-void Compiler::execStmts() // stage 1, production 2
+void Compiler::execStmts()
 {  
     if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin")
 	{
@@ -244,7 +244,7 @@ void Compiler::execStmts() // stage 1, production 2
 }
 
 //GOOD
-void Compiler::execStmt() // stage 1, production 3
+void Compiler::execStmt()
 {
     if (isNonKeyId(token))
     {
@@ -264,7 +264,7 @@ void Compiler::execStmt() // stage 1, production 3
     }
 }
 
-void Compiler::assignStmt() // stage 1, production 4
+void Compiler::assignStmt()
 {
     string first, second;
 
@@ -303,7 +303,7 @@ void Compiler::assignStmt() // stage 1, production 4
 
 }
 
-void Compiler::readStmt() // stage 1, production 5
+void Compiler::readStmt()
 {
 	string x;
 	if (token != "read")
@@ -335,7 +335,7 @@ void Compiler::readStmt() // stage 1, production 5
 	}
 }
 
-void Compiler::writeStmt() // stage 1, production 7
+void Compiler::writeStmt()
 {
 	string x;
 	if (token != "write")
@@ -367,7 +367,7 @@ void Compiler::writeStmt() // stage 1, production 7
 	}
 }
 
-void Compiler::express() // stage 1, production 9
+void Compiler::express()
 {
 	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
 	{
@@ -382,7 +382,7 @@ void Compiler::express() // stage 1, production 9
 	}
 }
 
-void Compiler::expresses() // stage 1, production 10
+void Compiler::expresses()
 {
 	string first, second;
 
@@ -413,7 +413,7 @@ void Compiler::expresses() // stage 1, production 10
 	}
 }
 
-void Compiler::term() // stage 1, production 11
+void Compiler::term() 
 {
 	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
 	{
@@ -429,7 +429,7 @@ void Compiler::term() // stage 1, production 11
 	}
 }
 
-void Compiler::terms() // stage 1, production 12   //need to account for epsilon some how
+void Compiler::terms() //need to account for epsilon some how
 {
 	string first, second;
 
@@ -460,30 +460,36 @@ void Compiler::terms() // stage 1, production 12   //need to account for epsilon
 	}
 }
 
-void Compiler::factor() // stage 1, production 13
+void Compiler::factor() 
 {
-	/*CHANGE THIS IN THE FINAL PRODUCT*/
+	// FACTOR {'not','true','false','(','+','-',INTEGER,NON_KEY_ID}
 	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
 	{
-		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", INTEGER, or NON_KEY_ID expected");
 	}
-
+	
+	// PART 
 	part();
 
+	// FACTORS {'*','div','mod','and'}
 	if (token == "*" || token == "div" || token == "mod" || token == "and")
 	{
 		factors();
 	}
 
-	else if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin");
-	
+	//{'<>','=','<=','>=','<','>',')',';','-','+','or'}
+	else if (token == "<>" token == "=" || || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin");
+	{
+
+	}
+
 	else 
 	{
 		processError("expected '(', integer, or non_key_id");
 	}
 }
 
-void Compiler::factors() // stage 1, production 14	// need to account for epsilon move
+void Compiler::factors()// need to account for epsilon move
 {
 	string first, second;
 
@@ -513,7 +519,7 @@ void Compiler::factors() // stage 1, production 14	// need to account for epsilo
 	}
 }
 
-void Compiler::part() // stage 1, production 15
+void Compiler::part()
 {
 	string x = "";
 	if (token == "not")
