@@ -1872,7 +1872,7 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
-		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","; AReg = " + operand2);
+		emit("","mov","eax,[" + symbolTable.at(operand2).getInternalName() + "]","; AReg = " + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 	
@@ -2292,7 +2292,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","je", "." + newLabel + "]", "; jump to " + newLabel + " if " + operand1 + " == " + operand2);
+		emit("","je", "." + newLabel, "; jump to " + newLabel + " if " + operand1 + " == " + operand2);
 	}
 
 	//emit code to load FALSE into the A register
@@ -2605,12 +2605,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","jle", "." + newLabel + "]", "; jump to " + newLabel + " if " + operand2 + " <= " + operand1);
+		emit("","jle", "." + newLabel, "; jump to " + newLabel + " if " + operand2 + " <= " + operand1);
 	}
 	
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","jle", "." + newLabel + "]", "; jump to " + newLabel + " if " + operand1 + " <= " + operand2);
+		emit("","jle", "." + newLabel, "; jump to " + newLabel + " if " + operand1 + " <= " + operand2);
 	}
 
 	//emit code to load FALSE into the A register
