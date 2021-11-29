@@ -440,7 +440,7 @@ void Compiler::terms() // stage 1, production 12   //need to account for epsilon
 
 	pushOperator(token);
 	nextToken();
-	
+
 	//error checks here
 	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
 	{
@@ -1240,7 +1240,6 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 
 // ---------------------------------------------------------------------------------
 
-// GOOD
 void Compiler::emit(string label, string instruction, string operands, string comment)	//For formatting our emit statements in the objectFile 
 {
 	//Turn on left justification in objectFile 
@@ -1257,7 +1256,6 @@ void Compiler::emit(string label, string instruction, string operands, string co
 
 // ---------------------------------------------------------------------------------
 
-// GOOD
 void Compiler::emitPrologue(string progName, string operand2)	//Output identifying comments at beginning of objectFile and Output the %INCLUDE directives
 {
 	time_t now = time(0);
@@ -1272,7 +1270,6 @@ void Compiler::emitPrologue(string progName, string operand2)	//Output identifyi
 
 // ---------------------------------------------------------------------------------
 
-// GOOD
 void Compiler::emitEpilogue(string operand1, string operand2)	//emits our epilogue to the ASM file and calls emitStorage()
 {
 	emit("","Exit", "{0}");
@@ -1282,7 +1279,6 @@ void Compiler::emitEpilogue(string operand1, string operand2)	//emits our epilog
 
 // ---------------------------------------------------------------------------------
 
-//NOT THIS ONE
 void Compiler::emitStorage()    //for those entries in the symbolTable that have an allocation of YES and a storage mode of CONSTANT { call emit to output a line to objectFile }
 {
 	
@@ -1318,8 +1314,9 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 }
 
-// GOOD I THINK 
- void Compiler::emitReadCode(string operand, string)
+// ---------------------------------------------------------------------------------
+
+void Compiler::emitReadCode(string operand, string)
  {
 	string name;
 	unsigned int size = operand.size();
@@ -1397,6 +1394,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		contentsOfAReg = symbolTable.at(name).getInternalName();
 	}
  }
+
+// --------------------------------------------------------------------------------- 
 
  void Compiler::emitWriteCode(string operand, string)
  {
@@ -1563,6 +1562,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 		}
  }
 
+// --------------------------------------------------------------------------------- 
+
  void Compiler::emitAssignCode(string operand1, string operand2) // op2 = op1
  {	
 	// check that neither operand is empty
@@ -1614,6 +1615,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 	//operand2 can never be a temporary since it is to the left of ':='
  }
+
+// --------------------------------------------------------------------------------- 
 
  void Compiler::emitAdditionCode(string operand1, string operand2) // op2 + op1
  {
@@ -1690,6 +1693,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	pushOperand(contentsOfAReg);
  }
 
+// --------------------------------------------------------------------------------- 
+
  void Compiler::emitSubtractionCode(string operand1, string operand2) // op2 - op1
  {
 	 // check that neither operand is empty
@@ -1747,6 +1752,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
 	pushOperand(contentsOfAReg);
 }
+
+// ---------------------------------------------------------------------------------
 
  void Compiler::emitMultiplicationCode(string operand1, string operand2) // op2 * op1
  {
@@ -1822,6 +1829,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	pushOperand(contentsOfAReg);
  }
 
+// --------------------------------------------------------------------------------- 
+
  void Compiler::emitDivisionCode(string operand1, string operand2) // op2 / op1
  {
 	 // check that neither operand is empty
@@ -1891,6 +1900,8 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	//push the name of the result onto operandStk	(this needs to be looked at further)
 	pushOperand(contentsOfAReg);
  }
+
+// --------------------------------------------------------------------------------- 
 
 void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 {
@@ -1963,6 +1974,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
+// --------------------------------------------------------------------------------- 
+
  void Compiler::emitNegationCode(string operand1, string) // -op1
  {
 	 // check that neither operand is empty
@@ -2019,6 +2032,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
+// --------------------------------------------------------------------------------- 
+
  void Compiler::emitNotCode(string operand1, string) // !op1
  {
 	// check that neither operand is empty
@@ -2074,6 +2089,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
  }
+
+// --------------------------------------------------------------------------------- 
 
  void Compiler::emitAndCode(string operand1, string operand2) // op2 && op1
  {
@@ -2147,6 +2164,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
+// --------------------------------------------------------------------------------- 
+
  void Compiler::emitOrCode(string operand1, string operand2) // op2 || op1
  {
 	 // check that neither operand is empty
@@ -2218,6 +2237,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
  }
+
+// --------------------------------------------------------------------------------- 
 
  void Compiler::emitEqualityCode(string operand1, string operand2) // op2 == op1
  {
@@ -2330,6 +2351,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
+// --------------------------------------------------------------------------------- 
+
  void Compiler::emitInequalityCode(string operand1, string operand2) // op2 != op1
  {
 	if (symbolTable.count(operand1) == 0)
@@ -2420,6 +2443,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
+// ---------------------------------------------------------------------------------
  void Compiler::emitLessThanCode(string operand1, string operand2) // op2 < op1
  {
 	 // check that neither operand is empty
@@ -2535,6 +2559,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
+// ---------------------------------------------------------------------------------
+
  void Compiler::emitLessThanOrEqualToCode(string operand1, string operand2) // op2 <= op1
  {
 	 // check that neither operand is empty
@@ -2649,6 +2675,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
+// ---------------------------------------------------------------------------------
+
  void Compiler::emitGreaterThanCode(string operand1, string operand2) // op2 > op1
  {
 	 // check that neither operand is empty
@@ -2762,6 +2790,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
  }
+
+// ---------------------------------------------------------------------------------
 
  void Compiler::emitGreaterThanOrEqualToCode(string operand1, string operand2) // op2 >= op1
  {
