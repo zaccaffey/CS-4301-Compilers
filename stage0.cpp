@@ -199,9 +199,11 @@ void Compiler::beginEndStmt()	//token should be "begin"
 
     nextToken();
 	
-	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") {
+	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") 
+	{
 		execStmts();
 	}
+
 	else
 	{
 		processError("non_key_id, \"read\", or \"write\" expected");
@@ -367,18 +369,6 @@ void Compiler::writeStmt() // stage 1, production 7
 
 void Compiler::express() // stage 1, production 9
 {
-  /*if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-  {
-	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
-  }
-
-  term();
-  nextToken();
-
-  if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">")
-  {
-    expresses();
-  }*/
 	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
 	{
 		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", non - keyword identifier or integer expected");
@@ -450,6 +440,7 @@ void Compiler::terms() // stage 1, production 12   //need to account for epsilon
 
 	pushOperator(token);
 	nextToken();
+	
 	//error checks here
 	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
 	{
