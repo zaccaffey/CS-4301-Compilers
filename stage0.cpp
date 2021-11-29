@@ -3042,10 +3042,14 @@ char Compiler::nextChar()   //returns the next character or end of file marker
 	return ch;
 }
 
+// ---------------------------------------------------------------------------------
+
 void Compiler::pushOperator(string name) //push name onto operatorStk
 {
  	operatorStk.push(name);
 }
+
+// ---------------------------------------------------------------------------------
 
 void Compiler::pushOperand(string name) //push name onto operandStk
  //if name is a literal, also create a symbol table entry for it
@@ -3061,6 +3065,8 @@ void Compiler::pushOperand(string name) //push name onto operandStk
 	
 	operandStk.push(name);	
 }
+
+// ---------------------------------------------------------------------------------
 
 string Compiler::popOperator() //pop name from operatorStk
 {
@@ -3080,6 +3086,8 @@ string Compiler::popOperator() //pop name from operatorStk
 	return top;
 }
 
+// ---------------------------------------------------------------------------------
+
 string Compiler::popOperand() //pop name from operandStk
 {
 	string top;
@@ -3098,6 +3106,8 @@ string Compiler::popOperand() //pop name from operandStk
 	return top;
 }
 
+// ---------------------------------------------------------------------------------
+
 void Compiler::freeTemp()
 {
 	currentTempNo--;
@@ -3106,6 +3116,8 @@ void Compiler::freeTemp()
 		processError("compiler error, currentTempNo should be >= –1");
 	}
 }
+
+// ---------------------------------------------------------------------------------
 
 string Compiler::getTemp()
 {
@@ -3124,6 +3136,8 @@ string Compiler::getTemp()
 	return temp;
 }
 
+// ---------------------------------------------------------------------------------
+
 string Compiler::getLabel()
 {
 	string label;
@@ -3135,6 +3149,8 @@ string Compiler::getLabel()
 
 	return label;
 }
+
+// ---------------------------------------------------------------------------------
 
 // if s[0] == 'T' then s is temporary
 bool Compiler::isTemporary(string s) const 
