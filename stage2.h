@@ -1,5 +1,5 @@
-#ifndef STAGE1_H
-#define STAGE1_H
+#ifndef STAGE2_H
+#define STAGE2_H
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -42,7 +42,7 @@ public:
  allocation getAlloc() const
  {
  return alloc;
-//Overall Compiler Structure – Stage 1 Page 13
+Page 8 Overall Compiler Structure – Control Structures – Stage 2
  }
  int getUnits() const
  {
@@ -89,7 +89,7 @@ public:
  void parser();
  void createListingTrailer();
  // Methods implementing the grammar productions
-//Page 14 Overall Compiler Structure – Stage 1
+//Overall Compiler Structure – Control Structures – Stage 2 Page 9
  void prog(); // stage 0, production 1
  void progStmt(); // stage 0, production 2
  void consts(); // stage 0, production 3
@@ -110,6 +110,11 @@ public:
  void factor(); // stage 1, production 13
  void factors(); // stage 1, production 14
  void part(); // stage 1, production 15
+ void ifStmt(); // stage 2, production 3
+ void elsePt(); // stage 2, production 4
+ void whileStmt(); // stage 2, production 5
+ void repeatStmt(); // stage 2, production 6
+ void nullStmt(); // stage 2, production 7
  // Helper functions for the Pascallite lexicon
  bool isKeyword(string s) const; // determines if s is a keyword
  bool isSpecialSymbol(char c) const; // determines if c is a special symbol
@@ -133,8 +138,10 @@ public:
  void emitPrologue(string progName, string = "");
  void emitEpilogue(string = "", string = "");
  void emitStorage();
+ // Emit Functions for Stage 1
  void emitReadCode(string operand, string = "");
  void emitWriteCode(string operand, string = "");
+//Page 10 Overall Compiler Structure – Control Structures – Stage 2
  void emitAssignCode(string operand1, string operand2); // op2 = op1
  void emitAdditionCode(string operand1, string operand2); // op2 + op1
  void emitSubtractionCode(string operand1, string operand2); // op2 - op1
@@ -143,7 +150,6 @@ public:
  void emitModuloCode(string operand1, string operand2); // op2 % op1
  void emitNegationCode(string operand1, string = ""); // -op1
  void emitNotCode(string operand1, string = ""); // !op1
-//Overall Compiler Structure – Stage 1 Page 15
  void emitAndCode(string operand1, string operand2); // op2 && op1
  void emitOrCode(string operand1, string operand2); // op2 || op1
  void emitEqualityCode(string operand1, string operand2); // op2 == op1
@@ -152,6 +158,27 @@ public:
  void emitLessThanOrEqualToCode(string operand1, string operand2); // op2 <= op1
  void emitGreaterThanCode(string operand1, string operand2); // op2 > op1
  void emitGreaterThanOrEqualToCode(string operand1, string operand2); // op2 >= op1
+ // Emit functions for Stage 2
+ void emitThenCode(string operand1, string = "");
+ // emit code which follows 'then' and statement predicate
+ void emitElseCode(string operand1, string = "");
+ // emit code which follows 'else' clause of 'if' statement
+ void emitPostIfCode(string operand1, string = "");
+ // emit code which follows end of 'if' statement
+ void emitWhileCode(string = "", string = "");
+ // emit code following 'while'
+ void emitDoCode(string operand1, string = "");
+ // emit code following 'do'
+ void emitPostWhileCode(string operand1, string operand2);
+ // emit code at end of 'while' loop;
+ // operand2 is the label of the beginning of the loop
+ // operand1 is the label which should follow the end of the loop
+ void emitRepeatCode(string = "", string = "");
+ // emit code which follows 'repeat'
+ void emitUntilCode(string operand1, string operand2);
+ // emit code which follows 'until' and the predicate of loop
+ // operand1 is the value of the predicate
+ // operand2 is the label which points to the beginning of the loop
  // Lexical routines
  char nextChar(); // returns the next character or END_OF_FILE marker
  string nextToken(); // returns the next token or END_OF_FILE marker
@@ -162,15 +189,17 @@ public:
  string getTemp();
  string getLabel();
  bool isTemporary(string s) const; // determines if s represents a temporary
+ bool isLabel(string s) const; // determines if s represents a label
 private:
  map<string, SymbolTableEntry> symbolTable;
  ifstream sourceFile;
+//Overall Compiler Structure – Control Structures – Stage 2 Page 11
  ofstream listingFile;
  ofstream objectFile;
  string token; // the next token
  char ch; // the next character of the source file
- unsigned int errorCount = 0; // total number of errors encountered
- unsigned int lineNo = 0; // line numbers for the listing
+ uint errorCount = 0; // total number of errors encountered
+ uint lineNo = 0; // line numbers for the listing
  stack<string> operatorStk; // operator stack
  stack<string> operandStk; // operand stack
  int currentTempNo = -1; // current temp number

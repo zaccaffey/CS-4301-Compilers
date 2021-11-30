@@ -4,7 +4,7 @@
 
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
-#include <stage0.h>
+#include <stage2.h>
 
 using namespace std;
 
@@ -206,13 +206,31 @@ void Compiler::beginEndStmt()	//token should be "begin"
 		processError(error);
     }
 
-    if (nextToken() != ".") 
+	nextToken();
+
+    if (token != "." && token != ";") 
     {
-		processError("period expected");
+		processError("period or semi-colon expected");
     }
 
     nextToken();		//I feel like this may be un-needed
     code("end", ".");
+
+	/*JUST SOME THOUGHTS FROM ZAC
+	if (token == ".")
+	{
+		code("end", ".");
+	}
+	else if (token == ";")
+	{
+		code("end", ";");
+	}
+	else
+	{
+		processError("period or semi-colon expected");
+	}
+	*/
+
 }
 
 void execStmts(); // stage 1, production 2
@@ -245,9 +263,29 @@ void execStmt(); // stage 1, production 3
     {
       writeStmt();
     }
+	if (token == "if")
+    {
+      ifStmt();
+    }
+    else if (token == "while")
+    {
+      whileStmt();
+    }
+    else if (token == "repeat")
+    {
+      repeatStmt();
+    }
+	if (token == ";")
+    {
+      nullStmt();
+    }
+    else if (token == "begin")
+    {
+      beginEndStmt();
+    }
     else
     {
-      processError("non-keyword id, \"read\", or \"write\" expected");
+      processError("non-keyword id, \"read\", \"write\", \"if\", \"while\", \"repeat\", \";\", or \"begin\" expected");
     }
 }
 
@@ -797,6 +835,40 @@ void Compiler::varStmts() //token should be NON_KEY_ID
 	{
 		varStmts();
 	}
+}
+// ---------------------------------------------------------------------------------
+
+void Compiler::ifStmt() // stage 2, production 3
+{
+
+}
+ 
+// ---------------------------------------------------------------------------------
+
+void Compiler::elsePt() // stage 2, production 4
+{
+
+}
+
+ // ---------------------------------------------------------------------------------
+
+void Compiler::whileStmt() // stage 2, production 5
+{
+
+}
+
+ // ---------------------------------------------------------------------------------
+
+void Compiler::repeatStmt() // stage 2, production 6
+{
+
+}
+
+ // ---------------------------------------------------------------------------------
+
+void Compiler::nullStmt() // stage 2, production 7
+{
+	
 }
 
 // ---------------------------------------------------------------------------------
