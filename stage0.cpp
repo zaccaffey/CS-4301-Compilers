@@ -1,11 +1,12 @@
 //Zac Caffey and Cameron Ley
 //CS 4301
-//Compiler Stage 1
+//Compiler Stage 0
 
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
-#include <stage1.h>
-#include <iostream>
+#include <stage0.h>
+
+using namespace std;
 
 Compiler::Compiler(char **argv) // constructor
 {
@@ -30,7 +31,7 @@ void Compiler::createListingHeader()
 	time_t now = time(0);
 	char* time = ctime(&now);
 	// outputs our names and the time of compilation
-	listingFile << "STAGE1:  Zac Caffey and Cameron Ley       " << time << endl;
+	listingFile << "STAGE0:  Zac Caffey and Cameron Ley       " << time << endl;
 	listingFile << "LINE NO.              " << "SOURCE STATEMENT" << endl << endl;
 }
 
@@ -187,8 +188,7 @@ void Compiler::vars()  //token should be "var"
 
 // ---------------------------------------------------------------------------------
 
-//process begin-end statement
-void Compiler::beginEndStmt()	//stage 1 production 1
+void Compiler::beginEndStmt()	//token should be "begin"
 {   
     string error;
 
@@ -198,14 +198,9 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 		processError(error);
     }
 
-    nextToken();
-	
-	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") 
-	{
-		execStmts();	//make call to execStmts
-	}
+    execStmts();
 
-    if (token != "end")
+    if (nextToken() != "end")
     {
 		error =  "keyword \"end\" expected";
 		processError(error);
@@ -216,31 +211,28 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 		processError("period expected");
     }
 
-    nextToken();
-    code("end", ".");	//code "end"
+    nextToken();		//I feel like this may be un-needed
+    code("end", ".");
 }
 
-//process execution statements
-void Compiler::execStmts()	//stage 1 production 2
-{  
-    if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin")
-	{
-		execStmt();
-		nextToken();
-		execStmts();
-	}
-	
+void execStmts(); // stage 1, production 2
+{
+    if (isNonKeyId(token) || token == "read" || token == "write")
+    {
+      execStmt();
+	  nextToken();
+      execStmts();
+    }
 	else if (token == "end");
 
 	else
 	{
-		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected");		//error here
+		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected");
 	}
 }
 
-//process execution statement
-void Compiler::execStmt()	//stage 1 production 3
-{	
+void execStmt(); // stage 1, production 3
+{
     if (isNonKeyId(token))
     {
       assignStmt();
@@ -259,247 +251,221 @@ void Compiler::execStmt()	//stage 1 production 3
     }
 }
 
-//process assign statement
-void Compiler::assignStmt()	//stage 1 production 4
+void assignStmt(); // stage 1, production 4
 {
-    string first, second;
+  string first, second;
 
-    if (!isNonKeyId(token))
-    {
-      processError("non - keyword identifier expected");
-    }
+  if (!isNonKeyId(token))
+  {
+    processError("non - keyword identifier expected");
+  }
+
+  if (symbolTable.count(token) == 0)
+  {
+	  processError("reference to undefined variable")
+  }
+
+  pushOperand(token);
+  nextToken();
+
+  if (nextToken() != ":=")
+  {
+    processError("':=' expected; found " + token);
+  }
+
+  pushOperator(":=");
+  nextToken();
   
-    if (symbolTable.count(token) == 0)	//if the token is not defined in our symbol table
-    {
-	  processError("reference to undefined variable");
-    }
+  if (token && "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
+  {
+	processError("one of \"*\", \"and\", \"div\", \"mod\", \")\", \"+\", \"-\", \";\", \"<\", \"<=\", \"<>\", \"=\", \">\", \">=\", or \"or\" expected")
+  }
 
-    pushOperand(token);
-	nextToken();
-
-	if (token != ":=")
-	{
-		processError("':=' expected; found " + token);
-	}
-
-	pushOperator(":=");	//push the operator ":=" onto the stack
-	nextToken();
+  express();
   
-	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
-	{
-		processError("expected non_key_id, integer, \"not\", \"true\", \"false\", '(', '+', or '-'");
-	}
+  second = popOperand();
+  first = popOperand();
 
-	express();
+  code(popOperator(), second, first);
+
+}
+
+void readStmt(); // stage 1, production 5
+{
+  if (token != "read")
+  {	
+	processError();
+  }
+
+  nextToken();
+
+  if (token != '(')
+  {
+    processError("'(' expected; found " + token);
+  }
+
+  x = ids();
+  nextToken();
+
+  if (token != ')')
+  {
+    processError("')' expected; found " + token);
+  }
+
+  code("read", x);
+  nextToken();
+
+  if (token != ";")
+  {
+	processError("';' expected; found " + token);
+  }
+}
+
+void writeStmt(); // stage 1, production 7
+{
+  if (token != "write")
+  {
+	processError();
+  }
+
+  nextToken();
+
+  if (token != '(')
+  {
+    processError();
+  }
+
+  x = ids();
+  nextToken();
+
+  if (token != ')')
+  {
+    processError("')' expected; found " + token);
+  }
+
+  code("write", x);
+  nextToken();
+
+  if (token != ";")
+  {
+	processError();
+  }
+}
+
+void express(); // stage 1, production 9
+{
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
+  term();
+  nextToken();
+
+  if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">")
+  {
+    expresses();
+  }
+}
+
+void expresses(); // stage 1, production 10
+{
+  string first, second;
+
+  if (token != "=" && token != "<>" && token != "<=" && token != ">=" && token != "<" && token != ">")
+  {
+	processError("\"=\", \"<>\", \"<=\", \">=\", \"<\", or \">\" expected");  
+  }
+
+  pushOperator(token);
+  nextToken();
+
+  //error checking here
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
+  term();
+
+  second = popOperand();
+  first = popOperand();
+
+  code(popOperator(), second, first);
+
+  if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">")
+  {
+	expresses();
+  }
+}
+
+void term(); // stage 1, production 11
+{
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
+  factor();
+
+  if (token == "-" || token == "+" || token == "or")
+  {
+  	terms();
+  }
+}
+
+void terms(); // stage 1, production 12   //need to account for epsilon some how
+{
+  string first, second;
+
+  if (token != "+" && token != "-" && token != "or")
+  {
+    processError("\"+\", \"-\", or \"or\" expected");
+  }
+
+  pushOperator(token);
+  nextToken();
+  //error checks here
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
+
+  factor();
+  second = popOperand();
+  first = popOperand();
+
+  code(popOperator(), second, first);
+
+  //error checks here
+  if (token == "+" || token == "-" || token == "or")
+  {
+    terms();
+  }
+}
+
+void factor(); // stage 1, production 13
+{
+  if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
+  {
+	processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+  }
   
-	second = popOperand();
-	first = popOperand();
+  part();
 
-	code(popOperator(), second, first);
-
+  if (token == "*" && token == "div" && token == "mod" && token == "and")
+  {
+	factors();
+  }
 }
 
-//process read statement
-void Compiler::readStmt()	//stage 1 production 5
-{
-	string x;
-	if (token != "read")
-	{	
-		processError("read expected; found " + token);
-	}
-
-	nextToken();
-
-	if (token != "(")
-	{
-		processError("'(' expected; found " + token);
-	}
-
-	nextToken();
-	x = ids();
-  
-	if (token != ")")
-	{
-		processError("',' or ')' expected; found " + token);
-	}
-
-	code("read", x);
-	nextToken();
-
-	if (token != ";")
-	{
-		processError("';' expected; found " + token);
-	}
-}
-
-//process write statement
-void Compiler::writeStmt()	//stage 1 production 7
-{
-	string x;
-	if (token != "write")
-	{
-		processError("write expected; found " + token);
-	}
-
-	nextToken();
-
-	if (token != "(")
-	{
-		processError("'(' expected after \"write\"");
-	}
-
-	nextToken();
-	x = ids();
-
-	if (token != ")")
-	{
-		processError("',' or ')' expected; found " + token);
-	}
-
-	code("write", x);
-	nextToken();
-
-	if (token != ";")
-	{
-	processError("';' expected");
-	}
-}
-
-// {'not','true','false','(','+','-', INTEGER, NON_KEY_ID}
-void Compiler::express()	//stage 1 production 9
-{
-	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-	{
-		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", non - keyword identifier or integer expected");
-	}
-
-	term();
-
-	if (token == "<>" || token == "=" || token == "<=" || token == ">=" || token == "<" || token == ">")
-	{
-		expresses();
-	}
-}
-
-// {'<>','=','<=','>=','<','>'}
-void Compiler::expresses()	//stage 1 production 10
-{
-	string first, second;
-
-	if (token != "=" && token != "<>" && token != "<=" && token != ">=" && token != "<" && token != ">")
-	{
-		processError("\"=\", \"<>\", \"<=\", \">=\", \"<\", or \">\" expected");  
-	}
-
-	pushOperator(token);
-	nextToken();
-
-	//error checking here
-	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-	{
-		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
-	}
-
-	term();
-
-	second = popOperand();
-	first = popOperand();
-
-	code(popOperator(), second, first);
-
-	if (token == "=" || token == "<>" || token == "<=" || token == ">=" || token == "<" || token == ">")
-	{
-		expresses();
-	}
-}
-
-// {'not','true','false','(','+','-',INTEGER,NON_KEY_ID}
-void Compiler::term()	//stage 1 production 11
-{
-	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-	{
-		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
-	}
-
-	factor();
-
-	if (token == "-" || token == "+" || token == "or")
-	{
-	
-		terms();
-	}
-}
-
-// {'-','+','or'}
-void Compiler::terms() //stage 1 production 12
-{
-	string first, second;
-
-	if (token != "+" && token != "-" && token != "or")
-	{
-		processError("\"+\", \"-\", or \"or\" expected");
-	}
-
-	pushOperator(token);
-	nextToken();
-
-	//error checks here
-	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-	{
-		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
-	}
-
-	factor();
-	second = popOperand();
-	first = popOperand();
-
-	code(popOperator(), second, first);
-
-	//error checks here
-	if (token == "+" || token == "-" || token == "or")
-	{
-		terms();
-	}
-}
-
-// {'not','true','false','(','+','-',INTEGER,NON_KEY_ID}
-void Compiler::factor()	//stage 1 production 13
-{
-	// FACTOR {'not','true','false','(','+','-',INTEGER,NON_KEY_ID}
-	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-	{
-		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", INTEGER, or NON_KEY_ID expected");
-	}
-	
-	// PART 
-	part();
-
-	// FACTORS {'*','div','mod','and'}
-	if (token == "*" || token == "div" || token == "mod" || token == "and")
-	{
-		factors();
-	}
-
-	//{'<>','=','<=','>=','<','>',')',';','-','+','or'}
-	else if (token == "<>" || token == "=" || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin")
-	{
-
-	}
-
-	else 
-	{
-		processError("expected '(', integer, or non_key_id");
-	}
-}
-
-// {'*','div','mod','and'}
-void Compiler::factors()	//stage 1 production 14
+void factors(); // stage 1, production 14	// need to account for epsilon move
 {
 	string first, second;
 
 	if (token != "*" && token != "div" && token != "mod" && token != "and")
 	{
-	  processError("\"*\", \"div\", \"mod\", or \"and\" expected");
+	  processError();
 	}
 
 	pushOperator(token);
@@ -507,7 +473,7 @@ void Compiler::factors()	//stage 1 production 14
 	
 	if (token != "not" && token != "(" && !isBoolean(token) && !isNonKeyId(token) && token != "+" && token != "-" && token != "true" && token != "false")
 	{
-		processError("expected '(', boolean, or non-keyword id");
+		processError();
 	}
 
 	part();
@@ -523,154 +489,143 @@ void Compiler::factors()	//stage 1 production 14
 	}
 }
 
-// {"not", '+', '-', '(', INTEGER, BOOLEAN, NON_KEYID}
-void Compiler::part()	//stage 1 production 15
+void part(); // stage 1, production 15
 {
-	string x = "";
 	if (token == "not")
 	{
 		nextToken();
-		
-		if (token == "(") 
+
+		if (token == "(")
 		{
 			nextToken();
-			
-			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
 			{
-				processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+				processError();
 			}
-			
+
 			express();
-			
+			nextToken();
+
 			if (token != ")")
 			{
-				processError(") expected; found " + token);
+				processError();
 			}
-			
+
 			nextToken();
 			code("not", popOperand());
 		}
-
-		else if (isBoolean(token)) 
+		else if (isBoolean(token))
 		{
-			if (token == "true") 
+			if (token == "true")
 			{
 				pushOperand("false");
-				nextToken();
 			}
 			else 
 			{
 				pushOperand("true");
-				nextToken();
 			}
 		}
-
-		else if (isNonKeyId(token)) 
+		else if (isNonKeyId(token))
 		{
 			code("not", token);
-			nextToken();
 		}
 	}
 
 	else if (token == "+")
 	{
 		nextToken();
-		if (token == "(") 
+
+		if (token == "(")
 		{
 			nextToken();
-			
-			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
 			{
-				processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+				processError();
 			}
-			
+
 			express();
-			
+			nextToken();
+
 			if (token != ")")
 			{
-				processError("expected ')'; found " + token);
+				processError();
 			}
-			
-			nextToken();
 		}
-		
-		else if (isInteger(token) || isNonKeyId(token)) 
+		else if (isInteger(token))
 		{
 			pushOperand(token);
-			nextToken();
 		}
-
-		else 
+		else if (isNonKeyId(token))
 		{
-			processError("expected '(', integer, or non-keyword id; found " + token);
+			pushOperand(token);
 		}
 	}
 
 	else if (token == "-")
 	{
+		string first;
 		nextToken();
-		
-		if (token == "(") 
+
+		if (token == "(")
 		{
 			nextToken();
-			
-			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
+
+			if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
 			{
-				processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
+				processError();
 			}
-			
+
 			express();
-			
+			nextToken();
+
 			if (token != ")")
 			{
-				processError("expected ')'; found " + token);
+				processError();
 			}
-			
-			nextToken();
-			code("neg", popOperand());
+
+			first = popOperand();
+			code("neg", first);
 		}
-		
-		else if (isInteger(token)) 
+		else if (isInteger(token))
 		{
 			pushOperand("-" + token);
-			nextToken();
 		}
-		
-		else if (isNonKeyId(token)) 
+		else if (isNonKeyId(token))
 		{
-			code("neg", token);
-			nextToken();
+			code("neg", token)
 		}
 	}
 
-	else if (token == "(") 
-	{
-		nextToken();
-		
-		if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token))
-		{
-			processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, or non - keyword identifier expected");
-		}
-		
-		express();
-		
-		if (token != ")") 
-		{
-			processError(") expected; found " + token);
-		}
-		
-		nextToken();
-	}
-
-	else if (isInteger(token) || isBoolean(token) || isNonKeyId(token)) 
+	else if (isInteger(token) || isBoolean(token) || isNonKeyId(token))
 	{
 		pushOperand(token);
+	}
+
+	else if (token == "(")
+	{
+		nextToken();
+
+		if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" token != "-" && !isInteger(token) && !isNonKeyId(token))
+		{
+			processError();
+		}
+
+		express();
+		nextToken();
+
+		if (token != ")")
+		{
+			processError();
+		}
+
 		nextToken();
 	}
 
-	else 
+	else
 	{
-		processError("\"not\", \"true\", \"false\", \"(\", \"+\", \"-\", integer, boolean, or non - keyword identifier expected");
+		processError();
 	}
 
 }
@@ -875,7 +830,7 @@ string Compiler::ids() //token should be NON_KEY_ID
 
 bool Compiler::isKeyword(string s) const //determines if s is a keyword
 {
-	if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not" || s == "mod" || s == "div" || s == "and" || s == "or" || s == "read" || s == "write")
+	if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not")
 	{
 		return true;
 	}
@@ -889,7 +844,7 @@ bool Compiler::isKeyword(string s) const //determines if s is a keyword
 
 bool Compiler::isSpecialSymbol(char c) const //determines if c is a special symbol
 {
-	if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.' || c == '*' || c == '<' || c == '>' || c == '(' || c == ')')
+	if (c == ':' || c == ',' || c == ';' || c == '=' || c == '+' || c == '-' || c == '.')
 	{
 		return true;
 	}
@@ -930,7 +885,7 @@ bool Compiler::isInteger(string s) const //determines if s is an integer
 // ---------------------------------------------------------------------------------
 
 bool Compiler::isBoolean(string s) const // determines if s is a boolean
-{
+
 	if (s == "true" || s == "false")
 	{
 		return true;
@@ -946,7 +901,7 @@ bool Compiler::isBoolean(string s) const // determines if s is a boolean
 bool Compiler::isLiteral(string s) const //determines if s is a literal
 {
 	//bool integer = isInteger(s);
-	if (isInteger(s) || isBoolean(s) || s.front() == '+' || s.front() == '-')// s[0] == "+" || s[0] == "-")
+	if (isInteger(s) || s == "true" || s == "false" || s == "not" || s == "+" || s == "-")
 	{    
 		return true;
 	}
@@ -961,7 +916,7 @@ bool Compiler::isLiteral(string s) const //determines if s is a literal
 string Compiler::genInternalName(storeTypes stype) const	//generate the internal name when called upon
 {
 	string internal;
-	static int countI = 0, countB = 0, countU = 0;
+	static int countI = 0, countB = 0;
 	//use case statements "INTEGER", "BOOLEAN", "PROG"
 	switch(stype)
 	{
@@ -983,10 +938,6 @@ string Compiler::genInternalName(storeTypes stype) const	//generate the internal
 			internal = "B" + to_string(countB);
 			++countB;
 			break;
-		}
-		case UNKNOWN:
-		{
-			internal = "U" + to_string(countU);
 		}
 	}
 	
@@ -1019,34 +970,19 @@ void Compiler::insert(string externalName,storeTypes inType, modes inMode, strin
 			{
 				processError("symbol " + name + " is multiply defined");
 			}
-			else if (isKeyword(name) && name != "true" && name != "false")
+			else if (isKeyword(name))
 			{
 				processError("illegal use of keyword");
 			}
 			else 
 			{
-				if (isupper(name[0]) || name == "true" || name == "false")
+				if (isupper(name[0]))
 				{
-					if (name == "true")
-					{
-						symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
-						SymbolTableEntry("TRUE", inType, inMode, inValue, inAlloc, inUnits)));
-					}
-					else if (name == "false")
-					{
-						symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
-						SymbolTableEntry("FALSE", inType, inMode, inValue, inAlloc, inUnits)));
-					}
-					else 
-					{
-						symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
-						SymbolTableEntry(name, inType, inMode, inValue, inAlloc, inUnits)));
-					}
+					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, inType, inMode, inValue, inAlloc, inUnits)));
 				}
 				else
 				{
-					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15),
-					SymbolTableEntry(genInternalName(inType), inType, inMode, inValue, inAlloc, inUnits)));
+					symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(genInternalName(inType), inType, inMode, inValue, inAlloc, inUnits)));
 				}
 			}
 		}
@@ -1144,10 +1080,10 @@ string Compiler::whichValue(string name) //tells which value a name has
 
 void Compiler::code(string op, string operand1, string operand2)	//Calls emitPrologue when our op is "program" and calls emitEpilogue when our op is "end"
 {
-	if (op == "program")
-	{
-		emitPrologue(operand1);
-	}
+  if (op == "program")
+  {
+	emitPrologue(operand1);
+  }
 
 	else if (op == "end")
 	{
@@ -1155,98 +1091,98 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 	}
 
 	else if (op == "read")
-	{
-		emitReadCode(operand1, "");
-	}
+  {
+    emitReadCode(/*need something here*/);
+  }
 
-	else if (op == "write")
-	{
-		emitWriteCode(operand1, "");
-	}
+  else if (op == "write")
+  {
+    emitWriteCode(/*need something here*/);
+  }
 
-	else if (op == "+") // this must be binary '+'
-	{
-		emitAdditionCode(operand1, operand2);
-	}
+  else if (op == "=")
+  {
+    emitAssignCode(operand1, operand2);
+  }
 
-	else if (op == "-") // this must be binary '-'
-	{
-		emitSubtractionCode(operand1, operand2);
-	}
+  else if (op == "+") // this must be binary '+'
+  {
+    emitAdditionCode(operand1, operand2));
+  }
 
-	else if (op == "neg") // this must be unary '-'
-	{
-		emitNegationCode(operand1, op);
-	}
+  else if (op == "-") // this must be binary '-'
+  {
+    emitSubtractionCode(operand1, operand2));
+  }
 
-	else if (op == "not")
-	{
-		emitNotCode(operand1, op);
-	}
+  else if (op == "neg") // this must be unary '-'
+  {
+    emitNegationCode(operand1, op);
+  }
 
-	else if (op == "*")
-	{
-		emitMultiplicationCode(operand1, operand2);
-	}
+  else if (op == "not")
+  {
+    emitNotCode(operand1, op);
+  }
 
-	else if (op == "div")
-	{
-		emitDivisionCode(operand1, operand2);
-	}
-	
-	else if (op == "mod")
-	{
-		emitModuloCode(operand1, operand2);
-	}
+  else if (op == "*")
+  {
+    emitMultiplicationCode(operand1, operand2));
+  }
 
-	else if (op == "and")
-	{
-		emitAndCode(operand1, operand2);
-	}
-	
-	else if (op == "or")
-	{
-		emitOrCode(operand1, operand2);
-	}
+  else if (op == "div")
+  {
+    emitDivisionCode(operand1, operand2));
+  }
+  else if (op == "mod")
+  {
+    emitModuloCode(operand1, operand2));
+  }
 
-	else if (op == "<")
-	{
-		emitLessThanCode(operand1, operand2);
-	}
-	
-	else if (op == "<=")
-	{
-		emitLessThanOrEqualToCode(operand1, operand2);
-	}
+  else if (op == "and")
+  {
+    emitAndCode(operand1, operand2));
+  }
+  else if (op == "or")
+  {
+    emitOrCode(operand1, operand2));
+  }
 
-	else if (op == ">")
-	{
-		emitGreaterThanCode(operand1, operand2);
-	}
+  else if (op == "<")
+  {
+    emitLessThanCode(operand1, operand2));
+  }
+  else if (op == "<=")
+  {
+    emitLessThanOrEqualToCode(operand1, operand2));
+  }
 
-	else if (op == ">=")
-	{
-		emitGreaterThanOrEqualToCode(operand1, operand2);
-	}
+  else if (op == ">")
+  {
+    emitGreaterThanCode(operand1, operand2));
+  }
 
-	else if (op == "<>")
-	{
-		emitInequalityCode(operand1, operand2);
-	}
-	
-	else if (op == "=")
-	{
-		emitEqualityCode(operand1, operand2);
-	}
-	
-	else if (op == ":=")
-	{
-		emitAssignCode(operand1, operand2);
-	}
-	else
-	{
-		processError("compiler error; function code called with illegal arguments");
-	}
+  else if (op == ">=")
+  {
+    emitGreaterThanOrEqualToCode(operand1, operand2));
+  }
+
+  else if (op == "!=")
+  {
+    emitInequalityCode(operand1, operand2));
+  }
+  else if (op == "==")
+  {
+ 	emitEqualityCode(operand1, operand2));
+  }
+  else if (op == ":=")
+  {
+ 	emitAssignCode(operand1, operand2));
+  }
+ else
+ {
+ 	processError("compiler error since function code should not be called with illegal arguments");
+ }
 }
 
 // ---------------------------------------------------------------------------------
@@ -1262,7 +1198,7 @@ void Compiler::emit(string label, string instruction, string operands, string co
 	//Output the operands in a field of width 24     
 	objectFile << left << setw(24) << operands;
 	//Output the comment 
-	objectFile << comment << endl;
+	objectFile << comment << "\n";
 }
 
 // ---------------------------------------------------------------------------------
@@ -1274,8 +1210,8 @@ void Compiler::emitPrologue(string progName, string operand2)	//Output identifyi
 	objectFile << "; Zac Caffey and Cameron Ley" << right << setw(6) << "" << time;
 	objectFile << "%INCLUDE \"Along32.inc\"\n" << "%INCLUDE \"Macros_Along.inc\"\n" << endl;
 	emit("SECTION", ".text");
-	emit("global", "_start", "", "; program " + progName.substr(0, 15));
-	objectFile << endl;
+	emit("global", "_start", "", "; program " + progName);
+	objectFile << "\n";
 	emit("_start:");
 }
 
@@ -1284,7 +1220,7 @@ void Compiler::emitPrologue(string progName, string operand2)	//Output identifyi
 void Compiler::emitEpilogue(string operand1, string operand2)	//emits our epilogue to the ASM file and calls emitStorage()
 {
 	emit("","Exit", "{0}");
-	objectFile << endl;
+	objectFile << "\n";
 	emitStorage();
 }
 
@@ -1325,281 +1261,155 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 	}
 }
 
-// ---------------------------------------------------------------------------------
-
-void Compiler::emitReadCode(string operand, string)
+ void emitReadCode(string operand, string = "");
  {
-	string name;
-	unsigned int size = operand.size();
-	//while (name is broken from list (operand) and put in name != "")
-	for (unsigned int loopC = 0; loopC < size; ++loopC) {
-				
-		if (operand[loopC] != ',' && loopC < size) {
-			name += operand[loopC];
+	 string name;
+	 int loopC = 0;
+	 int size = operand.size();
+	 //while (name is broken from list (operand) and put in name != "")
+	 while (loopC < size)
+	 {
+		loopC++;
+		if (operand[loopC] != ',' && loopC < size)
+		{
+			name = name + operand[loopC];
 			continue;
 		}
-		//if name is not empty
-		if (name != "") 
+
+		if (name != "")
 		{
 			//if name is not in symbol table
 			if (symbolTable.count(name) == 0)
 			{
-				//processError(reference to undefined symbol)
-				processError("reference to undefined symbol " + name);
+				processError("reference to undefined symbol");
 			}
-
 			//if data type of name is not INTEGER
 			if (symbolTable.at(name).getDataType() != INTEGER)
 			{
-				//processError(can't read variables of this type)
 				processError("can't read variables of this type");
 			}
-
 			//if storage mode of name is not VARIABLE
 			if (symbolTable.at(name).getMode() != VARIABLE)
 			{
-				//processError(attempting to read to a read-only location)
 				processError("attempting to read to a read-only location");
 			}
-			
 			//emit code to call the Irvine ReadInt function
-			emit("", "call", "ReadInt", "; read int; value placed in eax");
+			emit("","call","ReadInt",";ReadInt function called")
 			//emit code to store the contents of the A register at name
-			emit("", "mov", "[" + symbolTable.at(name).getInternalName() + "],eax", "; store eax at " + name);
+			emit("","mov","[" + symbolTable.at(name).getInternalName() + "],eax", ";store contents at " + name);
 			//set the contentsOfAReg = name
 			contentsOfAReg = symbolTable.at(name).getInternalName();
 		}
-
-		name = "";
-	}
-
-	// check if anything is left inside name
-	if (name != "") 
-	{
-		//if name is not in symbol table
-		if (symbolTable.count(name) == 0)
-		{
-			//processError(reference to undefined symbol)
-			processError("reference to undefined symbol " + name);
-		}
-
-		//if data type of name is not INTEGER
-		if (symbolTable.at(name).getDataType() != INTEGER)
-		{
-			//processError(can't read variables of this type)
-			processError("can't read variables of this type");
-		}
-
-		//if storage mode of name is not VARIABLE
-		if (symbolTable.at(name).getMode() != VARIABLE)
-		{
-			//processError(attempting to read to a read-only location)
-			processError("attempting to read to a read-only location");
-		}
-		
-		//emit code to call the Irvine ReadInt function
-		emit("", "call", "ReadInt", "; read int; value placed in eax");
-		//emit code to store the contents of the A register at name
-		emit("", "mov", "[" + symbolTable.at(name).getInternalName() + "],eax", "; store eax at " + name);
-		//set the contentsOfAReg = name
-		contentsOfAReg = symbolTable.at(name).getInternalName();
-	}
+	 }
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitWriteCode(string operand, string)
+ void emitWriteCode(string operand, string = "");
  {
 	string name;
 	static bool definedStorage = false;
-	unsigned int size = operand.size();
-
-	//while (name is broken from list (operand) and put in name != "")
-	for (unsigned int loopC = 0; loopC < size; ++loopC) {
-
-		if (operand[loopC] != ',' && loopC < size) {
-			name += operand[loopC];
+	int loopC = 0;
+	int size = operand.size();
+	 //while (name is broken from list (operand) and put in name != "")
+	 while (loopC < size)
+	 {
+		loopC++;
+		if (operand[loopC] != ',' && loopC < size)
+		{
+			name = name + operand[loopC];
 			continue;
 		}
 
-		if (name != "") 
+		if (name != "")
 		{
 			//if name is not in symbol table
 			if (symbolTable.count(name) == 0)
 			{
-				//processError(reference to undefined symbol)
-				processError("reference to undefined symbol " + name);
+				processError("reference to undefined symbol");
 			}
-
 			//if name is not in the A register
-			if (symbolTable.at(name).getInternalName() != contentsOfAReg) 
+			//emit the code to load name in the A register
+			//set the contentsOfAReg = name
+			if (contentsOfAReg != symbolTable.at(name).getInternalName())
 			{
-				//emit the code to load name in the A register
-				emit("", "mov", "eax,[" + symbolTable.at(name).getInternalName() + "]", "; load " + name + " in eax");
-				//set the contentsOfAReg = name
+				emit("","mov","eax[" + symbolTable.at(name).getInternalName() + "]", ";load " + name +" in A register");
 				contentsOfAReg = symbolTable.at(name).getInternalName();
 			}
-
-			//if data type of name is INTEGER
-			if (symbolTable.at(name).getDataType() == storeTypes::INTEGER)
+			/*if data type of name is INTEGER
+			emit code to call the Irvine WriteInt function
+			else // data type is BOOLEAN
 			{
-				//emit code to call the Irvine WriteInt function
-				emit("", "call", "WriteInt", "; write int in eax to standard out");
+			emit code to compare the A register to 0
+			acquire a new label Ln
+			emit code to jump if equal to the acquired label Ln
+			emit code to load address of TRUE literal in the D register
+			acquire a second label L(n + 1)
+			emit code to unconditionally jump to label L(n + 1)
+			emit code to label the next line with the first acquired label Ln
+			emit code to load address of FALSE literal in the D register
+			emit code to label the next line with the second acquired label L(n + 1)
+			emit code to call the Irvine WriteString function*/
+			if (symbolTable.at(name).getDataType() == INTEGER)
+			{
+				emit("","call","WriteInt",";WriteInt function called")
 			}
-
-			//data type is BOOLEAN
-			else 
+			else // symbolTable.at(name).getDataType() == BOOLEAN
 			{
-				//emit code to compare the A register to 0
-				emit("", "cmp", "eax,0", "; compare to 0");
-				//acquire a new label Ln
-				string firstL = getLabel();
-				//emit code to jump if equal to the acquired label Ln
-				emit("", "je", "." + firstL, "; jump if equal to print FALSE");
-				//emit code to load address of TRUE literal in the D register
-				emit("", "mov", "edx,TRUELIT", "; load address of TRUE literal in edx");
-				//acquire a second label L(n + 1)
-				string secondL = getLabel();
-				//emit code to unconditionally jump to label L(n + 1)
-				emit("", "jmp", "." + secondL, "; unconditionally jump to ." + secondL);
-				//emit code to label the next line with the first acquired label Ln
-				emit("." + firstL + ":");
-				//emit code to load address of FALSE literal in the D register
-				emit("", "mov", "edx,FALSLIT", "; load address of FALSE literal in edx");
-				//emit code to label the next line with the second acquired label L(n + 1)
-				emit("." + secondL + ":");
-				//emit code to call the Irvine WriteString function
-				emit("", "call", "WriteString", "; write string to standard out");
+				emit("","cmp","eax,0",";compare A register to 0");
+				// need to write getLabel still and check this line
+				string newLabel = getLabel();
+				emit("","je","." + newLabel, ";jump if equal to the acquired label Ln");
+				emit("","mov", "edx,TRUELIT", ";load address of TRUE literal in the D register");
+				string secondLabel = getLabel();
+				emit("","jmp","." + secondLabel, ";unconditionally jump to label L(n + 1)");
+				emit("." + newLabel + ":");
+				emit("","mov", "edx,FALSLIT", ";load address of FALSE literal in the D register");
+				emit("." + secondLabel + ":");
+				emit("","call","WriteString",";WriteString function called")
 
-				//if static variable definedStorage is false
-				if (definedStorage == false) 
+				/*
+				if static variable definedStorage is false
 				{
-					//set definedStorage to true
+				set definedStorage to true
+				output an endl to objectFile
+				emit code to begin a .data SECTION
+				emit code to create label TRUELIT, instruction db, operands 'TRUE',0
+				emit code to create label FALSELIT, instruction db, operands 'FALSE',0
+				output an endl to objectFile
+				emit code to resume .text SECTION*/
+				if (definedStorage == false)
+				{
 					definedStorage = true;
-					//output an endl to objectFile
-					objectFile << endl;
-					//emit code to begin a .data SECTION
+					objectFile << "\n";
 					emit("SECTION", ".data");
-					//emit code to create label TRUELIT, instruction db, operands 'TRUE',0
-					emit("TRUELIT", "db", "'TRUE',0", "; literal string TRUE");
-					//emit code to create label FALSELIT, instruction db, operands 'FALSE',0
-					emit("FALSLIT", "db", "'FALSE',0", "; literal string FALSE");
-					//output an endl to objectFile
-					objectFile << endl;
-					//emit code to resume .text SECTION
+					emit("TRUELIT", "db", "'TRUE',0", "; TRUE Literal");
+					emit("FALSLIT", "db", "'FALSE',0", "; FALSE Literal");
+					objectFile << "\n";
 					emit("SECTION", ".text");
-				}
-
+				}			
 			}
-			
 			//emit code to call the Irvine Crlf function
-			emit("", "call", "Crlf", "; write \\r\\n to standard out");
+			emit("","call","Crlf","; Crlf function called")
 		}
+		// This may not be needed - C
 		name = "";
-	}
-	//check if anything is left inside name
-	if (name != "") 
-		{
-			//if name is not in symbol table
-			if (symbolTable.count(name) == 0)
-			{
-				//processError(reference to undefined symbol)
-				processError("reference to undefined symbol " + name);
-			}
+	 }
 
-			//if name is not in the A register
-			if (symbolTable.at(name).getInternalName() != contentsOfAReg) 
-			{
-				//emit the code to load name in the A register
-				emit("", "mov", "eax,[" + symbolTable.at(name).getInternalName() + "]", "; load " + name + " in eax");
-				//set the contentsOfAReg = name
-				contentsOfAReg = symbolTable.at(name).getInternalName();
-			}
-
-			//if data type of name is INTEGER
-			if (symbolTable.at(name).getDataType() == storeTypes::INTEGER)
-			{
-				//emit code to call the Irvine WriteInt function
-				emit("", "call", "WriteInt", "; write int in eax to standard out");
-			}
-
-			//data type is BOOLEAN
-			else 
-			{
-				//emit code to compare the A register to 0
-				emit("", "cmp", "eax,0", "; compare to 0");
-				//acquire a new label Ln
-				string firstL = getLabel();
-				//emit code to jump if equal to the acquired label Ln
-				emit("", "je", "." + firstL, "; jump if equal to print FALSE");
-				//emit code to load address of TRUE literal in the D register
-				emit("", "mov", "edx,TRUELIT", "; load address of TRUE literal in edx");
-				//acquire a second label L(n + 1)
-				string secondL = getLabel();
-				//emit code to unconditionally jump to label L(n + 1)
-				emit("", "jmp", "." + secondL, "; unconditionally jump to ." + secondL);
-				//emit code to label the next line with the first acquired label Ln
-				emit("." + firstL + ":");
-				//emit code to load address of FALSE literal in the D register
-				emit("", "mov", "edx,FALSLIT", "; load address of FALSE literal in edx");
-				//emit code to label the next line with the second acquired label L(n + 1)
-				emit("." + secondL + ":");
-				//emit code to call the Irvine WriteString function
-				emit("", "call", "WriteString", "; write string to standard out");
-
-				//if static variable definedStorage is false
-				if (definedStorage == false) 
-				{
-					//set definedStorage to true
-					definedStorage = true;
-					//output an endl to objectFile
-					objectFile << endl;
-					//emit code to begin a .data SECTION
-					emit("SECTION", ".data");
-					//emit code to create label TRUELIT, instruction db, operands 'TRUE',0
-					emit("TRUELIT", "db", "'TRUE',0", "; literal string TRUE");
-					//emit code to create label FALSELIT, instruction db, operands 'FALSE',0
-					emit("FALSLIT", "db", "'FALSE',0", "; literal string FALSE");
-					//output an endl to objectFile
-					objectFile << endl;
-					//emit code to resume .text SECTION
-					emit("SECTION", ".text");
-				}
-
-			}
-			
-			//emit code to call the Irvine Crlf function
-			emit("", "call", "Crlf", "; write \\r\\n to standard out");
-		}
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitAssignCode(string operand1, string operand2) // op2 = op1
+ void emitAssignCode(string operand1, string operand2); // op2 = op1
  {	
-	// check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
 	//if types of operands are not the same
 	//processError(incompatible types)
 	if (symbolTable.at(operand1).getDataType() !=symbolTable.at(operand2).getDataType())
 	{
-		processError("incompatible types for operator ':='");
+	 processError("incompatible types");
 	}
 	//if storage mode of operand2 is not VARIABLE
 	//processError(symbol on left-hand side of assignment must have a storage mode of VARIABLE)
 
 	if (symbolTable.at(operand2).getMode() != VARIABLE)
 	{
-		processError("symbol on left-hand side of assignment must have a storage mode of VARIABLE");
+	 processError("symbol on left-hand side of assignment must have a storage mode of VARIABLE");
 	}
 
 	//if operand1 = operand2 return
@@ -1612,10 +1422,10 @@ void Compiler::emitReadCode(string operand, string)
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to load operand1 into the A register
-		emit("","mov","eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand1);
+		emit("","mov","eax[" + symbolTable.at(operand1).getInternalName() + "]", ";load " + operand1 +" in A register");
 	}
 	//emit code to store the contents of that register into the memory location pointed to by operand2
-	emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "],eax", "; " + operand2 + " = AReg");
+	emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "],eax", ";store contents at " + operand2);
 	//set the contentsOfAReg = operand2
 	contentsOfAReg = symbolTable.at(operand2).getInternalName();
 
@@ -1627,176 +1437,203 @@ void Compiler::emitReadCode(string operand, string)
 	//operand2 can never be a temporary since it is to the left of ':='
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitAdditionCode(string operand1, string operand2) // op2 + op1
+ void emitAdditionCode(string operand1, string operand2); // op2 + op1
  {
-	// check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
+	 //  Make sure that both operands are defined in the symbol Table
+	 /*if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
+	 {
+		 processError("operands conatin a reference to an undefined symbol");
+	 }
+	//if type of either operand is not integer
+	//processError(illegal type)
+	 if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
+	 {
+		 processError("Illegal type");
+	 }
+	//if the A Register holds a temp not operand1 nor operand2 then
+	//emit code to store that temp into memory
+	//change the allocate entry for the temp in the symbol table to yes
+	//deassign it
+	 if (contentsOfAReg[0] == 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
 	{
-		processError("reference to undefined symbol " + operand1);
+		emit("","mov","[" + contentsOfAReg + "]","eax", "deassign A Register");
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		contentsOfAReg = "";
 	}
-	
-	// check that neither operand is empty
-	else if (symbolTable.count(operand2) == 0)
+	// if the A register holds a non-temp not operand1 nor operand2 then deassign it
+	if (symbolTable.count(contentsOfAReg) != 0 && contentsOfAReg[0] != 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
 	{
-		processError("reference to undefined symbol " + operand2);
+		contentsOfAReg = "";
+	}
+	// if neither operand is in the A register then
+	// emit code to load operand2 into the A register
+	// emit code to perform register-memory addition
+	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg)\
+	{
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","eax", "A Register =" + operand2);
+		contentsOfAReg = symbolTable.at(operand2).getInternalName();
+	}
+	if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("", "add", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " + " + operand2);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("", "add", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " + " + operand1);
+	}
+	// deassign all temporaries involved in the addition and free those names for reuse
+	// A Register = next available temporary name and change type of its symbol table entry to integer
+	// push the name of the result onto operandStk
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+	if (isTemporary(operand2))
+	{
+		freeTemp();
+	}
+	contentsOfAReg = getTemp();
+	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+	pushOperand(contentsOfAReg);
+}
+	// CAM ABOVE */
+
+	//make sure that neither of these are undefined
+	if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
+	{
+		processError("operand makes a reference to an undefined symbol");
 	}
 
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
-		processError("binary '+' requires integer operands");
+		processError("Illegal data type. Expected INTEGER");
 	}
 
 	//if the A Register holds a temp not operand1 nor operand2
-	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg && isTemporary(contentsOfAReg))
+	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg && contentsOfAReg[0] == 'T')
 	{
 		//emit code to store that temp into memory (store contentsofareg? - Z)
 		//store contentsofAReg into eax by emitting assembly code
-		emit("", "mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");		//do we need commas in here?
+		emit("", "mov", "[" + contentsOfAReg + "]", "eax", "deassign A register");		//do we need commas in here?
 		
 		//change the allocate entry for the temp in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		symbolTable.at(contentsOfAReg).setAlloc("YES");
 
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if the A register holds a non-temp not operand1 nor operand2
-	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg && !isTemporary(contentsOfAReg))
+	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg && !contentsOfAReg.empty() && contentsOfAReg[0] != 'T')
 	{
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if neither operand is in the A register then
-	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg)		
+	if (symbolTable.at(operand1).genInternalName() != contentsOfAReg && symbolTable.at(operand2).genInternalName() != contentsOfAReg)		
 	{
 		//emit code to load operand2 into the A register
-		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);		//CHECK THIS
-		
-		// set A reg == operand 2 
-		contentsOfAReg = symbolTable.at(operand2).getInternalName();
-	}
-	
-	//FIXED 
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		//emit code to perform register-memory addition with operand 1
-		emit("", "add", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " + " + operand1);
-	}
-	else
-	{
-		//emit code to perform register-memory addition with operand 2
-		emit("", "add", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " + " + operand2);
-	}
-	
-	//deassign all temporaries involved in the addition and free those names for reuse
-	if (isTemporary(operand1))
-	{
-		freeTemp();		
-	}
-	if (isTemporary(operand2))
-	{
-		freeTemp();
-	}
+		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", "A register =" + operand2);		//CHECK THIS
 
-	//A Register = next available temporary name and change type of its symbol table entry to integer
-	contentsOfAReg = getTemp();
-	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+		//emit code to perform register-memory addition
+		emit("", "add", "eax,", "[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
 
-	//push the name of the result onto operandStk
-	pushOperand(contentsOfAReg);
+		//deassign all temporaries involved in the addition and free those names for reuse
+		if (isTemporary(operand1))
+		{
+			freeTemp();		
+		}
+		if (isTemporary(operand2))
+		{
+			freeTemp();
+		}
+
+		//A Register = next available temporary name and change type of its symbol table entry to integer
+		contentsOfAReg = getTemp();
+		symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+
+		//push the name of the result onto operandStk
+		pushOperand(contentsOfAReg);
+	}
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitSubtractionCode(string operand1, string operand2) // op2 - op1
+ void emitSubtractionCode(string operand1, string operand2); // op2 - op1
  {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	// check that neither operand is empty
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
+	 //  Make sure that both operands are defined in the symbol Table
+	 if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
+	 {
+		 processError("operands conatin a reference to an undefined symbol");
+	 }
 
 	//if type of either operand is not integer
-	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
-	{
-		processError("illegal type. binary '-' requires integer operands");
-	}
+	//processError(illegal type)
+	 if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
+	 {
+		 processError("Illegal type");
+	 }
 
-	//if the A Register holds a temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	//if the A Register holds a temp not operand1 nor operand2 then
+	//emit code to store that temp into memory
+	//change the allocate entry for the temp in the symbol table to yes
+	//deassign it
+	 if (contentsOfAReg[0] == 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
 	{
-		//emit code to store that temp into memory (store contentsofareg? - Z)
-		//store contentsofAReg into eax by emitting assembly code
-		emit("", "mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
-		//change the allocate entry for the temp in the symbol table to yes
+		emit("","mov","[" + contentsOfAReg + "]","eax", "deassign A Register");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
-		//deassign it
 		contentsOfAReg = "";
 	}
 
-	//if the A register holds a non-temp not operand1 nor operand2
-	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	// if the A register holds a non-temp not operand1 nor operand2 then deassign it
+	if (symbolTable.count(contentsOfAReg) != 0 && contentsOfAReg[0] != 'T' && (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()))
 	{
 		contentsOfAReg = "";
 	}
 
-	//if operand2 is NOT in the A register then
-	if (contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	// if neither operand is in the A register then
+	// emit code to load operand2 into the A register
+	// emit code to perform register-memory addition
+	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
-		//emit code to load operand2 into the A register
-		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
-		// A Reg == operand2
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","eax", "A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
-	//emit code to perform register-memory subtraction with operand1
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("", "sub", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " - " + operand2);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
 		emit("", "sub", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " - " + operand1);
 	}
 
-	//deassign all temporaries involved in the addition and free those names for reuse
+	// deassign all temporaries involved in the addition and free those names for reuse
+	// A Register = next available temporary name and change type of its symbol table entry to integer
+	// push the name of the result onto operandStk
 	if (isTemporary(operand1))
 	{
-		freeTemp();		
+		freeTemp();
 	}
 	if (isTemporary(operand2))
 	{
 		freeTemp();
 	}
 
-	//A Register = next available temporary name and change type of its symbol table entry to integer
 	contentsOfAReg = getTemp();
 	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
-
-	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
 }
+ }
 
-// ---------------------------------------------------------------------------------
-
- void Compiler::emitMultiplicationCode(string operand1, string operand2) // op2 * op1
+ void emitMultiplicationCode(string operand1, string operand2); // op2 * op1
  {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
+	  //  Make sure that both operands are defined in the symbol Table
+	 if (symbolTable.count(operand1) == 0 || symbolTable.count(operand2) == 0)
+	 {
+		 processError("operands conatin a reference to an undefined symbol");
+	 }
 
 	//if type of either operand is not integer
 	//processError(illegal type)
@@ -1809,38 +1646,29 @@ void Compiler::emitReadCode(string operand, string)
 	//emit code to store that temp into memory
 	//change the allocate entry for the temp in the symbol table to yes
 	//deassign it
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
-		emit("","mov","[" + contentsOfAReg + "],eax","; deassign AReg");
+		emit("","mov","[" + contentsOfAReg + "]","eax", "deassign A Register");
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		contentsOfAReg = "";
 	}
 
 	// if the A register holds a non-temp not operand2 then deassign it
-	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (symbolTable.count(contentsOfAReg) != 0 && !isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		contentsOfAReg = "";
 	}
-	
-	
+
 	// if operand2 is not in the A register
 	// emit instruction to do a register-memory load of operand2 into the A register
-	if (symbolTable.at(operand1).getInternalName() != contentsOfAReg && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
 	{
-		emit("","mov","eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","eax", "A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
-	
 
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("", "imul", "dword [" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " * " + operand1);
-	}
-	
-	else 
-	{
-		emit("", "imul", "dword [" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " * " + operand2);	
-	}
+	//multiply EAX by operand 2
+	emit("", "imul", "eax,", "[" + symbolTable.at(operand2).genInternalName() + "]", "multiply eax and operand2");	
 
 	// deassign all temporaries involved in the addition and free those names for reuse
 	// A Register = next available temporary name and change type of its symbol table entry to integer
@@ -1859,161 +1687,127 @@ void Compiler::emitReadCode(string operand, string)
 	pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitDivisionCode(string operand1, string operand2) // op2 / op1
+ void emitDivisionCode(string operand1, string operand2); // op2 / op1
  {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
-		processError("binary 'div' requires integer operands");
+		processError();
 	}
 
 	//if the A Register holds a temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("", "mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("", "mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
 		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		symbolTable.at(contentsOfAReg).setAlloc("YES");
+
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if the A register holds a non-temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
 	{
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if operand2 is not in the A register
-	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
+	if (symbolTable.at(operand2).genInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
-		emit("","mov","eax,[" + symbolTable.at(operand2).getInternalName() + "]","; AReg = " + operand2);
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","eax", "A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
-	
-	//emit code to extend sign of dividend from the A register to edx:eax
-	emit("", "cdq", "", "; sign extend dividend from eax to edx:eax");
+		//emit code to extend sign of dividend from the A register to edx:eax
+		emit("", "cdq", "", "extend sign of dividend from the A register to edx:eax");
 
-	//emit code to perform a register-memory division
-	//emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
-	emit("", "idiv", "dword [" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " div " + operand1);	//not sure if this is right. we will need to add a comment here as well
+		//emit code to perform a register-memory division
+		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]")
+		emit("", "idiv", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
 
-	//deassign all temporaries involved and free those names for reuse
-	if (isTemporary(operand1))
-	{
-		freeTemp();
-	}
-	if (isTemporary(operand2))
-	{
-		freeTemp();
-	}
+		//deassign all temporaries involved and free those names for reuse
+		if (isTemporary(operand1))
+		{
+			freeTemp();
+		}
+		if (isTemporary(operand2))
+		{
+			freeTemp();
+		}
 
-	//A Register = next available temporary name and change type of its symbol table entry to integer	(this needs to be looked at further)
-	contentsOfAReg = getTemp();
-	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
+		//A Register = next available temporary name and change type of its symbol table entry to integer	(this needs to be looked at further)
+		contentsOfAReg = getTemp();
+		symbolTable.at(contentsOfAReg).setDataType(INTEGER);
 
-	//push the name of the result onto operandStk	(this needs to be looked at further)
-	pushOperand(contentsOfAReg);
+		//push the name of the result onto operandStk	(this needs to be looked at further)
+		pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
-void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
-{
-
-	// check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
+ void emitModuloCode(string operand1, string operand2); // op2 % op1
+  {
 	//if type of either operand is not integer
 	if (symbolTable.at(operand1).getDataType() != INTEGER || symbolTable.at(operand2).getDataType() != INTEGER)
 	{
-		processError("binary 'mod' requires integer operands");
+		processError();
 	}
 
 	//if the A Register holds a temp not operand2
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("", "mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("", "mov", "[" + contentsOfAReg + "],eax", "; store temp into memory");
 		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		symbolTable.at(contentsOfAReg).setAlloc("YES");
+
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if the A register holds a non-temp not operand2
-	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand2).genInternalName())
 	{
 		//deassign it
 		contentsOfAReg = "";
 	}
 
 	//if operand2 is not in the A register
-	if (symbolTable.at(operand2).getInternalName() != contentsOfAReg)
+	if (symbolTable.at(operand2).genInternalName() != contentsOfAReg)
 	{
 		//emit instruction to do a register-memory load of operand2 into the A register
-		emit("","mov","eax,[" + symbolTable.at(operand2).getInternalName() + "]","; AReg = " + operand2);
+		emit("","mov","[" + symbolTable.at(operand2).getInternalName() + "]","eax", "A Register =" + operand2);
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
+		//emit code to extend sign of dividend from the A register to edx:eax
+		emit("", "cdq", "", "extend sign of dividend from the A register to edx:eax");
+
+		//emit code to perform a register-memory division
+		emit("", "mov", "eax,", "[" + symbolTable.at(operand2).getInternalName() + "]")
+		emit("", "idiv", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", ";A Register = " + operand2 + "/" + operand1);	//not sure if this is right. we will need to add a comment here as well
+		emit("", "xchg", "eax,edx", "; grab remainder and put into eax");
 		
-	//emit code to extend sign of dividend from the A register to edx:eax
-	emit("", "cdq", "", "; sign extend dividend from eax to edx:eax");
+		//deassign all temporaries involved and free those names for reuse
+		if (isTemporary(operand1))
+		{
+			freeTemp();
+		}
+		if (isTemporary(operand2))
+		{
+			freeTemp();
+		}
 
-	//emit code to perform a register-memory division
-	emit("", "idiv", "dword [" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " div "  + operand1);	//not sure if this is right. we will need to add a comment here as well
-	emit("", "xchg", "eax,edx", "; exchange quotient and remainder");
+		//A Register = next available temporary name and change type of its symbol table entry to integer	(this needs to be looked at further)
+		contentsOfAReg = getTemp();
+		symbolTable.at(contentsOfAReg).setDataType(INTEGER);
 
-	//deassign all temporaries involved and free those names for reuse
-	if (isTemporary(operand1))
-	{
-		freeTemp();
-	}
-	if (isTemporary(operand2))
-	{
-		freeTemp();
-	}
-
-	//A Register = next available temporary name and change type of its symbol table entry to integer	(this needs to be looked at further)
-	contentsOfAReg = getTemp();
-	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
-
-	//push the name of the result onto operandStk	(this needs to be looked at further)
-	pushOperand(contentsOfAReg);
+		//push the name of the result onto operandStk	(this needs to be looked at further)
+		pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitNegationCode(string operand1, string) // -op1
+ void emitNegationCode(string operand1, string = ""); // -op1
  {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != INTEGER)
 	{
@@ -2024,7 +1818,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory")
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2041,12 +1835,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to load operand1 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand1);
+		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", ";load " + operand1 + " into A register");
 		contentsOfAReg = symbolTable.at(operand1).getInternalName();
 	}
 
 	//emit code to perform register-memory NOT
-	emit("","neg", "eax", "; AReg = -AReg");
+	emit("","neg", "eax", "; Register A = NEG Register A";
 	
 	//deassign all temporaries involved in the and operation and free those names for reuse
 	if (isTemporary(operand1))
@@ -2062,16 +1856,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitNotCode(string operand1, string) // !op1
+ void emitNotCode(string operand1, string = ""); // !op1
  {
-	// check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
 	{
@@ -2082,7 +1868,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory")
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2099,12 +1885,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		//emit code to load operand1 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand1);
+		emit("","mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "],eax", ";load " + operand1 + " into A register");
 		contentsOfAReg = symbolTable.at(operand1).getInternalName();
 	}
 
 	//emit code to perform register-memory NOT
-	emit("","not", "eax", "; AReg = !AReg");
+	emit("","not", "eax", "; Register A = NOT Register A";
 	
 	//deassign all temporaries involved in the and operation and free those names for reuse
 	if (isTemporary(operand1))
@@ -2120,32 +1906,19 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitAndCode(string operand1, string operand2) // op2 && op1
+ void emitAndCode(string operand1, string operand2); // op2 && op1
  {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
 	//if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN || symbolTable.at(operand2).getDataType() != BOOLEAN)
 	{
 		//processError(illegal type)
-		processError("binary 'and' requires boolean operands");
+		processError("illegal type");
 	}
 	//if the A Register holds a temp not operand1 nor operand2
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory")
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2162,18 +1935,18 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "],eax", ";load operand2 into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
 	//emit code to perform register-memory and
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","and", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " and " + operand1);
+		emit("","and", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; Register A = " + operand2 + " and " + operand1);
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","and", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " and " + operand2);
+		emit("","and", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; Register A = " + operand1 + " and " + operand2);
 	}
 
 	//deassign all temporaries involved in the and operation and free those names for reuse
@@ -2194,21 +1967,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitOrCode(string operand1, string operand2) // op2 || op1
+ void emitOrCode(string operand1, string operand2); // op2 || op1
  {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
 	  //if type of either operand is not boolean
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN || symbolTable.at(operand2).getDataType() != BOOLEAN)
 	{
@@ -2219,7 +1979,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("","mov", "[" + contentsOfAReg + "],eax", ";store temp into memory")
 		//change the allocate entry for the temp in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2236,18 +1996,18 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "],eax", ";load operand2 into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
 	//emit code to perform register-memory OR
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","or", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand2 + " or " + operand1);
+		emit("","or", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; Register A = " + operand2 + " or " + operand1);
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","or", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand1 + " or " + operand2);
+		emit("","or", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; Register A = " + operand1 + " or " + operand2);
 	}
 
 	//deassign all temporaries involved in the and operation and free those names for reuse
@@ -2268,21 +2028,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitEqualityCode(string operand1, string operand2) // op2 == op1
+ void emitEqualityCode(string operand1, string operand2); // op2 == op1
  {
-	// check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
 	//if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
@@ -2293,7 +2040,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("","mov", "[" + contentsOfAReg + ,"],eax", ";store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2311,18 +2058,18 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + ,"]", ";load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
 	//emit code to perform a register-memory compare
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " to " + operand1);
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
+		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " to " + operand2);
 	}
 
 	//emit code to jump if equal to the next available Ln (call getLabel)
@@ -2330,40 +2077,36 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","je", "." + newLabel, "; if " + operand2 + " = " + operand1 + " then jump to set eax to TRUE");
+		emit("","je", "." + newLabel + "]", "; jump to " + newLabel " if " + operand2 + " == " + operand1);
 	}
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","je", "." + newLabel, "; if " + operand2 + " = " + operand1 + " then jump to set eax to TRUE");
+		emit("","je", "." + newLabel + "]", "; jump to " + newLabel " if " + operand1 + " == " + operand2);
 	}
 
 	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
+	emit("", "mov", "eax,[FALSE]", "; load false into register A")
 
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
 	{
-		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
-		symbolTable.at("false").setInternalName("FALSE");
+		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
 	}
 
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditionally jump");
-	
-	emit("." + newLabel + ":");
+	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel)
 	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
+	emit("", "mov", "eax,[TRUE]", "; load true into register A")
 
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
 	{
-		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
-		symbolTable.at("true").setInternalName("TRUE");
+		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
 	}
 
 	//emit code to label the next instruction with the second acquired label L(n+1)
-	emit("." + secondLabel + ":");
+	emit("." + secondLabel + ":")
 
 	//deassign all temporaries involved and free those names for reuse
 	if (isTemporary(operand1))
@@ -2383,482 +2126,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	pushOperand(contentsOfAReg);
  }
 
-// --------------------------------------------------------------------------------- 
-
- void Compiler::emitInequalityCode(string operand1, string operand2) // op2 != op1
+ void emitInequalityCode(string operand1, string operand2); // op2 != op1
  {
-	// check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-	    processError("reference to undefined symbol " + operand1);
-	}
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-	
-	//if types of operands are not the same
-	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
-	{
-		processError("incompatible types for operator '<>'");
-	}
-
-	//if the A Register holds a temp not operand1 nor operand2 then 
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()) 
-	{
-		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
-		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc(YES);
-		//deassign it
-		contentsOfAReg = "";
-	}
-
-	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//deassign it 
-		contentsOfAReg = "";
-	}
-
-	// if neither operand is in the A register then
-	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName()) 
-	{
-		////emit code to load operand2 into the A register
-		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
-		contentsOfAReg = symbolTable.at(operand2).getInternalName();
-	}
-
-	//emit code to perform a register-memory compare
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("", "cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
-	}
-	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
-	{
-		emit("", "cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
-	}
-
-	//emit code to jump if equal to the next available Ln (call getLabel)
-	string label_1 = getLabel(), label_2 = getLabel();
-
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("", "jne", "." + label_1, "; if " + operand2 + " <> " + operand1 + " then jump to set eax to TRUE");
-	}
-	else
-	{
-		emit("", "jne", "." + label_1, "; if " + operand2 + " <> " + operand1 + " then jump to set eax to TRUE");
-	}
-
-	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
-
-	//insert FALSE in symbol table with value 0 and external name false
-	if (symbolTable.count("false") == 0) 
-	{
-		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
-		symbolTable.at("false").setInternalName("FALSE");
-	}
-	
-	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("", "jmp", "." + label_2, "; unconditionally jump");
-
-	emit("." + label_1 + ":");
-	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
-
-	//insert TRUE in symbol table with value -1 and external name true
-	if (symbolTable.count("true") == 0) 
-	{
-		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
-		symbolTable.at("true").setInternalName("TRUE");
-	}
-
-	//emit code to label the next instruction with the second acquired label L(n+1)
-	emit("." + label_2 + ":");
-
-	//deassign all temporaries involved and free those names for reuse
-	if (isTemporary(operand1))
-	{
-		freeTemp();
-	}
-	if (isTemporary(operand2))
-	{
-		freeTemp();
-	}
-
-	//A Register = next available temporary name and change type of its symbol table entry to boolean
-	contentsOfAReg = getTemp();
-	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
-
-	//push the name of the result onto operandStk
-	pushOperand(contentsOfAReg);
- }
-
-// ---------------------------------------------------------------------------------
- void Compiler::emitLessThanCode(string operand1, string operand2) // op2 < op1
- {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
-	//if types of operands are not the same
-	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
-	{
-		processError("incompatible types");
-	}
-
-	//if the A Register holds a temp not operand1 nor operand2 then 
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
-		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc(YES);
-		//deassign it
-		contentsOfAReg = "";
-	}
-
-	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
-	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//deassign it
-		contentsOfAReg = "";
-	}
-
-	// if neither operand is in the A register then
-	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
-		contentsOfAReg = symbolTable.at(operand2).getInternalName();
-	}
-
-	//emit code to perform a register-memory compare
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
-	}
-	
-	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
-	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
-	}
-
-	//emit code to jump if NOT equal to the next available Ln (call getLabel)
-	string newLabel = getLabel();
-
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("","jl", "." + newLabel, "; if " + operand2 + " < " + operand1 + " then jump to set eax to TRUE");
-	}
-	
-	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
-	{
-		emit("","jl", "." + newLabel, "; if " + operand2 + " < " + operand1 + " then jump to set eax to TRUE");
-	}
-
-	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
-
-	//insert FALSE in symbol table with value 0 and external name false
-	if (symbolTable.count("false") == 0)
-	{
-		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
-	}
-
-	string secondLabel = getLabel();
-	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditionally jump");
-	
-	emit("." + newLabel + ":");
-	
-	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
-
-	//insert TRUE in symbol table with value -1 and external name true
-	if (symbolTable.count("true") == 0)
-	{
-		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
-	}
-
-	//emit code to label the next instruction with the second acquired label L(n+1)
-	emit("." + secondLabel + ":");
-
-	//deassign all temporaries involved and free those names for reuse
-	if (isTemporary(operand1))
-	{
-		freeTemp();
-	}
-	
-	if (isTemporary(operand2))
-	{
-		freeTemp();
-	}
-
-	//A Register = next available temporary name and change type of its symbol table entry to boolean
-	contentsOfAReg = getTemp();
-	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
-
-	//push the name of the result onto operandStk
-	pushOperand(contentsOfAReg);
- }
-
-// ---------------------------------------------------------------------------------
-
- void Compiler::emitLessThanOrEqualToCode(string operand1, string operand2) // op2 <= op1
- {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
-	//if types of operands are not the same
-	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
-	{
-		processError("incompatible types");
-	}
-
-	//if the A Register holds a temp not operand1 nor operand2 then 
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
-		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc(YES);
-		//deassign it
-		contentsOfAReg = "";
-	}
-
-	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
-	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//deassign it
-		contentsOfAReg = "";
-	}
-
-	// if neither operand is in the A register then
-	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
-		contentsOfAReg = symbolTable.at(operand2).getInternalName();
-	}
-
-	//emit code to perform a register-memory compare
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
-	}
-	
-	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
-	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
-	}
-
-	//emit code to jump if NOT equal to the next available Ln (call getLabel)
-	string newLabel = getLabel();
-
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("","jle", "." + newLabel, "; if " + operand2 + " <= " + operand1 + " then jump to set eax to TRUE");
-	}
-	
-	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
-	{
-		emit("","jle", "." + newLabel, "; if " + operand2 + " <= " + operand1 + " then jump to set eax to TRUE");
-	}
-
-	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
-
-	//insert FALSE in symbol table with value 0 and external name false
-	if (symbolTable.count("false") == 0)
-	{
-		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
-	}
-
-	string secondLabel = getLabel();
-	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditionally jump");
-	
-	emit("." + newLabel + ":");
-	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
-
-	//insert TRUE in symbol table with value -1 and external name true
-	if (symbolTable.count("true") == 0)
-	{
-		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
-	}
-
-	//emit code to label the next instruction with the second acquired label L(n+1)
-	emit("." + secondLabel + ":");
-
-	//deassign all temporaries involved and free those names for reuse
-	if (isTemporary(operand1))
-	{
-		freeTemp();
-	}
-	
-	if (isTemporary(operand2))
-	{
-		freeTemp();
-	}
-
-	//A Register = next available temporary name and change type of its symbol table entry to boolean
-	contentsOfAReg = getTemp();
-	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
-
-	//push the name of the result onto operandStk
-	pushOperand(contentsOfAReg);
- }
-
-// ---------------------------------------------------------------------------------
-
- void Compiler::emitGreaterThanCode(string operand1, string operand2) // op2 > op1
- {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
-	//if types of operands are not the same
-	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
-	{
-		processError("incompatible types");
-	}
-
-	//if the A Register holds a temp not operand1 nor operand2 then 
-	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
-		//change the allocate entry for it in the symbol table to yes
-		symbolTable.at(contentsOfAReg).setAlloc(YES);
-		//deassign it
-		contentsOfAReg = "";
-	}
-
-	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
-	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//deassign it
-		contentsOfAReg = "";
-	}
-
-	// if neither operand is in the A register then
-	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
-	{
-		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
-		contentsOfAReg = symbolTable.at(operand2).getInternalName();
-	}
-
-	//emit code to perform a register-memory compare
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
-	}
-	
-	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
-	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
-	}
-
-	//emit code to jump if NOT equal to the next available Ln (call getLabel)
-	string newLabel = getLabel();
-
-	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
-	{
-		emit("","jg", "." + newLabel, "; if " + operand2 + " > " + operand1 + " then jump to set eax to TRUE");
-	}
-	
-	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
-	{
-		emit("","jg", "." + newLabel, "; if " + operand1 + " > " + operand2 + " then jump to set eax to TRUE");
-	}
-
-	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
-
-	//insert FALSE in symbol table with value 0 and external name false
-	if (symbolTable.count("false") == 0)
-	{
-		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
-	}
-
-	string secondLabel = getLabel();
-	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditionally jump");
-	
-	emit("." + newLabel + ":");
-	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
-
-	//insert TRUE in symbol table with value -1 and external name true
-	if (symbolTable.count("true") == 0)
-	{
-		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
-	}
-
-	//emit code to label the next instruction with the second acquired label L(n+1)
-	emit("." + secondLabel + ":");
-
-	//deassign all temporaries involved and free those names for reuse
-	if (isTemporary(operand1))
-	{
-		freeTemp();
-	}
-	
-	if (isTemporary(operand2))
-	{
-		freeTemp();
-	}
-
-	//A Register = next available temporary name and change type of its symbol table entry to boolean
-	contentsOfAReg = getTemp();
-	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
-
-	//push the name of the result onto operandStk
-	pushOperand(contentsOfAReg);
- }
-
-// ---------------------------------------------------------------------------------
-
- void Compiler::emitGreaterThanOrEqualToCode(string operand1, string operand2) // op2 >= op1
- {
-	 // check that neither operand is empty
-	if (symbolTable.count(operand1) == 0)
-	{
-		processError("reference to undefined symbol " + operand1);
-	}
-	
-	else if (symbolTable.count(operand2) == 0)
-	{
-		processError("reference to undefined symbol " + operand2);
-	}
-
 	 //if types of operands are not the same
 	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
 	{
@@ -2869,7 +2138,7 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to store that temp into memory
-		emit("","mov", "[" + contentsOfAReg + "],eax", "; deassign AReg");
+		emit("","mov", "[" + contentsOfAReg + ,"],eax", ";store temp in register A");
 		//change the allocate entry for it in the symbol table to yes
 		symbolTable.at(contentsOfAReg).setAlloc(YES);
 		//deassign it
@@ -2887,19 +2156,18 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
 	{
 		//emit code to load operand2 into the A register
-		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + ,"]", ";load " + operand2 + " into A register");
 		contentsOfAReg = symbolTable.at(operand2).getInternalName();
 	}
 
 	//emit code to perform a register-memory compare
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " to " + operand1);
 	}
-	
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
+		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " to " + operand2);
 	}
 
 	//emit code to jump if NOT equal to the next available Ln (call getLabel)
@@ -2907,48 +2175,42 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
 	{
-		emit("","jge", "." + newLabel, "; if " + operand2 + " >= " + operand1 + " then jump to set eax to TRUE");
+		emit("","jne", "." + newLabel + "]", "; jump to " + newLabel " if " + operand2 + " != " + operand1);
 	}
-	
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","jge", "." + newLabel, "; if " + operand2 + " >= " + operand1 + " then jump to set eax to TRUE");
+		emit("","jne", "." + newLabel + "]", "; jump to " + newLabel " if " + operand1 + " != " + operand2);
 	}
 
 	//emit code to load FALSE into the A register
-	emit("", "mov", "eax,[FALSE]", "; else set eax to FALSE");
+	emit("", "mov", "eax,[FALSE]", "; load false into register A")
 
 	//insert FALSE in symbol table with value 0 and external name false
 	if (symbolTable.count("false") == 0)
 	{
-		insert("false", BOOLEAN, CONSTANT, "0", YES, 1);
-		symbolTable.at("false").setInternalName("FALSE");
+		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
 	}
 
 	string secondLabel = getLabel();
 	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
-	emit("","jmp","." + secondLabel, "; unconditionally jump");
-	
-	emit("." + newLabel + ":");
+	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel)
 	//emit code to load TRUE into A register
-	emit("", "mov", "eax,[TRUE]", "; set eax to TRUE");
+	emit("", "mov", "eax,[TRUE]", "; load true into register A")
 
 	//insert TRUE in symbol table with value -1 and external name true
 	if (symbolTable.count("true") == 0)
 	{
-		insert("true", BOOLEAN, CONSTANT, "-1", YES, 1);
-		symbolTable.at("true").setInternalName("TRUE");
+		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
 	}
 
 	//emit code to label the next instruction with the second acquired label L(n+1)
-	emit("." + secondLabel + ":");
+	emit("." + secondLabel + ":")
 
 	//deassign all temporaries involved and free those names for reuse
 	if (isTemporary(operand1))
 	{
 		freeTemp();
 	}
-	
 	if (isTemporary(operand2))
 	{
 		freeTemp();
@@ -2961,6 +2223,399 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
  }
+
+ void emitLessThanCode(string operand1, string operand2); // op2 < op1
+ {
+	//if types of operands are not the same
+	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
+	{
+		processError("incompatible types");
+	}
+
+	//if the A Register holds a temp not operand1 nor operand2 then 
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to store that temp into memory
+		emit("","mov", "[" + contentsOfAReg + ,"],eax", ";store temp in register A");
+		//change the allocate entry for it in the symbol table to yes
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	// if neither operand is in the A register then
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to load operand2 into the A register
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + ,"]", ";load " + operand2 + " into A register");
+		contentsOfAReg = symbolTable.at(operand2).getInternalName();
+	}
+
+	//emit code to perform a register-memory compare
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " to " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " to " + operand2);
+	}
+
+	//emit code to jump if NOT equal to the next available Ln (call getLabel)
+	string newLabel = getLabel();
+
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","jl", "." + newLabel + "]", "; jump to " + newLabel " if " + operand2 + " < " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","jl", "." + newLabel + "]", "; jump to " + newLabel " if " + operand1 + " < " + operand2);
+	}
+
+	//emit code to load FALSE into the A register
+	emit("", "mov", "eax,[FALSE]", "; load false into register A")
+
+	//insert FALSE in symbol table with value 0 and external name false
+	if (symbolTable.count("false") == 0)
+	{
+		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+	}
+
+	string secondLabel = getLabel();
+	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
+	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel)
+	//emit code to load TRUE into A register
+	emit("", "mov", "eax,[TRUE]", "; load true into register A")
+
+	//insert TRUE in symbol table with value -1 and external name true
+	if (symbolTable.count("true") == 0)
+	{
+		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+	}
+
+	//emit code to label the next instruction with the second acquired label L(n+1)
+	emit("." + secondLabel + ":")
+
+	//deassign all temporaries involved and free those names for reuse
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+	if (isTemporary(operand2))
+	{
+		freeTemp();
+	}
+
+	//A Register = next available temporary name and change type of its symbol table entry to boolean
+	contentsOfAReg = getTemp();
+	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
+
+	//push the name of the result onto operandStk
+	pushOperand(contentsOfAReg);
+ }
+
+ void emitLessThanOrEqualToCode(string operand1, string operand2); // op2 <= op1
+ {
+	//if types of operands are not the same
+	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
+	{
+		processError("incompatible types");
+	}
+
+	//if the A Register holds a temp not operand1 nor operand2 then 
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to store that temp into memory
+		emit("","mov", "[" + contentsOfAReg + ,"],eax", ";store temp in register A");
+		//change the allocate entry for it in the symbol table to yes
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	// if neither operand is in the A register then
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to load operand2 into the A register
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + ,"]", ";load " + operand2 + " into A register");
+		contentsOfAReg = symbolTable.at(operand2).getInternalName();
+	}
+
+	//emit code to perform a register-memory compare
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " to " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " to " + operand2);
+	}
+
+	//emit code to jump if NOT equal to the next available Ln (call getLabel)
+	string newLabel = getLabel();
+
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","jle", "." + newLabel + "]", "; jump to " + newLabel " if " + operand2 + " <= " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","jle", "." + newLabel + "]", "; jump to " + newLabel " if " + operand1 + " <= " + operand2);
+	}
+
+	//emit code to load FALSE into the A register
+	emit("", "mov", "eax,[FALSE]", "; load false into register A")
+
+	//insert FALSE in symbol table with value 0 and external name false
+	if (symbolTable.count("false") == 0)
+	{
+		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+	}
+
+	string secondLabel = getLabel();
+	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
+	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel)
+	//emit code to load TRUE into A register
+	emit("", "mov", "eax,[TRUE]", "; load true into register A")
+
+	//insert TRUE in symbol table with value -1 and external name true
+	if (symbolTable.count("true") == 0)
+	{
+		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+	}
+
+	//emit code to label the next instruction with the second acquired label L(n+1)
+	emit("." + secondLabel + ":")
+
+	//deassign all temporaries involved and free those names for reuse
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+	if (isTemporary(operand2))
+	{
+		freeTemp();
+	}
+
+	//A Register = next available temporary name and change type of its symbol table entry to boolean
+	contentsOfAReg = getTemp();
+	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
+
+	//push the name of the result onto operandStk
+	pushOperand(contentsOfAReg);
+ }
+
+ void emitGreaterThanCode(string operand1, string operand2); // op2 > op1
+ {
+	//if types of operands are not the same
+	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
+	{
+		processError("incompatible types");
+	}
+
+	//if the A Register holds a temp not operand1 nor operand2 then 
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to store that temp into memory
+		emit("","mov", "[" + contentsOfAReg + ,"],eax", ";store temp in register A");
+		//change the allocate entry for it in the symbol table to yes
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	// if neither operand is in the A register then
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to load operand2 into the A register
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + ,"]", ";load " + operand2 + " into A register");
+		contentsOfAReg = symbolTable.at(operand2).getInternalName();
+	}
+
+	//emit code to perform a register-memory compare
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " to " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " to " + operand2);
+	}
+
+	//emit code to jump if NOT equal to the next available Ln (call getLabel)
+	string newLabel = getLabel();
+
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","jg", "." + newLabel + "]", "; jump to " + newLabel " if " + operand2 + " > " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","jg", "." + newLabel + "]", "; jump to " + newLabel " if " + operand1 + " > " + operand2);
+	}
+
+	//emit code to load FALSE into the A register
+	emit("", "mov", "eax,[FALSE]", "; load false into register A")
+
+	//insert FALSE in symbol table with value 0 and external name false
+	if (symbolTable.count("false") == 0)
+	{
+		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+	}
+
+	string secondLabel = getLabel();
+	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
+	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel)
+	//emit code to load TRUE into A register
+	emit("", "mov", "eax,[TRUE]", "; load true into register A")
+
+	//insert TRUE in symbol table with value -1 and external name true
+	if (symbolTable.count("true") == 0)
+	{
+		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+	}
+
+	//emit code to label the next instruction with the second acquired label L(n+1)
+	emit("." + secondLabel + ":")
+
+	//deassign all temporaries involved and free those names for reuse
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+	if (isTemporary(operand2))
+	{
+		freeTemp();
+	}
+
+	//A Register = next available temporary name and change type of its symbol table entry to boolean
+	contentsOfAReg = getTemp();
+	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
+
+	//push the name of the result onto operandStk
+	pushOperand(contentsOfAReg);
+ }
+
+ void emitGreaterThanOrEqualToCode(string operand1, string operand2); // op2 >= op1
+ {
+	 //if types of operands are not the same
+	if (symbolTable.at(operand1).getDataType() != symbolTable.at(operand2).getDataType())
+	{
+		processError("incompatible types");
+	}
+
+	//if the A Register holds a temp not operand1 nor operand2 then 
+	if (isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to store that temp into memory
+		emit("","mov", "[" + contentsOfAReg + ,"],eax", ";store temp in register A");
+		//change the allocate entry for it in the symbol table to yes
+		symbolTable.at(contentsOfAReg).setAlloc(YES);
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	//if the A register holds a non-temp not operand2 nor operand1 then deassign it
+	if (!isTemporary(contentsOfAReg) && contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//deassign it
+		contentsOfAReg = "";
+	}
+
+	// if neither operand is in the A register then
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName() && contentsOfAReg != symbolTable.at(operand2).getInternalName())
+	{
+		//emit code to load operand2 into the A register
+		emit("","mov", "eax,[" + symbolTable.at(operand2).getInternalName() + ,"]", ";load " + operand2 + " into A register");
+		contentsOfAReg = symbolTable.at(operand2).getInternalName();
+	}
+
+	//emit code to perform a register-memory compare
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " to " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " to " + operand2);
+	}
+
+	//emit code to jump if NOT equal to the next available Ln (call getLabel)
+	string newLabel = getLabel();
+
+	if (contentsOfAReg == symbolTable.at(operand2).getInternalName())
+	{
+		emit("","jge", "." + newLabel + "]", "; jump to " + newLabel " if " + operand2 + " >= " + operand1);
+	}
+	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
+	{
+		emit("","jge", "." + newLabel + "]", "; jump to " + newLabel " if " + operand1 + " >= " + operand2);
+	}
+
+	//emit code to load FALSE into the A register
+	emit("", "mov", "eax,[FALSE]", "; load false into register A")
+
+	//insert FALSE in symbol table with value 0 and external name false
+	if (symbolTable.count("false") == 0)
+	{
+		insert("FALSE", BOOLEAN, CONSTANT, "0", YES, 1);
+	}
+
+	string secondLabel = getLabel();
+	//emit code to perform an unconditional jump to the next label (call getLabel should be L(n+1))
+	emit("","jmp","." + secondLabel, "; unconditional jump to " + secondLabel)
+	//emit code to load TRUE into A register
+	emit("", "mov", "eax,[TRUE]", "; load true into register A")
+
+	//insert TRUE in symbol table with value -1 and external name true
+	if (symbolTable.count("true") == 0)
+	{
+		insert("TRUE", BOOLEAN, CONSTANT, "-1", YES, 1);
+	}
+
+	//emit code to label the next instruction with the second acquired label L(n+1)
+	emit("." + secondLabel + ":")
+
+	//deassign all temporaries involved and free those names for reuse
+	if (isTemporary(operand1))
+	{
+		freeTemp();
+	}
+	if (isTemporary(operand2))
+	{
+		freeTemp();
+	}
+
+	//A Register = next available temporary name and change type of its symbol table entry to boolean
+	contentsOfAReg = getTemp();
+	symbolTable.at(contentsOfAReg).setDataType(BOOLEAN);
+
+	//push the name of the result onto operandStk
+	pushOperand(contentsOfAReg);
+ }
+
 
 // ---------------------------------------------------------------------------------
 
@@ -2975,28 +2630,23 @@ string Compiler::nextToken()    //returns the next token or end of file marker {
 			{
 				
 			}
-			
 			if (ch == END_OF_FILE)
 			{
 				processError("unexpected end of file: '}' expected");
 			}
-			
 			else 
 			{
 				nextChar();
 			}
 		}
-		
 		else if (ch == '}')
 		{
 			processError("'}' cannot begin token");
 		}
-		
 		else if (isspace(ch))
 		{
 			nextChar();
 		}
-		
 		else if (isSpecialSymbol(ch))
 		{
 			token = ch;
@@ -3010,13 +2660,12 @@ string Compiler::nextToken()    //returns the next token or end of file marker {
 			}
 			
 			// Not sure if this is needed - C
-			if ((token == "<" && ch == '=') || (token == "<" && ch == '>') || (token == ">" && ch == '=')) 
-			{
-				token += ch;
-				nextChar();
-			}
+			//if ((token == "<" && ch == '=') || (token == "<" && ch == '>') || (token == ">" && ch == '=')) 
+			//{
+			//	token += ch;
+			//	nextChar();
+			//}
 		}
-		
 		else if (islower(ch))
 		{
 			token = ch;
@@ -3031,7 +2680,6 @@ string Compiler::nextToken()    //returns the next token or end of file marker {
 				processError("unexpected end of file");
 			}
 		}
-		
 		else if (isdigit(ch))
 		{
 			token = ch;
@@ -3051,7 +2699,6 @@ string Compiler::nextToken()    //returns the next token or end of file marker {
 		{
 			token = ch;
 		}
-		
 		else
 		{
 			processError("illegal symbol");
@@ -3076,7 +2723,6 @@ char Compiler::nextChar()   //returns the next character or end of file marker
 	{
 		ch = END_OF_FILE;
 	}
-	
 	else 
 	{
 		// print to listing file (starting new line if necessary) 
@@ -3095,115 +2741,88 @@ char Compiler::nextChar()   //returns the next character or end of file marker
 	return ch;
 }
 
-// ---------------------------------------------------------------------------------
-
 void Compiler::pushOperator(string name) //push name onto operatorStk
 {
  	operatorStk.push(name);
 }
 
-// ---------------------------------------------------------------------------------
-
 void Compiler::pushOperand(string name) //push name onto operandStk
  //if name is a literal, also create a symbol table entry for it
 {
- 	if (symbolTable.count(name) == 0)																					
+ 	if (isLiteral(name) && symbolTable.count(name) == 0)																					//name is a literal and has no symbol table entry
 	{
-		if (isInteger(name) || name == "true" || name == "false")
-		{
- 		  insert(name, whichType(name), CONSTANT, whichValue(name), YES, 1);		//insert symbol table entry, call whichType to determine the data type of the literal
-		  // may want to be like this instead insert(x,whichType(y),CONSTANT,whichValue(y),YES,1); 																																	
-		}
+ 		symbolTable.insert(pair<string, SymbolTableEntry>(name.substr(0, 15), SymbolTableEntry(name, whichType(name), inMode, inValue, inAlloc, inUnits)));			//insert symbol table entry, call whichType to determine the data type of the literal
+		 // may want to be like this instead insert(x,whichType(y),CONSTANT,whichValue(y),YES,1); 
+ 		operandStk.push(name);																																		//push name onto stack;
 	}
-	
-	operandStk.push(name);	
 }
-
-// ---------------------------------------------------------------------------------
 
 string Compiler::popOperator() //pop name from operatorStk
 {
-	string top;
- 
-	if (!operatorStk.empty())
-	{
-		top = operatorStk.top();
-		operatorStk.pop();
-	}
- 
-	else
-	{
-		processError("compiler error; operator stack underflow");
-	}
- 
-	return top;
-}
 
-// ---------------------------------------------------------------------------------
+ if (!operatorStk.empty())
+ {
+	string top = operatorStk.top();
+	operatorStk.pop()
+ 	return top;			//top element removed from stack;		// ???does this mean we remove the top of the stack and return that element or do we remove the top of the stack and return the stack???
+ }
+ else
+ {
+ 	processError("compiler error; operator stack underflow");
+ }
+
+}
 
 string Compiler::popOperand() //pop name from operandStk
 {
-	string top;
- 
-	if (!operandStk.empty())
-	{
-		top = operandStk.top();
-		operandStk.pop();
-	}
- 
-	else
-	{
-		processError("compiler error; operand stack underflow");
-	}
- 
-	return top;
+
+ if (!operandStk.empty())
+ {
+	string top = operandStk.top();
+	operandStk.pop();
+ 	return top;
+ else
+ {
+ 	processError("compiler error; operand stack underflow");
+ }
+
 }
 
-// ---------------------------------------------------------------------------------
-
-void Compiler::freeTemp()
+void freeTemp()
 {
-	currentTempNo--;
-	if (currentTempNo < -1)
-	{
-		processError("compiler error, currentTempNo should be >= –1");
-	}
+ currentTempNo--;
+ if (currentTempNo < -1)
+ {
+   processError("compiler error, currentTempNo should be >= –1");
+ }
 }
 
-// ---------------------------------------------------------------------------------
-
-string Compiler::getTemp()
+string getTemp()
 {
-	string temp;
-	currentTempNo++;
+ string temp;
+ currentTempNo++;
 
-	temp = "T" + to_string(currentTempNo);
+ temp = "T" + currentTempNo;
 
-	if (currentTempNo > maxTempNo)
-	{
-		insert(temp, UNKNOWN, VARIABLE, "1", NO, 1);
-		symbolTable.at(temp).setInternalName(temp);
-		maxTempNo++;
-	}
-	
-	return temp;
+ if (currentTempNo > maxTempNo)
+ {
+  insert(temp, UNKNOWN, VARIABLE, "", NO, 1);
+ }
+
+ maxTempNo++;
+ return temp;
 }
 
-// ---------------------------------------------------------------------------------
-
-string Compiler::getLabel()
+string getLabel()
 {
 	string label;
-	static int count = 0;
-	
-	label = "L" + to_string(count);
-	
-	count++;
+	static int count = 0
+
+	label = "L" + count;
+	++count;
 
 	return label;
 }
-
-// ---------------------------------------------------------------------------------
 
 // if s[0] == 'T' then s is temporary
 bool Compiler::isTemporary(string s) const 
