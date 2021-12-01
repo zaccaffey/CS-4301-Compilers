@@ -1,10 +1,10 @@
 //Zac Caffey and Cameron Ley
 //CS 4301
-//Compiler Stage 1
+//Compiler Stage 2
 
 #include <ctime>                //This is to allow us to calculate the current time
 #include <iomanip>              //This is to enable use of setw()
-#include <stage1.h>
+#include <stage2.h>
 #include <iostream>
 
 Compiler::Compiler(char **argv) // constructor
@@ -362,6 +362,142 @@ void Compiler::writeStmt()	//stage 1 production 7
 	if (token != ";")
 	{
 	processError("';' expected");
+	}
+}
+void Compiler::ifStmt() // stage 2, production 3
+{
+	string temp;
+
+	if (token != "if")
+	{
+		processError("error");
+	}
+
+	nextToken();
+
+	//prereq for calling express
+	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
+  	{
+		processError("one of \"*\", \"and\", \"div\", \"mod\", \")\", \"+\", \"-\", \";\", \"<\", \"<=\", \"<>\", \"=\", \">\", \">=\", or \"or\" expected");
+  	}
+	  
+	express();
+	nextToken();
+
+	if (token != "then")
+	{
+		processError("error");
+	}
+
+	temp = popOperand();
+	code("then", temp);
+	nextToken();
+
+	if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
+	{
+		execStmt();
+		nextToken();	//not sure if this is necessary
+		elsePt();
+	}
+}
+ 
+// ---------------------------------------------------------------------------------
+
+void Compiler::elsePt() // stage 2, production 4
+{
+	if (token == "else")
+	{
+		code("else", popOperand());
+		nextToken();
+
+		if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
+		{
+			execStmt();
+		}
+
+		code("post_if", popOperand());
+	}
+	else
+	{
+		code("post_if", popOperand());
+	}
+}
+
+ // ---------------------------------------------------------------------------------
+
+void Compiler::whileStmt() // stage 2, production 5
+{
+	if (token != "while")
+	{
+		processError("error");
+	}
+
+	code("while");
+	nextToken();
+
+	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
+ 	{
+		processError("one of \"*\", \"and\", \"div\", \"mod\", \")\", \"+\", \"-\", \";\", \"<\", \"<=\", \"<>\", \"=\", \">\", \">=\", or \"or\" expected");
+ 	}
+
+	express();
+	
+	if (nextToken() != "do")
+	{
+		processError("error");
+	}
+
+	code("do", popOperand());
+	nextToken();
+
+	if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
+	{
+		execStmt();
+	}
+
+	code("post_while", popOperand(), popOperand());
+}
+
+ // ---------------------------------------------------------------------------------
+
+void Compiler::repeatStmt() // stage 2, production 6
+{
+	if (token != "repeat")
+	{
+		processError("error");
+	}
+
+	code("repeat");
+	nextToken();
+
+	if (!isNonKeyId(token) && token != "read" && token != "write")
+	{
+		processError("error");
+	}
+
+	execStmts();
+
+	if (nextToken() != "until")
+	{
+		processError("error");
+	}
+
+	express();
+	code("until", popOperand(), popOperand());
+	
+	if (nextToken() != ";")
+	{
+		processError("error");
+	}
+}
+
+ // ---------------------------------------------------------------------------------
+
+void Compiler::nullStmt() // stage 2, production 7
+{
+	if (token != ";")
+	{
+		processError("error");
 	}
 }
 
