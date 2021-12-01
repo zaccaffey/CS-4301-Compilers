@@ -847,6 +847,8 @@ void Compiler::ifStmt() // stage 2, production 3
 		processError();
 	}
 
+	nextToken();
+
 	//prereq for calling express
 	if (token && "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
   	{
@@ -863,6 +865,7 @@ void Compiler::ifStmt() // stage 2, production 3
 
 	temp = popOperand();
 	code("then", temp);
+	nextToken();
 
 	if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
 	{
@@ -870,9 +873,6 @@ void Compiler::ifStmt() // stage 2, production 3
 		nextToken();	//not sure if this is necessary
 		elsePt();
 	}
-
-
-
 }
  
 // ---------------------------------------------------------------------------------
@@ -882,6 +882,7 @@ void Compiler::elsePt() // stage 2, production 4
 	if (token == "else")
 	{
 		code("else", popOperand());
+		nextToken();
 
 		if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
 		{
@@ -906,6 +907,7 @@ void Compiler::whileStmt() // stage 2, production 5
 	}
 
 	code("while");
+	nextToken();
 
 	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
  	{
@@ -920,6 +922,7 @@ void Compiler::whileStmt() // stage 2, production 5
 	}
 
 	code("do", popOperand());
+	nextToken();
 
 	if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
 	{
@@ -933,14 +936,43 @@ void Compiler::whileStmt() // stage 2, production 5
 
 void Compiler::repeatStmt() // stage 2, production 6
 {
+	if (token != "repeat")
+	{
+		processError();
+	}
 
+	code("repeat");
+	nextToken();
+
+	if (!isNonKeyId(token) && token != "read" && token != "write")
+	{
+		processError();
+	}
+
+	execStmts();
+
+	if (nextToken() != "until")
+	{
+		processError();
+	}
+
+	express();
+	code("until", popOperand(), popOperand());
+	
+	if (nextToken() != ";")
+	{
+		processError();
+	}
 }
 
  // ---------------------------------------------------------------------------------
 
 void Compiler::nullStmt() // stage 2, production 7
 {
-
+	if (token != ";")
+	{
+		processError();
+	}
 }
 
 // ---------------------------------------------------------------------------------
