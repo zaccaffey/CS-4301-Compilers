@@ -2872,7 +2872,7 @@ void Compiler::emitLessThanOrEqualToCode(string operand1, string operand2) // op
 
 void Compiler::emitGreaterThanCode(string operand1, string operand2) // op2 > op1
 {
-	 // check that neither operand is empty
+	// check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
 		processError("reference to undefined symbol " + operand1);
@@ -3109,7 +3109,6 @@ void Compiler::emitGreaterThanOrEqualToCode(string operand1, string operand2) //
 void Compiler::emitThenCode(string operand1, string = "")
 {
 	/*
-	string tempLabel
 	if the type of operand1 is not boolean
 	processError(if predicate must be of type boolean)
 	assign next label to tempLabel
@@ -3123,6 +3122,38 @@ void Compiler::emitThenCode(string operand1, string = "")
 	free operand's name for reuse
 	deassign operands from all registers
 	*/
+
+	string tempLabel;
+
+	if (symbolTable.at(operand1).getDataType != BOOLEAN)
+	{
+		processError("the predicate of \"if\" must be of type BOOLEAN");
+	}
+
+	//assign next label to tempLabel
+
+
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
+	{
+		emit();	// instruction to move operand1 to the A register
+		emit();	// instruction to compare the A register to zero (false)
+		emit();	// code to branch to tempLabel if the compare indicates equality
+
+		// push tempLabel onto operandStk
+		pushOperand(tempLabel);
+	}
+
+	// if operand1 is a temp
+	if (isTemporary(operand1))
+	{
+		// free operand's name for reuse (is this right?)
+		freeTemp();
+
+		// deassign operands from all registers (is this right?)
+		contentsOfAReg = "";
+	}
+
+	
 }
 
 // ---------------------------------------------------------------------------------
