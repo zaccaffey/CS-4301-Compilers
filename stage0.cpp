@@ -1464,13 +1464,15 @@ void Compiler::emitStorage()    //for those entries in the symbolTable that have
 // ---------------------------------------------------------------------------------
 
 void Compiler::emitReadCode(string operand, string)
- {
+{
 	string name;
 	unsigned int size = operand.size();
 	//while (name is broken from list (operand) and put in name != "")
-	for (unsigned int loopC = 0; loopC < size; ++loopC) {
+	for (unsigned int loopC = 0; loopC < size; ++loopC) 
+	{
 				
-		if (operand[loopC] != ',' && loopC < size) {
+		if (operand[loopC] != ',' && loopC < size) 
+		{
 			name += operand[loopC];
 			continue;
 		}
@@ -1540,20 +1542,22 @@ void Compiler::emitReadCode(string operand, string)
 		//set the contentsOfAReg = name
 		contentsOfAReg = symbolTable.at(name).getInternalName();
 	}
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitWriteCode(string operand, string)
- {
+void Compiler::emitWriteCode(string operand, string)
+{
 	string name;
 	static bool definedStorage = false;
 	unsigned int size = operand.size();
 
 	//while (name is broken from list (operand) and put in name != "")
-	for (unsigned int loopC = 0; loopC < size; ++loopC) {
+	for (unsigned int loopC = 0; loopC < size; ++loopC) 
+	{
 
-		if (operand[loopC] != ',' && loopC < size) {
+		if (operand[loopC] != ',' && loopC < size)
+		{
 			name += operand[loopC];
 			continue;
 		}
@@ -1635,7 +1639,7 @@ void Compiler::emitReadCode(string operand, string)
 	}
 	//check if anything is left inside name
 	if (name != "") 
-		{
+	{
 			//if name is not in symbol table
 			if (symbolTable.count(name) == 0)
 			{
@@ -1707,12 +1711,12 @@ void Compiler::emitReadCode(string operand, string)
 			//emit code to call the Irvine Crlf function
 			emit("", "call", "Crlf", "; write \\r\\n to standard out");
 		}
- }
-
+	}
+}
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitAssignCode(string operand1, string operand2) // op2 = op1
- {	
+void Compiler::emitAssignCode(string operand1, string operand2) // op2 = op1
+{	
 	// check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -1761,12 +1765,12 @@ void Compiler::emitReadCode(string operand, string)
 		freeTemp();
 	}
 	//operand2 can never be a temporary since it is to the left of ':='
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitAdditionCode(string operand1, string operand2) // op2 + op1
- {
+void Compiler::emitAdditionCode(string operand1, string operand2) // op2 + op1
+{
 	// check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -1844,12 +1848,12 @@ void Compiler::emitReadCode(string operand, string)
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitSubtractionCode(string operand1, string operand2) // op2 - op1
- {
+void Compiler::emitSubtractionCode(string operand1, string operand2) // op2 - op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -1921,8 +1925,8 @@ void Compiler::emitReadCode(string operand, string)
 
 // ---------------------------------------------------------------------------------
 
- void Compiler::emitMultiplicationCode(string operand1, string operand2) // op2 * op1
- {
+void Compiler::emitMultiplicationCode(string operand1, string operand2) // op2 * op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -1993,12 +1997,12 @@ void Compiler::emitReadCode(string operand, string)
 	contentsOfAReg = getTemp();
 	symbolTable.at(contentsOfAReg).setDataType(INTEGER);
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitDivisionCode(string operand1, string operand2) // op2 / op1
- {
+void Compiler::emitDivisionCode(string operand1, string operand2) // op2 / op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2065,7 +2069,7 @@ void Compiler::emitReadCode(string operand, string)
 
 	//push the name of the result onto operandStk	(this needs to be looked at further)
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
@@ -2138,12 +2142,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk	(this needs to be looked at further)
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitNegationCode(string operand1, string) // -op1
- {
+void Compiler::emitNegationCode(string operand1, string) // -op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2196,12 +2200,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitNotCode(string operand1, string) // !op1
- {
+void Compiler::emitNotCode(string operand1, string) // !op1
+{
 	// check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2254,11 +2258,11 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitAndCode(string operand1, string operand2) // op2 && op1
+void Compiler::emitAndCode(string operand1, string operand2) // op2 && op1
  {
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
@@ -2328,12 +2332,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitOrCode(string operand1, string operand2) // op2 || op1
- {
+void Compiler::emitOrCode(string operand1, string operand2) // op2 || op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2402,12 +2406,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitEqualityCode(string operand1, string operand2) // op2 == op1
- {
+void Compiler::emitEqualityCode(string operand1, string operand2) // op2 == op1
+{
 	// check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2517,12 +2521,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // --------------------------------------------------------------------------------- 
 
- void Compiler::emitInequalityCode(string operand1, string operand2) // op2 != op1
- {
+void Compiler::emitInequalityCode(string operand1, string operand2) // op2 != op1
+{
 	// check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2633,8 +2637,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
  }
 
 // ---------------------------------------------------------------------------------
- void Compiler::emitLessThanCode(string operand1, string operand2) // op2 < op1
- {
+void Compiler::emitLessThanCode(string operand1, string operand2) // op2 < op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2746,12 +2750,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // ---------------------------------------------------------------------------------
 
- void Compiler::emitLessThanOrEqualToCode(string operand1, string operand2) // op2 <= op1
- {
+void Compiler::emitLessThanOrEqualToCode(string operand1, string operand2) // op2 <= op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2866,8 +2870,8 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 // ---------------------------------------------------------------------------------
 
- void Compiler::emitGreaterThanCode(string operand1, string operand2) // op2 > op1
- {
+void Compiler::emitGreaterThanCode(string operand1, string operand2) // op2 > op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -2978,12 +2982,12 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // ---------------------------------------------------------------------------------
 
- void Compiler::emitGreaterThanOrEqualToCode(string operand1, string operand2) // op2 >= op1
- {
+void Compiler::emitGreaterThanOrEqualToCode(string operand1, string operand2) // op2 >= op1
+{
 	 // check that neither operand is empty
 	if (symbolTable.count(operand1) == 0)
 	{
@@ -3096,47 +3100,90 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 	//push the name of the result onto operandStk
 	pushOperand(contentsOfAReg);
- }
+}
 
 // ---------------------------------------------------------------------------------
 
 // Emit functions for Stage 2
 // emit code which follows 'then' and statement predicate
-void emitThenCode(string operand1, string = "")
+void Compiler::emitThenCode(string operand1, string = "")
 {
-
+	/*
+	string tempLabel
+	if the type of operand1 is not boolean
+	processError(if predicate must be of type boolean)
+	assign next label to tempLabel
+	if operand1 is not in the A register then
+	emit instruction to move operand1 to the A register
+	emit instruction to compare the A register to zero (false)
+	emit code to branch to tempLabel if the compare indicates equality
+	push tempLabel onto operandStk so that it can be referenced when emitElseCode() or
+	emitPostIfCode() is called
+	if operand1 is a temp then
+	free operand's name for reuse
+	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
 
 // emit code which follows 'else' clause of 'if' statement
-void emitElseCode(string operand1, string = "")
+void Compiler::emitElseCode(string operand1, string = "")
 {
-
+	/*
+	string tempLabel
+	assign next label to tempLabel
+	emit instruction to branch unconditionally to tempLabel
+	emit instruction to label this point of object code with the argument operand1
+	push tempLabel onto operandStk
+	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
 
 // emit code which follows end of 'if' statement 
-void emitPostIfCode(string operand1, string = "")
+void Compiler::emitPostIfCode(string operand1, string = "")
 {
-
+	/*
+	emit instruction to label this point of object code with the argument operand1
+ 	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
 
 // emit code following 'while'
-void emitWhileCode(string = "", string = "")
+void Compiler::emitWhileCode(string = "", string = "")
 {
-
+	/*
+	string tempLabel
+	assign next label to tempLabel
+	emit instruction to label this point of object code as tempLabel
+	push tempLabel onto operandStk
+	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
 
 // emit code following 'do'
-void emitDoCode(string operand1, string = "")
+void Compiler::emitDoCode(string operand1, string = "")
 {
-
+	/*
+	string tempLabel
+	if the type of operand1 is not boolean
+	processError(while predicate must be of type boolean)
+	assign next label to tempLabel
+	if operand1 is not in the A register then
+	emit instruction to move operand1 to the A register
+	emit instruction to compare the A register to zero (false)
+	emit code to branch to tempLabel if the compare indicates equality
+	push tempLabel onto operandStk
+	if operand1 is a temp then
+	free operand's name for reuse
+	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
@@ -3146,7 +3193,12 @@ void emitDoCode(string operand1, string = "")
 // operand1 is the label which should follow the end of the loop
 void emitPostWhileCode(string operand1, string operand2)
 {
-
+	/*
+	emit instruction which branches unconditionally to the beginning of the loop, i.e., to the
+	value of operand2
+	emit instruction which labels this point of the object code with the argument operand1
+	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
@@ -3154,7 +3206,13 @@ void emitPostWhileCode(string operand1, string operand2)
 // emit code which follows 'repeat'
 void emitRepeatCode(string = "", string = "")
 {
-
+	/*
+	string tempLabel
+	assign next label to tempLabel
+	emit instruction to label this point in the object code with the value of tempLabel
+	push tempLabel onto operandStk
+	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
@@ -3164,7 +3222,17 @@ void emitRepeatCode(string = "", string = "")
 // operand2 is the label which points to the beginning of the loop
 void emitUntilCode(string operand1, string operand2)
 {
-
+	/*
+	if the type of operand1 is not boolean
+	processError(if predicate must be of type boolean)
+	if operand1 is not in the A register then
+	emit instruction to move operand1 to the A register
+	emit instruction to compare the A register to zero (false)
+	emit code to branch to operand2 if the compare indicates equality
+	if operand1 is a temp then
+	free operand1's name for reuse
+	deassign operands from all registers
+	*/
 }
 
 // ---------------------------------------------------------------------------------
