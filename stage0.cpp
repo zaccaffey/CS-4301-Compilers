@@ -879,14 +879,54 @@ void Compiler::ifStmt() // stage 2, production 3
 
 void Compiler::elsePt() // stage 2, production 4
 {
+	if (token == "else")
+	{
+		code("else", popOperand());
 
+		if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
+		{
+			execStmt();
+		}
+
+		code("post_if", popOperand());
+	}
+	else
+	{
+		code("post_if", popOperand());
+	}
 }
 
  // ---------------------------------------------------------------------------------
 
 void Compiler::whileStmt() // stage 2, production 5
 {
+	if (token != "while")
+	{
+		processError();
+	}
 
+	code("while");
+
+	if (token != "not" && token != "true" && token != "false" && token != "(" && token != "+" && token != "-" && !isInteger(token) && !isNonKeyId(token) && token != ";")
+ 	{
+		processError("one of \"*\", \"and\", \"div\", \"mod\", \")\", \"+\", \"-\", \";\", \"<\", \"<=\", \"<>\", \"=\", \">\", \">=\", or \"or\" expected");
+ 	}
+
+	express();
+	
+	if (nextToken() != "do")
+	{
+		processError();
+	}
+
+	code("do", popOperand());
+
+	if (isNonKeyId(token) || token == "read" || token == "write" || token == "if" || token == "while" || token == "repeat" || token == ";" || token == "begin")
+	{
+		execStmt();
+	}
+
+	code("post_while", popOperand(), popOperand());
 }
 
  // ---------------------------------------------------------------------------------
