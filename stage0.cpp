@@ -3100,6 +3100,75 @@ void Compiler::emitModuloCode(string operand1, string operand2) // op2 % op1
 
 // ---------------------------------------------------------------------------------
 
+// Emit functions for Stage 2
+// emit code which follows 'then' and statement predicate
+void emitThenCode(string operand1, string = "")
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
+// emit code which follows 'else' clause of 'if' statement
+void emitElseCode(string operand1, string = "")
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
+// emit code which follows end of 'if' statement 
+void emitPostIfCode(string operand1, string = "")
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
+// emit code following 'while'
+void emitWhileCode(string = "", string = "")
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
+// emit code following 'do'
+void emitDoCode(string operand1, string = "")
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
+// emit code at end of 'while' loop;
+// operand2 is the label of the beginning of the loop
+// operand1 is the label which should follow the end of the loop
+void emitPostWhileCode(string operand1, string operand2)
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
+// emit code which follows 'repeat'
+void emitRepeatCode(string = "", string = "")
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
+// emit code which follows 'until' and the predicate of loop
+// operand1 is the value of the predicate
+// operand2 is the label which points to the beginning of the loop
+void emitUntilCode(string operand1, string operand2)
+{
+
+}
+
+// ---------------------------------------------------------------------------------
+
 string Compiler::nextToken()    //returns the next token or end of file marker {            
 {
 	token = "";	
