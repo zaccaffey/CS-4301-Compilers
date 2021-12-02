@@ -3168,14 +3168,13 @@ void Compiler::emitElseCode(string operand1, string = "")
 	emit("", "jmp", "." + tempLabel, "; unconditional jump");
 
 	// emit instruction to label this point of object code with the argument operand1
-	emit ("." + tempLabel + ":", "", "; else");	
+	emit ("." + tempLabel + ":", "", "", "; else");	
 
 	// push tempLabel onto operandStk
 	pushOperand(tempLabel);
 
 	// deassign operands from all registers
 	contentsOfAReg = "";
-
 }
 
 // ---------------------------------------------------------------------------------
@@ -3183,10 +3182,11 @@ void Compiler::emitElseCode(string operand1, string = "")
 // emit code which follows end of 'if' statement 
 void Compiler::emitPostIfCode(string operand1, string = "")
 {
-	/*
-	emit instruction to label this point of object code with the argument operand1
- 	deassign operands from all registers
-	*/
+	//emit instruction to label this point of object code with the argument operand1
+	emit ("." + tempLabel + ":", "", "", "; if");	
+
+ 	//deassign operands from all registers
+	contentsOfAReg = "";
 }
 
 // ---------------------------------------------------------------------------------
@@ -3194,13 +3194,19 @@ void Compiler::emitPostIfCode(string operand1, string = "")
 // emit code following 'while'
 void Compiler::emitWhileCode(string = "", string = "")
 {
-	/*
-	string tempLabel
-	assign next label to tempLabel
-	emit instruction to label this point of object code as tempLabel
-	push tempLabel onto operandStk
-	deassign operands from all registers
-	*/
+	string tempLabel;
+
+	// assign next label to tempLabel
+	tempLabel = getLabel();
+
+	// emit instruction to label this point of object code as tempLabel
+	emit ("." + tempLabel + ":", "", "", "; while");	
+	
+	// push tempLabel onto operandStk
+	pushOperand(tempLabel);
+
+	// deassign operands from all registers
+	contentsOfAReg = "";
 }
 
 // ---------------------------------------------------------------------------------
@@ -3208,20 +3214,37 @@ void Compiler::emitWhileCode(string = "", string = "")
 // emit code following 'do'
 void Compiler::emitDoCode(string operand1, string = "")
 {
-	/*
-	string tempLabel
-	if the type of operand1 is not boolean
-	processError(while predicate must be of type boolean)
-	assign next label to tempLabel
-	if operand1 is not in the A register then
-	emit instruction to move operand1 to the A register
-	emit instruction to compare the A register to zero (false)
-	emit code to branch to tempLabel if the compare indicates equality
-	push tempLabel onto operandStk
-	if operand1 is a temp then
-	free operand's name for reuse
-	deassign operands from all registers
-	*/
+	string tempLabel;
+
+	// if the type of operand1 is not boolean
+	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
+	{
+		processError("while predicate must be of type boolean");
+	}
+
+	// assign next label to tempLabel
+	tempLabel = getLabel();
+
+	// if operand1 is not in the A register then
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
+	{
+		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());	// instruction to move operand1 to the A register
+		emit("", "cmp", "eax, 0", "compare eax to zero");	// instruction to compare the A register to zero (false)
+		emit("", "je", "." + tempLabel, "; if " + tempLabel + " is false then jump to end of if");	// code to branch to tempLabel if the compare indicates equality
+	}
+
+	// push tempLabel onto operandStk
+	pushOperand(tempLabel);
+
+	// if operand1 is a temp
+	if (isTemporary(operand1))
+	{
+		// free operand's name for reuse (is this right?)
+		freeTemp();
+	}
+
+	// deassign operands from all registers (is this right?)
+	contentsOfAReg = "";
 }
 
 // ---------------------------------------------------------------------------------
