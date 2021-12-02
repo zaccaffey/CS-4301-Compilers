@@ -3168,7 +3168,7 @@ void Compiler::emitElseCode(string operand1, string = "")
 	emit("", "jmp", "." + tempLabel, "; unconditional jump");
 
 	// emit instruction to label this point of object code with the argument operand1
-	emit ("." + tempLabel + ":", "", "", "; else");	
+	emit ("." + operand1 + ":", "", "", "; else");	
 
 	// push tempLabel onto operandStk
 	pushOperand(tempLabel);
@@ -3183,7 +3183,7 @@ void Compiler::emitElseCode(string operand1, string = "")
 void Compiler::emitPostIfCode(string operand1, string = "")
 {
 	//emit instruction to label this point of object code with the argument operand1
-	emit ("." + tempLabel + ":", "", "", "; if");	
+	emit ("." + operand1 + ":", "", "", "; if");	
 
  	//deassign operands from all registers
 	contentsOfAReg = "";
@@ -3230,7 +3230,7 @@ void Compiler::emitDoCode(string operand1, string = "")
 	{
 		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());	// instruction to move operand1 to the A register
 		emit("", "cmp", "eax, 0", "compare eax to zero");	// instruction to compare the A register to zero (false)
-		emit("", "je", "." + tempLabel, "; if " + tempLabel + " is false then jump to end of if");	// code to branch to tempLabel if the compare indicates equality
+		emit("", "je", "." + tempLabel, "; if " + tempLabel + " is false then jump to end of do");	// code to branch to tempLabel if the compare indicates equality
 	}
 
 	// push tempLabel onto operandStk
@@ -3254,12 +3254,14 @@ void Compiler::emitDoCode(string operand1, string = "")
 // operand1 is the label which should follow the end of the loop
 void emitPostWhileCode(string operand1, string operand2)
 {
-	/*
-	emit instruction which branches unconditionally to the beginning of the loop, i.e., to the
-	value of operand2
-	emit instruction which labels this point of the object code with the argument operand1
-	deassign operands from all registers
-	*/
+	// emit instruction which branches unconditionally to the beginning of the loop, i.e., to the value of operand2
+	emit("", "jmp", "." + symbolTable.at(operand2).getInternalName(), "; unconditional jump");
+
+	// emit instruction which labels this point of the object code with the argument operand1
+	emit ("." + operand1 + ":", "", "", "; end while");	
+
+	// deassign operands from all registers (is this right?)
+	contentsOfAReg = "";
 }
 
 // ---------------------------------------------------------------------------------
@@ -3267,13 +3269,20 @@ void emitPostWhileCode(string operand1, string operand2)
 // emit code which follows 'repeat'
 void emitRepeatCode(string = "", string = "")
 {
-	/*
-	string tempLabel
-	assign next label to tempLabel
-	emit instruction to label this point in the object code with the value of tempLabel
-	push tempLabel onto operandStk
-	deassign operands from all registers
-	*/
+
+	string tempLabel;
+
+	// assign next label to tempLabel
+	tempLabel = getLabel();
+
+	// emit instruction to label this point in the object code with the value of tempLabel
+	emit("." + tempLabel + ":", "", "", "; end repeat");
+
+	// push tempLabel onto operandStk
+	pushOperand(tempLabel);
+
+	// deassign operands from all registers (is this right?)
+	contentsOfAReg = "";
 }
 
 // ---------------------------------------------------------------------------------
@@ -3294,6 +3303,33 @@ void emitUntilCode(string operand1, string operand2)
 	free operand1's name for reuse
 	deassign operands from all registers
 	*/
+
+	if (symbolTable.at(operand1).getDataType != BOOLEAN)
+	{
+		processError("the predicate of \"if\" must be of type BOOLEAN");
+	}
+
+	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
+	{
+		// instruction to move operand1 to the A register
+		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());
+
+		// instruction to compare the A register to zero (false)
+		emit("", "cmp", "eax, 0", "compare eax to zero");
+
+		// code to branch to tempLabel if the compare indicates equality
+		emit("", "je", "." + operand2, "; if " + operand2 + " is false then jump to end of if");
+	}
+
+	// if operand1 is a temp
+	if (isTemporary(operand1))
+	{
+		// free operand's name for reuse (is this right?)
+		freeTemp();
+	}
+
+	// deassign operands from all registers (is this right?)
+	contentsOfAReg = "";
 }
 
 // ---------------------------------------------------------------------------------
