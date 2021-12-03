@@ -200,30 +200,37 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 
     nextToken();
 	
-	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") 
+	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin" || token == "if" || token == "while" || token == "repeat") 
 	{
 		execStmts();	//make call to execStmts
 	}
 
-    if (token != "end")
+    if (token == "end")
     {
 		error =  "keyword \"end\" expected";
 		processError(error);
     }
-
-    if (nextToken() != ".") 
+	
+	nextToken();
+	
+    if (token == ".") 
     {
-		processError("period expected");
+		code("end", ".");
     }
-
-    nextToken();
-    code("end", ".");	//code "end"
+	else if (token == ";")
+	{
+		code("end", ";");
+	}
+	else
+	{
+		processError("'.' or ';' expected following \"end\"");
+	}
 }
 
 //process execution statements
 void Compiler::execStmts()	//stage 1 production 2
 {  
-    if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin")
+    if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin" || token == "if" || token == "while" || token == "repeat" || token == ";")
 	{
 		execStmt();
 		nextToken();
@@ -234,14 +241,14 @@ void Compiler::execStmts()	//stage 1 production 2
 
 	else
 	{
-		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected");		//error here
+		processError("non-keyword identifier, \"read\", \"write\", \"begin\", \"if\", \"while\", \"repeat\" or \";\" expected");		//error here
 	}
 }
 
 //process execution statement
 void Compiler::execStmt()	//stage 1 production 3
 {	
-    if (isNonKeyId(token))
+    if (isNonKeyId(token) && token != "if" && token != "while" && token != "repeat" && token != ";" && token != "else")
     {
       assignStmt();
     }
@@ -252,6 +259,26 @@ void Compiler::execStmt()	//stage 1 production 3
     else if (token == "write")
     {
       writeStmt();
+    }
+	 if (token == "if")
+    {
+      ifStmt();
+    }
+    else if (token == "while")
+    {
+      whileStmt();
+    }
+    else if (token == "repeat")
+    {
+	  repeatStmt();
+    }
+	else if (token == ";")
+    {
+      nullStmt();
+    }
+	else if (token == "else")
+    {
+      elsePt();
     }
     else
     {
@@ -382,7 +409,6 @@ void Compiler::ifStmt() // stage 2, production 3
   	}
 	  
 	express();
-	nextToken();
 
 	if (token != "then")
 	{
@@ -442,7 +468,7 @@ void Compiler::whileStmt() // stage 2, production 5
 
 	express();
 	
-	if (nextToken() != "do")
+	if (token != "do")
 	{
 		processError("error");
 	}
@@ -454,8 +480,11 @@ void Compiler::whileStmt() // stage 2, production 5
 	{
 		execStmt();
 	}
+	
+	string second = popOperand();
+	string first = popOperand();
 
-	code("post_while", popOperand(), popOperand());
+	code("post_while", second, first);
 }
 
  // ---------------------------------------------------------------------------------
@@ -617,7 +646,7 @@ void Compiler::factor()	//stage 1 production 13
 	}
 
 	//{'<>','=','<=','>=','<','>',')',';','-','+','or'}
-	else if (token == "<>" || token == "=" || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin")
+	else if (isNonKeyId(token) || token == "<>" || token == "=" || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin")
 	{
 
 	}
@@ -1379,6 +1408,39 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 	{
 		emitAssignCode(operand1, operand2);
 	}
+	else if (op == "if")
+	{
+		emitPostIfCode(operand1, "");
+	}
+
+	else if (op == "then")
+	{
+		emitThenCode(operand1, "");
+	}
+
+	else if (op == "else")
+	{
+		emitElseCode(operand1, "");
+	}
+	
+	else if (op == "while")
+	{
+		emitWhileCode("", "");
+	}
+	
+	else if (op == "do")
+	{
+		emitDoCode(operand1, "");
+	}
+	else if (op == "repeat")
+	{
+		emitRepeatCode("", "");
+	}
+	
+	else if (op == "until")
+	{
+		emitUntilCode(operand1, operand2);
+	}
 	else
 	{
 		processError("compiler error; function code called with illegal arguments");
@@ -1705,12 +1767,10 @@ void Compiler::emitWriteCode(string operand, string)
 					//emit code to resume .text SECTION
 					emit("SECTION", ".text");
 				}
-
 			}
 			
 			//emit code to call the Irvine Crlf function
 			emit("", "call", "Crlf", "; write \\r\\n to standard out");
-		}
 	}
 }
 // --------------------------------------------------------------------------------- 
@@ -3106,7 +3166,7 @@ void Compiler::emitGreaterThanOrEqualToCode(string operand1, string operand2) //
 
 // Emit functions for Stage 2
 // emit code which follows 'then' and statement predicate
-void Compiler::emitThenCode(string operand1, string = "")
+void Compiler::emitThenCode(string operand1, string)
 {
 	/*
 	if the type of operand1 is not boolean
@@ -3125,7 +3185,7 @@ void Compiler::emitThenCode(string operand1, string = "")
 
 	string tempLabel;
 
-	if (symbolTable.at(operand1).getDataType != BOOLEAN)
+	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
 	{
 		processError("the predicate of \"if\" must be of type BOOLEAN");
 	}
@@ -3157,7 +3217,7 @@ void Compiler::emitThenCode(string operand1, string = "")
 // ---------------------------------------------------------------------------------
 
 // emit code which follows 'else' clause of 'if' statement
-void Compiler::emitElseCode(string operand1, string = "")
+void Compiler::emitElseCode(string operand1, string)
 {
 	string tempLabel;
 
@@ -3180,7 +3240,7 @@ void Compiler::emitElseCode(string operand1, string = "")
 // ---------------------------------------------------------------------------------
 
 // emit code which follows end of 'if' statement 
-void Compiler::emitPostIfCode(string operand1, string = "")
+void Compiler::emitPostIfCode(string operand1, string)
 {
 	//emit instruction to label this point of object code with the argument operand1
 	emit ("." + operand1 + ":", "", "", "; if");	
@@ -3192,7 +3252,7 @@ void Compiler::emitPostIfCode(string operand1, string = "")
 // ---------------------------------------------------------------------------------
 
 // emit code following 'while'
-void Compiler::emitWhileCode(string = "", string = "")
+void Compiler::emitWhileCode(string, string)
 {
 	string tempLabel;
 
@@ -3212,7 +3272,7 @@ void Compiler::emitWhileCode(string = "", string = "")
 // ---------------------------------------------------------------------------------
 
 // emit code following 'do'
-void Compiler::emitDoCode(string operand1, string = "")
+void Compiler::emitDoCode(string operand1, string)
 {
 	string tempLabel;
 
@@ -3252,7 +3312,7 @@ void Compiler::emitDoCode(string operand1, string = "")
 // emit code at end of 'while' loop;
 // operand2 is the label of the beginning of the loop
 // operand1 is the label which should follow the end of the loop
-void emitPostWhileCode(string operand1, string operand2)
+void Compiler::emitPostWhileCode(string operand1, string operand2)
 {
 	// emit instruction which branches unconditionally to the beginning of the loop, i.e., to the value of operand2
 	emit("", "jmp", "." + symbolTable.at(operand2).getInternalName(), "; unconditional jump");
@@ -3267,7 +3327,7 @@ void emitPostWhileCode(string operand1, string operand2)
 // ---------------------------------------------------------------------------------
 
 // emit code which follows 'repeat'
-void emitRepeatCode(string = "", string = "")
+void Compiler::emitRepeatCode(string, string)
 {
 
 	string tempLabel;
@@ -3290,7 +3350,7 @@ void emitRepeatCode(string = "", string = "")
 // emit code which follows 'until' and the predicate of loop
 // operand1 is the value of the predicate
 // operand2 is the label which points to the beginning of the loop
-void emitUntilCode(string operand1, string operand2)
+void Compiler::emitUntilCode(string operand1, string operand2)
 {
 	/*
 	if the type of operand1 is not boolean
@@ -3304,7 +3364,7 @@ void emitUntilCode(string operand1, string operand2)
 	deassign operands from all registers
 	*/
 
-	if (symbolTable.at(operand1).getDataType != BOOLEAN)
+	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
 	{
 		processError("the predicate of \"if\" must be of type BOOLEAN");
 	}
