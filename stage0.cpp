@@ -216,10 +216,12 @@ void Compiler::beginEndStmt()	//stage 1 production 1
     if (token == ".") 
     {
 		code("end", ".");
+		token[0] = '$';
     }
 	else if (token == ";")
 	{
 		code("end", ";");
+		token[0] = '$';
 	}
 	else
 	{
