@@ -205,7 +205,7 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 		execStmts();	//make call to execStmts
 	}
 
-    if (token == "end")
+    if (token != "end")
     {
 		error =  "keyword \"end\" expected";
 		processError(error);
