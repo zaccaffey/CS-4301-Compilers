@@ -202,7 +202,7 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 
     nextToken();
 	
-	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin" || token == "if" || token == "while" || token == "repeat") 
+	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") 
 	{
 		execStmts();	//make call to execStmts
 	}
@@ -234,17 +234,19 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 //process execution statements
 void Compiler::execStmts()	//stage 1 production 2
 {  
-    //if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin")
-	execStmt();
-	nextToken();
-	execStmts();
+    if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin")
+	{
+		execStmt();
+		nextToken();
+		execStmts();
+	}
 
 	
 	if (token == "end");
 
 	else
 	{
-		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected");		//error here
+		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected" + token);		//error here
 	}
 }
 
@@ -464,7 +466,7 @@ void Compiler::whileStmt() // stage 2, production 5
 	string second = popOperand();
 	string first = popOperand();
 	
-	code("post_while", second, first);
+	code("while", second, first);
 }
 
  // ---------------------------------------------------------------------------------
@@ -626,7 +628,7 @@ void Compiler::factor()	//stage 1 production 13
 	}
 
 	//{'<>','=','<=','>=','<','>',')',';','-','+','or'}
-	else if (isNonKeyId(token) || token == "<>" || token == "=" || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin")
+	else if (isNonKeyId(token) || token == "<>" || token == "=" || token == "<=" || token == ">=" || token == "<" || token == ">" || token == ")" || token == ";" || token == "-" || token == "+" || token == "or" || token == "begin" || token == "do" || token == "then")
 	{
 
 	}
@@ -1426,7 +1428,7 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 	}
 	else
 	{
-		processError("compiler error; function code called with illegal arguments");
+		processError("compiler error; function code called with illegal arguments" + op);
 	}
 }
 
