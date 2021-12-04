@@ -205,7 +205,7 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 		execStmts();	//make call to execStmts
 	}
 
-    if (token != "end")
+    if (token == "end")
     {
 		error =  "keyword \"end\" expected";
 		processError(error);
@@ -216,12 +216,10 @@ void Compiler::beginEndStmt()	//stage 1 production 1
     if (token == ".") 
     {
 		code("end", ".");
-		token[0] = '$';
     }
 	else if (token == ";")
 	{
 		code("end", ";");
-		token[0] = '$';
 	}
 	else
 	{
@@ -1042,10 +1040,7 @@ string Compiler::ids() //token should be NON_KEY_ID
 
 bool Compiler::isKeyword(string s) const //determines if s is a keyword
 {
-	if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" 
-	|| s == "begin" || s == "end" || s == "true" || s == "false" || s == "not" || s == "mod" 
-	|| s == "div" || s == "and" || s == "or" || s == "read" || s == "write" || s == "if"
-	|| s == "then" || s == "else" || s == "while" || s == "do" || s == "repeat" || s == "until")
+	if (s == "program" || s == "const" || s == "var" || s == "integer" || s == "boolean" || s == "begin" || s == "end" || s == "true" || s == "false" || s == "not" || s == "mod" || s == "div" || s == "and" || s == "or" || s == "read" || s == "write")
 	{
 		return true;
 	}
