@@ -202,10 +202,10 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 
     nextToken();
 	
-	if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") 
-	{
-		execStmts();	//make call to execStmts
-	}
+	//if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") 
+	//{
+	execStmts();	//make call to execStmts
+	//}
 
     if (token != "end")
     {
@@ -223,7 +223,6 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 	else if (token == ";")
 	{
 		code("end", ";");
-		token[0] = '$';
 	}
 	else
 	{
@@ -234,19 +233,21 @@ void Compiler::beginEndStmt()	//stage 1 production 1
 //process execution statements
 void Compiler::execStmts()	//stage 1 production 2
 {  
-    if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin")
+    if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin" || token == "if" || token == "while" || token == "repeat" || token == ";")
 	{
 		execStmt();
-		nextToken();
+		//nextToken();
 		execStmts();
 	}
 
 	
-	if (token == "end");
+	else if (token == "end");
+	
+	else if (token == "until");
 
 	else
 	{
-		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected" + token);		//error here
+		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected " + token);		//error here
 	}
 }
 
@@ -257,6 +258,14 @@ void Compiler::execStmt()	//stage 1 production 3
     {
       assignStmt();
     }
+	else if (token == "begin")
+	{
+		beginEndStmt();
+	}
+	else if (token == "end")
+	{
+		return;
+	}
     else if (token == "read")
     {
       readStmt();
@@ -281,13 +290,9 @@ void Compiler::execStmt()	//stage 1 production 3
     {
       nullStmt();
     }
-	else if (token == "else")
-    {
-      elsePt();
-    }
     else
     {
-      processError("non-keyword id, \"read\", or \"write\" expected");
+      processError("non-keyword id, \"read\", or \"write\" expected " + token);
     }
 }
 
@@ -420,7 +425,7 @@ void Compiler::ifStmt() // stage 2, production 3
 		execStmt();
 	}
 	
-	nextToken();	//not sure if this is necessary
+	//if (token == "else")
 	elsePt();
 }
  
@@ -431,13 +436,23 @@ void Compiler::elsePt() // stage 2, production 4
 	if (token == "else")
 	{	
 		string temp = popOperand();
-		emitElseCode(temp);
+		code("else", temp);
 		nextToken();
+
 		execStmt();
+		code("post_if", popOperand());
+	}
+	else if (isNonKeyId(token) || token == "end" || token == "write" || token == "read" || token == "repeat" || token == "if" || token == "while" || token == "begin" || token == "until" || token == ";")
+	{
+		code("post_if", popOperand());
+	}
+	else
+	{
+		processError("error343 " + token);
 	}
 	
-	string temp1 = popOperand();
-	emitPostIfCode(temp1);
+	//string temp1 = popOperand();
+	//code("if", temp1);
 }
 
  // ---------------------------------------------------------------------------------
@@ -466,7 +481,7 @@ void Compiler::whileStmt() // stage 2, production 5
 	string second = popOperand();
 	string first = popOperand();
 	
-	code("while", second, first);
+	code("post_while", second, first);
 }
 
  // ---------------------------------------------------------------------------------
@@ -483,22 +498,26 @@ void Compiler::repeatStmt() // stage 2, production 6
 
 	if (!isNonKeyId(token) && token != "read" && token != "write")
 	{
-		processError("error");
+		processError("error1");
 	}
-
+	
 	execStmts();
 
-	if (nextToken() != "until")
+	if (token != "until")
 	{
-		processError("error");
+		processError("error2" + token);
 	}
-
-	express();
-	code("until", popOperand(), popOperand());
 	
-	if (nextToken() != ";")
+	nextToken();
+	express();
+	string second = popOperand();
+	string first = popOperand();
+	
+	code("until", second, first);
+	
+	if (token != ";")
 	{
-		processError("error");
+		processError("error3");
 	}
 }
 
@@ -508,8 +527,9 @@ void Compiler::nullStmt() // stage 2, production 7
 {
 	if (token != ";")
 	{
-		processError("error");
+		processError("error4");
 	}
+	nextToken();
 }
 
 // {'not','true','false','(','+','-', INTEGER, NON_KEY_ID}
@@ -1393,38 +1413,43 @@ void Compiler::code(string op, string operand1, string operand2)	//Calls emitPro
 	{
 		emitAssignCode(operand1, operand2);
 	}
-	else if (op == "if")
-	{
-		emitPostIfCode(operand1, "");
-	}
 
 	else if (op == "then")
 	{
-		emitThenCode(operand1, "");
+		emitThenCode(operand1);
 	}
 
 	else if (op == "else")
 	{
-		emitElseCode(operand1, "");
+		emitElseCode(operand1);
 	}
 	
 	else if (op == "while")
 	{
-		emitWhileCode("", "");
+		emitWhileCode();
 	}
 	
 	else if (op == "do")
 	{
-		emitDoCode(operand1, "");
+		emitDoCode(operand1);
 	}
 	else if (op == "repeat")
 	{
-		emitRepeatCode("", "");
+		emitRepeatCode();
 	}
 	
 	else if (op == "until")
 	{
 		emitUntilCode(operand1, operand2);
+	}
+	else if (op == "post_if")
+	{
+		emitPostIfCode(operand1);
+	}
+	
+	else if (op == "post_while")
+	{
+		emitPostWhileCode(operand1, operand2);
 	}
 	else
 	{
@@ -2735,7 +2760,8 @@ void Compiler::emitLessThanCode(string operand1, string operand2) // op2 < op1
 	
 	else if (contentsOfAReg == symbolTable.at(operand1).getInternalName())
 	{
-		emit("","cmp", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; compare " + operand1 + " and " + operand2);
+		emit("", "mov", "eax,[" + symbolTable.at(operand2).getInternalName() + "]", "; AReg = " + operand2);
+		emit("","cmp", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; compare " + operand2 + " and " + operand1);
 	}
 
 	//emit code to jump if NOT equal to the next available Ln (call getLabel)
@@ -3181,9 +3207,10 @@ void Compiler::emitThenCode(string operand1, string)
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());	// instruction to move operand1 to the A register
-		emit("", "cmp", "eax, 0", "compare eax to zero");	// instruction to compare the A register to zero (false)
-		emit("", "je", "." + tempLabel, "; if " + tempLabel + " is false then jump to end of if");	// code to branch to tempLabel if the compare indicates equality
 	}
+	
+	emit("", "cmp", "eax,0", "; compare eax to 0");	// instruction to compare the A register to zero (false)
+	emit("", "je", "." + tempLabel, "; if " + symbolTable.at(operand1).getInternalName() + " is false then jump to end of if");	// code to branch to tempLabel if the compare indicates equality
 
 	// push tempLabel onto operandStk
 	pushOperand(tempLabel);
@@ -3210,7 +3237,7 @@ void Compiler::emitElseCode(string operand1, string)
 	tempLabel = getLabel();
 
 	// emit instruction to branch unconditionally to tempLabel
-	emit("", "jmp", "." + tempLabel, "; unconditional jump");
+	emit("", "jmp", "." + tempLabel, "; jump to end if");
 
 	// emit instruction to label this point of object code with the argument operand1
 	emit ("." + operand1 + ":", "", "", "; else");	
@@ -3228,7 +3255,7 @@ void Compiler::emitElseCode(string operand1, string)
 void Compiler::emitPostIfCode(string operand1, string)
 {
 	//emit instruction to label this point of object code with the argument operand1
-	emit ("." + operand1 + ":", "", "", "; if");	
+	emit ("." + operand1 + ":", "", "", "; end if");	
 
  	//deassign operands from all registers
 	contentsOfAReg = "";
@@ -3274,9 +3301,10 @@ void Compiler::emitDoCode(string operand1, string)
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
 		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());	// instruction to move operand1 to the A register
-		emit("", "cmp", "eax, 0", "compare eax to zero");	// instruction to compare the A register to zero (false)
-		emit("", "je", "." + tempLabel, "; if " + tempLabel + " is false then jump to end of do");	// code to branch to tempLabel if the compare indicates equality
 	}
+	
+	emit("", "cmp", "eax,0", "; compare eax to 0");	// instruction to compare the A register to zero (false)
+	emit("", "je", "." + tempLabel, "; if " + symbolTable.at(operand1).getInternalName() + " is false then jump to end while");	// code to branch to tempLabel if the compare indicates equality
 
 	// push tempLabel onto operandStk
 	pushOperand(tempLabel);
@@ -3300,10 +3328,10 @@ void Compiler::emitDoCode(string operand1, string)
 void Compiler::emitPostWhileCode(string operand1, string operand2)
 {
 	// emit instruction which branches unconditionally to the beginning of the loop, i.e., to the value of operand2
-	emit("", "jmp", "." + symbolTable.at(operand2).getInternalName(), "; unconditional jump");
+	emit("", "jmp", "." + operand2, "; end while");
 
 	// emit instruction which labels this point of the object code with the argument operand1
-	emit ("." + operand1 + ":", "", "", "; end while");	
+	emit ("." + operand1 + ":", "", "", "");	
 
 	// deassign operands from all registers (is this right?)
 	contentsOfAReg = "";
@@ -3358,13 +3386,13 @@ void Compiler::emitUntilCode(string operand1, string operand2)
 	{
 		// instruction to move operand1 to the A register
 		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());
-
-		// instruction to compare the A register to zero (false)
-		emit("", "cmp", "eax, 0", "compare eax to zero");
-
-		// code to branch to tempLabel if the compare indicates equality
-		emit("", "je", "." + operand2, "; if " + operand2 + " is false then jump to end of if");
 	}
+	
+	// instruction to compare the A register to zero (false)
+	emit("", "cmp", "eax,0", "; compare eax to 0");
+
+	// code to branch to tempLabel if the compare indicates equality
+	emit("", "je", "." + operand2, "; if " + operand2 + " is false then jump to end if");
 
 	// if operand1 is a temp
 	if (isTemporary(operand1))
