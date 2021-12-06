@@ -32,7 +32,7 @@ void Compiler::createListingHeader()
 	time_t now = time(0);
 	char* time = ctime(&now);
 	// outputs our names and the time of compilation
-	listingFile << "STAGE1:  Zac Caffey and Cameron Ley       " << time << endl;
+	listingFile << "STAGE2:  Zac Caffey and Cameron Ley       " << time << endl;
 	listingFile << "LINE NO.              " << "SOURCE STATEMENT" << endl << endl;
 }
 
@@ -201,11 +201,8 @@ void Compiler::beginEndStmt()	//stage 1 production 1
     }
 
     nextToken();
-	
-	//if (isNonKeyId(token) || token == "read" || token == "write" || token == ";" || token == "begin") 
-	//{
 	execStmts();	//make call to execStmts
-	//}
+	
 
     if (token != "end")
     {
@@ -222,13 +219,17 @@ void Compiler::beginEndStmt()	//stage 1 production 1
     }
 	else if (token == ";")
 	{
-		code("end", ";");
+		//code("end", ";");
 	}
+
 	else
 	{
 		processError("'.' or ';' expected following \"end\"");
 	}
+	
 }
+
+// ---------------------------------------------------------------------------------
  
 //process execution statements
 void Compiler::execStmts()	//stage 1 production 2
@@ -236,7 +237,6 @@ void Compiler::execStmts()	//stage 1 production 2
     if (isNonKeyId(token) || token == "read" || token == "write" || token == "begin" || token == "if" || token == "while" || token == "repeat" || token == ";")
 	{
 		execStmt();
-		//nextToken();
 		execStmts();
 	}
 
@@ -247,9 +247,11 @@ void Compiler::execStmts()	//stage 1 production 2
 
 	else
 	{
-		processError("non-keyword identifier, \"read\", \"write\", or \"begin\" expected " + token);		//error here
+		processError("one of \";\", \"begin\", \"if\", \"read\", \"repeat\", \"while\", \"write\", \"end\", or \"until\" expected");		//error here
 	}
 }
+
+// ---------------------------------------------------------------------------------
 
 //process execution statement
 void Compiler::execStmt()	//stage 1 production 3
@@ -292,9 +294,11 @@ void Compiler::execStmt()	//stage 1 production 3
     }
     else
     {
-      processError("non-keyword id, \"read\", or \"write\" expected " + token);
+      processError("non-keyword id, \"read\", or \"write\" expected ");
     }
 }
+
+// ---------------------------------------------------------------------------------
 
 //process assign statement
 void Compiler::assignStmt()	//stage 1 production 4
@@ -336,6 +340,8 @@ void Compiler::assignStmt()	//stage 1 production 4
 
 }
 
+// ---------------------------------------------------------------------------------
+
 //process read statement
 void Compiler::readStmt()	//stage 1 production 5
 {
@@ -369,6 +375,8 @@ void Compiler::readStmt()	//stage 1 production 5
 	}
 }
 
+// ---------------------------------------------------------------------------------
+
 //process write statement
 void Compiler::writeStmt()	//stage 1 production 7
 {
@@ -401,6 +409,9 @@ void Compiler::writeStmt()	//stage 1 production 7
 	processError("';' expected");
 	}
 }
+
+// ---------------------------------------------------------------------------------
+
 void Compiler::ifStmt() // stage 2, production 3
 {	
 	if (token != "if")
@@ -425,7 +436,6 @@ void Compiler::ifStmt() // stage 2, production 3
 		execStmt();
 	}
 	
-	//if (token == "else")
 	elsePt();
 }
  
@@ -448,20 +458,17 @@ void Compiler::elsePt() // stage 2, production 4
 	}
 	else
 	{
-		processError("error343 " + token);
+		processError("illegal character");
 	}
-	
-	//string temp1 = popOperand();
-	//code("if", temp1);
 }
 
- // ---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 
 void Compiler::whileStmt() // stage 2, production 5
 {
 	if (token != "while")
 	{
-		processError("error34");
+		processError("received " + token + " expected while");
 	}
 	
 	code("while");
@@ -470,7 +477,7 @@ void Compiler::whileStmt() // stage 2, production 5
 	
 	if (token != "do")
 	{
-		processError("error");
+		processError("received " + token + " expected do");
 	}
 	
 	code("do", popOperand());
@@ -484,19 +491,19 @@ void Compiler::whileStmt() // stage 2, production 5
 	code("post_while", second, first);
 }
 
- // ---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 
 void Compiler::repeatStmt() // stage 2, production 6
 {
 	if (token != "repeat")
 	{
-		processError("error");
+		processError("received " + token + " expected repeat");
 	}
 
 	code("repeat");
 	nextToken();
 
-	if (!isNonKeyId(token) && token != "read" && token != "write")
+	if (!isNonKeyId(token) && token != "read" && token != "write" && token != "end" && token != "write" && token != "read" && token != "repeat" && token != "if" && token != "while" && token != "begin" && token != "until" && token != ";")
 	{
 		processError("error1");
 	}
@@ -517,20 +524,22 @@ void Compiler::repeatStmt() // stage 2, production 6
 	
 	if (token != ";")
 	{
-		processError("error3");
+		processError("received " + token + " expected ;");
 	}
 }
 
- // ---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 
 void Compiler::nullStmt() // stage 2, production 7
 {
 	if (token != ";")
 	{
-		processError("error4");
+		processError("received " + token + " expected ;");
 	}
 	nextToken();
 }
+
+// ---------------------------------------------------------------------------------
 
 // {'not','true','false','(','+','-', INTEGER, NON_KEY_ID}
 void Compiler::express()	//stage 1 production 9
@@ -547,6 +556,8 @@ void Compiler::express()	//stage 1 production 9
 		expresses();
 	}
 }
+
+// ---------------------------------------------------------------------------------
 
 // {'<>','=','<=','>=','<','>'}
 void Compiler::expresses()	//stage 1 production 10
@@ -580,6 +591,8 @@ void Compiler::expresses()	//stage 1 production 10
 	}
 }
 
+// ---------------------------------------------------------------------------------
+
 // {'not','true','false','(','+','-',INTEGER,NON_KEY_ID}
 void Compiler::term()	//stage 1 production 11
 {
@@ -596,6 +609,8 @@ void Compiler::term()	//stage 1 production 11
 		terms();
 	}
 }
+
+// ---------------------------------------------------------------------------------
 
 // {'-','+','or'}
 void Compiler::terms() //stage 1 production 12
@@ -629,6 +644,8 @@ void Compiler::terms() //stage 1 production 12
 	}
 }
 
+// ---------------------------------------------------------------------------------
+
 // {'not','true','false','(','+','-',INTEGER,NON_KEY_ID}
 void Compiler::factor()	//stage 1 production 13
 {
@@ -659,6 +676,8 @@ void Compiler::factor()	//stage 1 production 13
 	}
 }
 
+// ---------------------------------------------------------------------------------
+
 // {'*','div','mod','and'}
 void Compiler::factors()	//stage 1 production 14
 {
@@ -672,9 +691,9 @@ void Compiler::factors()	//stage 1 production 14
 	pushOperator(token);
 	nextToken();
 	
-	if (token != "not" && token != "(" && !isBoolean(token) && !isNonKeyId(token) && token != "+" && token != "-" && token != "true" && token != "false")
+	if (token != "not" && token != "(" && !isInteger(token) && !isNonKeyId(token) && token != "+" && token != "-" && token != "true" && token != "false")
 	{
-		processError("expected '(', boolean, or non-keyword id");
+		processError("expected '(', integer, or non-keyword id " + token);
 	}
 
 	part();
@@ -689,6 +708,8 @@ void Compiler::factors()	//stage 1 production 14
 		factors();
 	}
 }
+
+// ---------------------------------------------------------------------------------
 
 // {"not", '+', '-', '(', INTEGER, BOOLEAN, NON_KEYID}
 void Compiler::part()	//stage 1 production 15
@@ -3193,7 +3214,7 @@ void Compiler::emitThenCode(string operand1, string)
 	free operand's name for reuse
 	deassign operands from all registers
 	*/
-
+	
 	string tempLabel;
 
 	if (symbolTable.at(operand1).getDataType() != BOOLEAN)
@@ -3206,11 +3227,11 @@ void Compiler::emitThenCode(string operand1, string)
 
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
-		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());	// instruction to move operand1 to the A register
+		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand1);	// instruction to move operand1 to the A register
 	}
 	
 	emit("", "cmp", "eax,0", "; compare eax to 0");	// instruction to compare the A register to zero (false)
-	emit("", "je", "." + tempLabel, "; if " + symbolTable.at(operand1).getInternalName() + " is false then jump to end of if");	// code to branch to tempLabel if the compare indicates equality
+	emit("", "je", "." + tempLabel, "; if " + operand1 + " is false then jump to end of if");	// code to branch to tempLabel if the compare indicates equality
 
 	// push tempLabel onto operandStk
 	pushOperand(tempLabel);
@@ -3300,11 +3321,11 @@ void Compiler::emitDoCode(string operand1, string)
 	// if operand1 is not in the A register then
 	if (contentsOfAReg != symbolTable.at(operand1).getInternalName())
 	{
-		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());	// instruction to move operand1 to the A register
+		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + operand1);	// instruction to move operand1 to the A register
 	}
 	
 	emit("", "cmp", "eax,0", "; compare eax to 0");	// instruction to compare the A register to zero (false)
-	emit("", "je", "." + tempLabel, "; if " + symbolTable.at(operand1).getInternalName() + " is false then jump to end while");	// code to branch to tempLabel if the compare indicates equality
+	emit("", "je", "." + tempLabel, "; if " + operand1 + " is false then jump to end while");	// code to branch to tempLabel if the compare indicates equality
 
 	// push tempLabel onto operandStk
 	pushOperand(tempLabel);
@@ -3349,7 +3370,7 @@ void Compiler::emitRepeatCode(string, string)
 	tempLabel = getLabel();
 
 	// emit instruction to label this point in the object code with the value of tempLabel
-	emit("." + tempLabel + ":", "", "", "; end repeat");
+	emit("." + tempLabel + ":", "", "", "; repeat");
 
 	// push tempLabel onto operandStk
 	pushOperand(tempLabel);
@@ -3386,13 +3407,14 @@ void Compiler::emitUntilCode(string operand1, string operand2)
 	{
 		// instruction to move operand1 to the A register
 		emit("", "mov", "eax,[" + symbolTable.at(operand1).getInternalName() + "]", "; AReg = " + symbolTable.at(operand1).getInternalName());
+		contentsOfAReg = symbolTable.at(operand1).getInternalName(); // reassign
 	}
 	
 	// instruction to compare the A register to zero (false)
 	emit("", "cmp", "eax,0", "; compare eax to 0");
 
 	// code to branch to tempLabel if the compare indicates equality
-	emit("", "je", "." + operand2, "; if " + operand2 + " is false then jump to end if");
+	emit("", "je", "." + operand2, "; until " + operand1 + " is true");
 
 	// if operand1 is a temp
 	if (isTemporary(operand1))
